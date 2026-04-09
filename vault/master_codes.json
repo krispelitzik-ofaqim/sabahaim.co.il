@@ -1,0 +1,27 @@
+{
+  "codes": [
+    {
+      "code": "Y17081966K",
+      "name": "מאסטר 1",
+      "active": true,
+      "uses": 8,
+      "createdAt": "2026-04-09T00:00:00.000Z",
+      "lastUsed": "2026-04-09T11:56:32.203Z"
+    },
+    {
+      "code": "N06021999K",
+      "name": "מאסטר 2",
+      "active": true,
+      "uses": 4,
+      "createdAt": "2026-04-09T00:00:00.000Z",
+      "lastUsed": "2026-04-09T11:38:49.773Z"
+    },
+    {
+      "code": "O15021971L",
+      "name": "מאסטר 3",
+      "active": true,
+      "uses": 0,
+      "createdAt": "2026-04-09T00:00:00.000Z"
+    }
+  ]
+}

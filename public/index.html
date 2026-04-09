@@ -1,0 +1,3046 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>הצופן הסודי | The Secret Code</title>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    @import url('https://fonts.googleapis.com/css2?family=Assistant:wght@400;600;700;800&display=swap');
+    body {
+      font-family: 'Assistant', sans-serif;
+      background: #0a0e14;
+      color: #e0d5c0;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ===== SCREENS ===== */
+    .screen { display:none; min-height:100vh; flex-direction:column; align-items:center; justify-content:center; padding:20px; }
+    .screen.active { display:flex; }
+
+    /* ===== GATE SCREEN ===== */
+    #screen-gate {
+      background: radial-gradient(ellipse at center, #1e1a10 0%, #0a0e14 70%);
+      position: relative;
+      overflow: hidden;
+    }
+
+    #screen-gate::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="60" height="60"><circle cx="30" cy="30" r="1" fill="rgba(201,168,76,0.08)"/></svg>') repeat;
+      pointer-events: none;
+    }
+
+    .gate-container {
+      text-align: center;
+      max-width: 440px;
+      width: 100%;
+      position: relative;
+      z-index: 1;
+    }
+
+    .gate-logo {
+      width: 200px;
+      height: 200px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin: 0 auto 24px;
+      display: block;
+      box-shadow: 0 0 50px rgba(201,168,76,0.25), 0 0 100px rgba(201,168,76,0.1);
+      border: 3px solid rgba(201,168,76,0.4);
+      animation: logo-glow 4s ease-in-out infinite;
+    }
+
+    @keyframes logo-glow {
+      0%, 100% { box-shadow: 0 0 50px rgba(201,168,76,0.25), 0 0 100px rgba(201,168,76,0.1); }
+      50% { box-shadow: 0 0 70px rgba(201,168,76,0.4), 0 0 120px rgba(201,168,76,0.15); }
+    }
+
+    .gate-title {
+      font-size: 2.2rem;
+      font-weight: 800;
+      color: #c9a84c;
+      margin-bottom: 6px;
+      text-shadow: 0 2px 15px rgba(201,168,76,0.3);
+    }
+
+    .gate-subtitle {
+      font-size: 1rem;
+      color: #a09480;
+      margin-bottom: 8px;
+    }
+
+    .gate-welcome {
+      font-size: 0.9rem;
+      color: #7a6e5a;
+      margin-bottom: 28px;
+      line-height: 1.7;
+    }
+
+    .gate-code-label {
+      font-size: 0.85rem;
+      color: #8a7e6a;
+      margin-bottom: 10px;
+      font-weight: 600;
+    }
+
+    .gate-code-input {
+      width: 260px;
+      height: 56px;
+      background: #0d1117;
+      border: 2px solid #2a2418;
+      border-radius: 12px;
+      color: #c9a84c;
+      font-size: 1.6rem;
+      font-weight: 700;
+      text-align: center;
+      font-family: 'Courier New', monospace;
+      letter-spacing: 3px;
+      outline: none;
+      transition: border-color 0.3s, box-shadow 0.3s;
+      direction: ltr;
+    }
+
+    .gate-code-input:focus {
+      border-color: #c9a84c;
+      box-shadow: 0 0 20px rgba(201,168,76,0.2);
+    }
+
+    .gate-code-input::placeholder {
+      color: #3a3228;
+      letter-spacing: 2px;
+      font-size: 1.2rem;
+    }
+
+    .gate-code-hint {
+      font-size: 0.75rem;
+      color: #5a5040;
+      margin-top: 8px;
+      margin-bottom: 20px;
+    }
+
+    .btn-gate {
+      background: linear-gradient(135deg, #c9a84c, #a08030);
+      color: #0a0e14;
+      border: none;
+      padding: 14px 50px;
+      font-size: 1.15rem;
+      font-weight: 800;
+      border-radius: 12px;
+      cursor: pointer;
+      font-family: 'Assistant', sans-serif;
+      transition: all 0.3s;
+      box-shadow: 0 4px 20px rgba(201,168,76,0.3);
+    }
+
+    .btn-gate:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px rgba(201,168,76,0.4);
+    }
+
+    .btn-gate:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .gate-error {
+      color: #ff4444;
+      margin-top: 15px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      display: none;
+    }
+
+    .gate-spinner {
+      display: none;
+      margin: 15px auto 0;
+      width: 28px;
+      height: 28px;
+      border: 3px solid rgba(201,168,76,0.2);
+      border-top-color: #c9a84c;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* Purchase Banner */
+    .purchase-banner {
+      display: block;
+      width: 380px;
+      max-width: 100%;
+      height: 120px;
+      margin: 30px auto 0;
+      background: linear-gradient(135deg, #1a0a00 0%, #2a1508 40%, #1a0a00 100%);
+      border: 2px solid #c9a84c;
+      border-radius: 14px;
+      text-decoration: none;
+      padding: 14px 18px;
+      position: relative;
+      overflow: hidden;
+      cursor: pointer;
+      transition: all 0.3s;
+      box-shadow: 0 4px 20px rgba(201,168,76,0.15);
+    }
+
+    .purchase-banner:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px rgba(201,168,76,0.3);
+      border-color: #e0c060;
+    }
+
+    .purchase-banner::before {
+      content: '';
+      position: absolute;
+      top: -50%; left: -50%;
+      width: 200%; height: 200%;
+      background: radial-gradient(circle at 30% 50%, rgba(201,168,76,0.08) 0%, transparent 60%);
+      pointer-events: none;
+    }
+
+    .purchase-badge {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      background: #c9a84c;
+      color: #0a0e14;
+      font-size: 0.65rem;
+      font-weight: 800;
+      padding: 2px 8px;
+      border-radius: 4px;
+    }
+
+    .purchase-text {
+      text-align: right;
+    }
+
+    .purchase-title {
+      color: #c9a84c;
+      font-size: 1.15rem;
+      font-weight: 800;
+      margin-bottom: 6px;
+    }
+
+    .purchase-sub {
+      color: #9a8a6a;
+      font-size: 0.78rem;
+      line-height: 1.5;
+    }
+
+    .purchase-cta {
+      position: absolute;
+      bottom: 12px;
+      left: 18px;
+      background: linear-gradient(135deg, #c9a84c, #a08030);
+      color: #0a0e14;
+      font-size: 0.85rem;
+      font-weight: 800;
+      padding: 6px 16px;
+      border-radius: 8px;
+      direction: ltr;
+    }
+
+    /* Gift Banner */
+    .gift-banner {
+      display: block;
+      width: 380px;
+      max-width: 100%;
+      margin: 25px auto 0;
+      background: linear-gradient(135deg, #0a1a10 0%, #0d2818 40%, #0a1a10 100%);
+      border: 2px solid #00cc66;
+      border-radius: 14px;
+      text-decoration: none;
+      padding: 16px 18px;
+      position: relative;
+      overflow: hidden;
+      cursor: pointer;
+      transition: all 0.3s;
+      box-shadow: 0 4px 20px rgba(0,204,102,0.12);
+    }
+
+    .gift-banner:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px rgba(0,204,102,0.25);
+      border-color: #00ff88;
+    }
+
+    .gift-banner::before {
+      content: '';
+      position: absolute;
+      top: -50%; left: -50%;
+      width: 200%; height: 200%;
+      background: radial-gradient(circle at 70% 50%, rgba(0,204,102,0.06) 0%, transparent 60%);
+      pointer-events: none;
+    }
+
+    .gift-badge {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      background: #00cc66;
+      color: #0a0e14;
+      font-size: 0.65rem;
+      font-weight: 800;
+      padding: 2px 8px;
+      border-radius: 4px;
+    }
+
+    .gift-icon {
+      font-size: 2rem;
+      position: absolute;
+      top: 14px;
+      left: 16px;
+    }
+
+    .gift-text {
+      text-align: right;
+    }
+
+    .gift-title {
+      color: #00ff88;
+      font-size: 1.05rem;
+      font-weight: 800;
+      margin-bottom: 5px;
+    }
+
+    .gift-sub {
+      color: #6a9a7a;
+      font-size: 0.78rem;
+      line-height: 1.5;
+    }
+
+    .gift-cta {
+      display: inline-block;
+      margin-top: 10px;
+      background: linear-gradient(135deg, #00cc66, #009944);
+      color: #fff;
+      font-size: 0.85rem;
+      font-weight: 800;
+      padding: 6px 18px;
+      border-radius: 8px;
+      float: left;
+      direction: ltr;
+    }
+
+    /* ===== VAULT CLOSED ===== */
+    #screen-vault {
+      background: radial-gradient(ellipse at center, #1a1e28 0%, #0a0e14 70%);
+    }
+
+    .vault-container {
+      text-align: center;
+      max-width: 500px;
+      width: 100%;
+    }
+
+    .vault-image {
+      width: 280px;
+      height: 280px;
+      margin: 0 auto 20px;
+      border-radius: 50%;
+      border: 3px solid #3a3228;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      position: relative;
+      box-shadow: 0 0 60px rgba(180,160,100,0.15), inset 0 0 40px rgba(0,0,0,0.5);
+      animation: pulse-glow 3s ease-in-out infinite;
+    }
+
+    .vault-blink {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      border-radius: 50%;
+      pointer-events: none;
+      opacity: 0;
+      background: radial-gradient(circle at 50% 15%, rgba(255,0,0,0.6) 0%, rgba(255,0,0,0.1) 40%, transparent 70%);
+      transition: opacity 0.1s;
+    }
+
+    .vault-blink.blink-on {
+      opacity: 1;
+    }
+
+    /* Green blink for open vault */
+    .vault-image-open {
+      border-color: #00ff88 !important;
+      box-shadow: 0 0 60px rgba(0,255,136,0.3), inset 0 0 40px rgba(0,0,0,0.3) !important;
+      animation: pulse-green 2s ease-in-out infinite !important;
+    }
+
+    @keyframes pulse-green {
+      0%, 100% { box-shadow: 0 0 60px rgba(0,255,136,0.3), inset 0 0 40px rgba(0,0,0,0.3); }
+      50% { box-shadow: 0 0 90px rgba(0,255,136,0.5), inset 0 0 40px rgba(0,0,0,0.3); }
+    }
+
+    .vault-blink-green {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      border-radius: 50%;
+      pointer-events: none;
+      opacity: 0;
+      background: radial-gradient(circle at 50% 15%, rgba(0,255,136,0.5) 0%, rgba(0,255,136,0.1) 40%, transparent 70%);
+      transition: opacity 0.1s;
+    }
+
+    .vault-blink-green.blink-on {
+      opacity: 1;
+    }
+
+    .open-urgent {
+      color: #ffaa00;
+      font-size: 1.1rem;
+      font-weight: 700;
+      line-height: 1.8;
+      margin-bottom: 12px;
+      text-shadow: 0 0 10px rgba(255,170,0,0.3);
+    }
+
+    .open-timer {
+      font-family: 'Courier New', monospace;
+      font-size: 2.5rem;
+      font-weight: 800;
+      color: #00ff88;
+      margin-bottom: 20px;
+      text-shadow: 0 0 15px rgba(0,255,136,0.4);
+      letter-spacing: 4px;
+    }
+
+    .open-timer.urgent {
+      color: #ff4444;
+      text-shadow: 0 0 15px rgba(255,68,68,0.5);
+      animation: timer-pulse 0.5s ease-in-out infinite;
+    }
+
+    @keyframes timer-pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+
+    @keyframes pulse-glow {
+      0%, 100% { box-shadow: 0 0 60px rgba(180,160,100,0.15), inset 0 0 40px rgba(0,0,0,0.5); }
+      50% { box-shadow: 0 0 80px rgba(180,160,100,0.25), inset 0 0 40px rgba(0,0,0,0.5); }
+    }
+
+    .vault-title {
+      font-size: 2rem;
+      font-weight: 800;
+      color: #c9a84c;
+      margin-bottom: 8px;
+      text-shadow: 0 2px 10px rgba(201,168,76,0.3);
+    }
+
+    .vault-subtitle {
+      font-size: 0.95rem;
+      color: #8a7e6a;
+      margin-bottom: 30px;
+    }
+
+    /* Flip Clock */
+    .flip-clock {
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+      align-items: center;
+      margin-bottom: 25px;
+      direction: ltr;
+    }
+
+    .flip-sep {
+      font-size: 2.4rem;
+      font-weight: 800;
+      color: #00ff88;
+      text-shadow: 0 0 10px rgba(0,255,136,0.4);
+      line-height: 1;
+    }
+
+    .flip-digit {
+      width: 50px;
+      height: 68px;
+      background: linear-gradient(180deg, #222833 0%, #1a1e28 49.5%, #0a0e14 50%, #1a1e28 50.5%, #151922 100%);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Courier New', monospace;
+      font-size: 2.4rem;
+      font-weight: 800;
+      color: #00ff88;
+      text-shadow: 0 0 12px rgba(0,255,136,0.4);
+      box-shadow: 0 3px 12px rgba(0,0,0,0.5);
+      position: relative;
+      overflow: hidden;
+      transition: color 0.3s, text-shadow 0.3s;
+    }
+
+    /* Center line */
+    .flip-digit::after {
+      content: '';
+      position: absolute;
+      left: 0; right: 0;
+      top: 50%;
+      height: 1px;
+      background: #0a0e14;
+      box-shadow: 0 1px 0 rgba(255,255,255,0.05);
+    }
+
+    /* Tick animation */
+    @keyframes digit-tick {
+      0% { transform: scaleY(1); }
+      20% { transform: scaleY(0.85); }
+      50% { transform: scaleY(1.05); }
+      100% { transform: scaleY(1); }
+    }
+
+    .flip-digit.ticking {
+      animation: digit-tick 0.3s ease;
+    }
+
+    /* Timer states */
+    .flip-clock.warning .flip-digit {
+      color: #ffaa00;
+      text-shadow: 0 0 12px rgba(255,170,0,0.4);
+    }
+    .flip-clock.warning .flip-sep { color: #ffaa00; text-shadow: 0 0 10px rgba(255,170,0,0.4); }
+
+    .flip-clock.danger .flip-digit {
+      color: #ff4444;
+      text-shadow: 0 0 12px rgba(255,68,68,0.5);
+    }
+    .flip-clock.danger .flip-sep { color: #ff4444; text-shadow: 0 0 10px rgba(255,68,68,0.4); }
+
+    /* Attempts display */
+    .attempts-display {
+      font-size: 0.85rem;
+      color: #8a7e6a;
+      margin-bottom: 20px;
+      font-weight: 600;
+    }
+
+    .attempt-dot {
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      margin: 0 3px;
+      background: #2a3a2a;
+      border: 1px solid #3a4a3a;
+      vertical-align: middle;
+    }
+
+    .attempt-dot.used {
+      background: #ff4444;
+      border-color: #ff6666;
+      box-shadow: 0 0 6px rgba(255,68,68,0.4);
+    }
+
+    /* Code inputs */
+    .code-inputs {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      margin-bottom: 25px;
+      direction: ltr;
+    }
+
+    .code-group {
+      text-align: center;
+    }
+
+    .code-label {
+      font-size: 0.75rem;
+      color: #8a7e6a;
+      margin-bottom: 6px;
+      font-weight: 600;
+    }
+
+    .code-input {
+      width: 72px;
+      height: 52px;
+      background: #0d1117;
+      border: 2px solid #2a3a2a;
+      border-radius: 8px;
+      color: #00ff88;
+      font-size: 1.2rem;
+      font-weight: 700;
+      text-align: center;
+      font-family: 'Courier New', monospace;
+      outline: none;
+      transition: border-color 0.3s;
+    }
+
+    .code-input:focus {
+      border-color: #00ff88;
+      box-shadow: 0 0 15px rgba(0,255,136,0.2);
+    }
+
+    .code-input-wide {
+      width: 96px;
+    }
+
+    .btn-open {
+      background: linear-gradient(135deg, #c9a84c, #a08030);
+      color: #0a0e14;
+      border: none;
+      padding: 14px 50px;
+      font-size: 1.2rem;
+      font-weight: 800;
+      border-radius: 12px;
+      cursor: pointer;
+      font-family: 'Assistant', sans-serif;
+      transition: all 0.3s;
+      box-shadow: 0 4px 20px rgba(201,168,76,0.3);
+    }
+
+    .btn-open:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px rgba(201,168,76,0.4);
+    }
+
+    .error-msg {
+      color: #ff4444;
+      margin-top: 15px;
+      font-weight: 600;
+      display: none;
+    }
+
+    /* ===== VAULT OPEN ===== */
+    #screen-open {
+      background: radial-gradient(ellipse at center, #1a2818 0%, #0a0e14 70%);
+    }
+
+    .open-container {
+      text-align: center;
+      max-width: 500px;
+      width: 100%;
+    }
+
+    .open-icon {
+      font-size: 120px;
+      margin-bottom: 20px;
+      animation: bounce-in 0.8s ease;
+    }
+
+    @keyframes bounce-in {
+      0% { transform: scale(0); }
+      50% { transform: scale(1.2); }
+      100% { transform: scale(1); }
+    }
+
+    .open-title {
+      font-size: 2rem;
+      font-weight: 800;
+      color: #00ff88;
+      margin-bottom: 10px;
+      text-shadow: 0 0 20px rgba(0,255,136,0.3);
+    }
+
+    .open-subtitle {
+      font-size: 1rem;
+      color: #8a7e6a;
+      margin-bottom: 30px;
+      line-height: 1.8;
+    }
+
+    .btn-download {
+      background: linear-gradient(135deg, #00ff88, #00cc66);
+      color: #0a0e14;
+      border: none;
+      padding: 16px 40px;
+      font-size: 1.1rem;
+      font-weight: 800;
+      border-radius: 12px;
+      cursor: pointer;
+      font-family: 'Assistant', sans-serif;
+      text-decoration: none;
+      display: inline-block;
+      transition: all 0.3s;
+      box-shadow: 0 4px 20px rgba(0,255,136,0.3);
+    }
+
+    .btn-download:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px rgba(0,255,136,0.4);
+    }
+
+    /* ===== VAULT LOCKED ===== */
+    #screen-locked {
+      background: radial-gradient(ellipse at center, #281a1a 0%, #0a0e14 70%);
+    }
+
+    .locked-icon {
+      font-size: 100px;
+      margin-bottom: 20px;
+    }
+
+    .locked-title {
+      font-size: 2rem;
+      font-weight: 800;
+      color: #ff4444;
+      margin-bottom: 10px;
+    }
+
+    .locked-text {
+      color: #8a7e6a;
+      margin-bottom: 30px;
+      line-height: 1.8;
+    }
+
+    .btn-retry {
+      background: transparent;
+      border: 2px solid #c9a84c;
+      color: #c9a84c;
+      padding: 12px 40px;
+      font-size: 1rem;
+      font-weight: 700;
+      border-radius: 12px;
+      cursor: pointer;
+      font-family: 'Assistant', sans-serif;
+      transition: all 0.3s;
+    }
+
+    .btn-retry:hover {
+      background: rgba(201,168,76,0.1);
+    }
+
+    /* ===== MATRIX PAGE ===== */
+    #screen-matrix {
+      background: #ffffff;
+      padding-bottom: 80px;
+      align-items: flex-start;
+      justify-content: flex-start;
+      overflow-y: auto;
+    }
+
+    .matrix-wrap {
+      max-width: 760px;
+      width: 100%;
+      padding: 12px;
+    }
+
+    /* Row */
+    .m-row {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 6px;
+      min-height: 52px;
+      align-items: stretch;
+    }
+
+    /* Cube */
+    .m-cube {
+      position: relative;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      font-weight: 600;
+      font-size: 0.82rem;
+      line-height: 1.3;
+      padding: 8px 6px;
+      cursor: grab;
+      user-select: none;
+      transition: transform 0.12s, box-shadow 0.12s, opacity 0.12s;
+      word-break: break-word;
+      -webkit-touch-callout: none;
+      flex-shrink: 0;
+      min-width: 52px;
+      min-height: 52px;
+      border: 2px solid #e8e8e8;
+      background: #fafafa;
+      color: #333;
+    }
+
+    .m-cube:hover {
+      box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+      z-index: 10;
+    }
+
+    .m-cube.dragging {
+      opacity: 0.3;
+      transform: scale(0.95);
+    }
+
+    .m-cube.drag-over {
+      outline: 2px dashed #c9a84c;
+      outline-offset: 2px;
+    }
+
+    /* Cube toolbar */
+    .m-toolbar {
+      display: none;
+      position: absolute;
+      top: -28px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #333;
+      border-radius: 8px;
+      padding: 2px 4px;
+      gap: 2px;
+      z-index: 50;
+      white-space: nowrap;
+    }
+
+    .m-cube:hover .m-toolbar,
+    .m-cube.tb-open .m-toolbar {
+      display: flex;
+    }
+
+    .m-tb-btn {
+      width: 22px;
+      height: 22px;
+      border: none;
+      background: transparent;
+      color: #ccc;
+      font-size: 0.7rem;
+      cursor: pointer;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Assistant', sans-serif;
+    }
+
+    .m-tb-btn:hover { background: #555; color: #fff; }
+
+    /* Row add-button */
+    .m-add-cube {
+      min-width: 36px;
+      min-height: 52px;
+      border: 2px dashed #ddd;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #ccc;
+      font-size: 1.2rem;
+      cursor: pointer;
+      transition: all 0.15s;
+      flex-shrink: 0;
+      background: transparent;
+    }
+
+    .m-add-cube:hover {
+      border-color: #c9a84c;
+      color: #c9a84c;
+      background: rgba(201,168,76,0.04);
+    }
+
+    /* Cube types */
+    .m-cube[data-type="title"] {
+      background: linear-gradient(135deg, #1a1e28, #2a2e38);
+      color: #c9a84c;
+      font-weight: 800;
+      font-size: 1.4rem;
+      border-color: #3a3228;
+    }
+
+    .m-cube[data-type="text"] {
+      background: #f5f5f5;
+      color: #444;
+      border-color: #e0e0e0;
+    }
+
+    .m-cube[data-type="number"] {
+      background: linear-gradient(135deg, #e8f5e9, #c8e6c9);
+      color: #2e7d32;
+      font-family: 'Courier New', monospace;
+      font-size: 1.1rem;
+      font-weight: 700;
+      border-color: #a5d6a7;
+    }
+
+    .m-cube[data-type="symbol"] {
+      background: linear-gradient(135deg, #fff8e1, #ffecb3);
+      color: #bf860a;
+      font-family: 'Courier New', monospace;
+      font-size: 1.3rem;
+      font-weight: 800;
+      border-color: #ffe082;
+    }
+
+    .m-cube[data-type="label"] {
+      background: #fff;
+      color: #888;
+      border: 2px dashed #ddd;
+      font-size: 0.75rem;
+      font-weight: 400;
+    }
+
+    .m-cube[data-type="word"] {
+      background: #f0f4ff;
+      color: #3a5ba0;
+      border-color: #c5cae9;
+      font-weight: 700;
+    }
+
+    .m-cube[data-type="letter"] {
+      background: #fff3e0;
+      color: #e65100;
+      border-color: #ffcc80;
+      font-weight: 800;
+      font-size: 1.1rem;
+    }
+
+    .m-cube[data-type="empty"] {
+      background: rgba(0,0,0,0.02);
+      border: 2px dashed #ddd;
+      color: #ccc;
+      font-size: 1.2rem;
+    }
+
+    .m-cube[data-type="empty"]:hover {
+      border-color: #c9a84c;
+      color: #c9a84c;
+      background: rgba(201,168,76,0.04);
+    }
+
+    .m-cube[data-type="image"] {
+      padding: 0;
+      overflow: hidden;
+    }
+
+    .m-cube[data-type="image"] img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 8px;
+    }
+
+    /* Code number — glowing green */
+    .m-cube[data-type="code"] {
+      background: linear-gradient(135deg, #0a2e14, #0d1a10);
+      color: #00ff88;
+      font-family: 'Courier New', monospace;
+      font-size: 1.3rem;
+      font-weight: 800;
+      border: 2px solid #00ff88;
+      text-shadow: 0 0 12px rgba(0,255,136,0.6), 0 0 30px rgba(0,255,136,0.3);
+      box-shadow: 0 0 16px rgba(0,255,136,0.15), inset 0 0 12px rgba(0,255,136,0.05);
+      animation: code-glow 2.5s ease-in-out infinite;
+    }
+
+    @keyframes code-glow {
+      0%, 100% { box-shadow: 0 0 16px rgba(0,255,136,0.15), inset 0 0 12px rgba(0,255,136,0.05); }
+      50% { box-shadow: 0 0 28px rgba(0,255,136,0.3), inset 0 0 16px rgba(0,255,136,0.1); }
+    }
+
+    /* Section wrapper */
+    .m-section {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 10px;
+    }
+
+    .m-section-label {
+      writing-mode: vertical-rl;
+      text-orientation: mixed;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 0.95rem;
+      letter-spacing: 3px;
+      border-radius: 10px;
+      padding: 12px 8px;
+      min-width: 38px;
+      text-align: center;
+      flex-shrink: 0;
+    }
+
+    .m-section-rows {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    /* Metal colors for side labels */
+    .m-section-label[data-metal="iron"] {
+      background: linear-gradient(180deg, #4a5568, #2d3748);
+      color: #cbd5e0;
+    }
+    .m-section-label[data-metal="copper"] {
+      background: linear-gradient(180deg, #c05621, #9c4221);
+      color: #fbd38d;
+    }
+    .m-section-label[data-metal="silver"] {
+      background: linear-gradient(180deg, #718096, #4a5568);
+      color: #e2e8f0;
+    }
+    .m-section-label[data-metal="gold"] {
+      background: linear-gradient(180deg, #d69e2e, #b7791f);
+      color: #fefcbf;
+    }
+
+    /* Resize handle */
+    .m-resize {
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 8px;
+      cursor: ew-resize;
+      z-index: 20;
+      border-radius: 10px 0 0 10px;
+    }
+
+    .m-resize:hover {
+      background: rgba(201,168,76,0.3);
+    }
+
+    /* Matrix toolbar */
+    .matrix-bar {
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+      margin: 16px 0 10px;
+      flex-wrap: wrap;
+    }
+
+    .m-bar-btn {
+      background: #333;
+      color: #fff;
+      border: none;
+      padding: 10px 24px;
+      font-size: 0.9rem;
+      font-weight: 700;
+      border-radius: 10px;
+      cursor: pointer;
+      font-family: 'Assistant', sans-serif;
+      transition: all 0.15s;
+    }
+
+    .m-bar-btn:hover {
+      background: #555;
+      transform: translateY(-1px);
+    }
+
+    .m-bar-btn.secondary {
+      background: transparent;
+      color: #888;
+      border: 1px solid #ddd;
+    }
+
+    .m-bar-btn.secondary:hover {
+      border-color: #aaa;
+      color: #555;
+    }
+
+    @media (max-width: 480px) {
+      .m-cube { min-width: 42px; min-height: 42px; font-size: 0.72rem; padding: 5px 4px; }
+      .m-row { gap: 4px; margin-bottom: 4px; }
+      .m-cube[data-type="title"] { font-size: 1rem; }
+      .m-cube[data-type="symbol"] { font-size: 1rem; }
+    }
+
+    @media print {
+      .nav-bottom, .matrix-bar, .m-toolbar, .m-add-cube, .m-resize, .btn-print { display: none !important; }
+      .screen { display: none !important; }
+      .screen.active { display: block !important; background: white !important; }
+      .m-cube { box-shadow: none !important; border: 1px solid #ccc !important; }
+    }
+
+    .btn-print {
+      background: linear-gradient(135deg, #c9a84c, #a08030);
+      color: #0a0e14;
+      border: none;
+      padding: 12px 30px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      border-radius: 12px;
+      cursor: pointer;
+      font-family: 'Assistant', sans-serif;
+      transition: all 0.2s;
+    }
+
+    /* ===== ADMIN PANEL ===== */
+    .admin-tabs {
+      display: flex;
+      gap: 4px;
+      margin-bottom: 15px;
+      overflow-x: auto;
+      padding-bottom: 4px;
+    }
+
+    .admin-tab {
+      background: #1a1e28;
+      color: #8a7e6a;
+      border: 1px solid #2a2e38;
+      border-bottom: none;
+      padding: 8px 16px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      border-radius: 8px 8px 0 0;
+      cursor: pointer;
+      font-family: 'Assistant', sans-serif;
+      white-space: nowrap;
+      transition: all 0.2s;
+    }
+
+    .admin-tab:hover { color: #ff6b35; }
+    .admin-tab.active {
+      background: #ff6b35;
+      color: #fff;
+      border-color: #ff6b35;
+    }
+
+    .admin-page {
+      display: none;
+      background: #1a1e28;
+      border: 1px solid #2a2e38;
+      border-radius: 0 0 12px 12px;
+      padding: 20px;
+    }
+
+    .admin-page.active { display: block; }
+
+    .admin-btn {
+      background: linear-gradient(135deg, #ff6b35, #cc5522);
+      color: #fff;
+      border: none;
+      padding: 8px 16px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      border-radius: 8px;
+      cursor: pointer;
+      font-family: 'Assistant', sans-serif;
+      transition: all 0.2s;
+    }
+
+    .admin-btn:hover { transform: translateY(-1px); }
+    .admin-btn.secondary {
+      background: transparent;
+      border: 1px solid #555;
+      color: #aaa;
+    }
+    .admin-btn.secondary:hover { border-color: #ff6b35; color: #ff6b35; }
+    .admin-btn.danger { background: linear-gradient(135deg, #cc2222, #991111); }
+
+    .admin-table-wrap {
+      overflow-x: auto;
+      margin-top: 10px;
+    }
+
+    .admin-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.8rem;
+    }
+
+    .admin-table th {
+      background: #0d1117;
+      color: #ff6b35;
+      padding: 10px 12px;
+      text-align: right;
+      font-weight: 700;
+      border-bottom: 2px solid #ff6b35;
+      white-space: nowrap;
+    }
+
+    .admin-table td {
+      padding: 8px 12px;
+      border-bottom: 1px solid #2a2e38;
+      color: #ccc;
+      vertical-align: middle;
+    }
+
+    .admin-table tr:hover td { background: rgba(255,107,53,0.05); }
+
+    .admin-table .code-cell {
+      font-family: 'Courier New', monospace;
+      color: #ff6b35;
+      font-weight: 700;
+      letter-spacing: 1px;
+      direction: ltr;
+      text-align: left;
+    }
+
+    .admin-badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 0.7rem;
+      font-weight: 700;
+    }
+
+    .admin-badge.active { background: #0d2e14; color: #00ff88; }
+    .admin-badge.inactive { background: #2e0d0d; color: #ff4444; }
+    .admin-badge.used { background: #2e2a0d; color: #ffaa00; }
+
+    .admin-summary {
+      display: flex;
+      gap: 15px;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
+
+    .admin-summary .stat {
+      background: #0d1117;
+      padding: 10px 16px;
+      border-radius: 8px;
+      border: 1px solid #2a2e38;
+      text-align: center;
+    }
+
+    .admin-summary .stat-num {
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: #ff6b35;
+    }
+
+    .admin-summary .stat-label {
+      font-size: 0.7rem;
+      color: #8a7e6a;
+    }
+
+    .admin-input {
+      width: 100%;
+      padding: 10px 12px;
+      background: #0d1117;
+      border: 2px solid #2a2e38;
+      border-radius: 8px;
+      color: #e0d5c0;
+      font-size: 0.95rem;
+      font-family: 'Assistant', sans-serif;
+      outline: none;
+      direction: ltr;
+    }
+
+    .admin-input:focus { border-color: #ff6b35; }
+
+    .admin-empty {
+      text-align: center;
+      padding: 30px;
+      color: #5a5040;
+      font-size: 0.9rem;
+    }
+
+    /* ===== NAV ===== */
+    .nav-bottom {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: #0d1117;
+      border-top: 1px solid #1a1e28;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 20px;
+      padding: 10px 0;
+      z-index: 100;
+    }
+
+    .nav-separator {
+      width: 1px;
+      height: 30px;
+      background: #2a2e38;
+    }
+
+    .mode-btn.active-mode {
+      color: #00aaff !important;
+    }
+
+    /* View modes — wrapper */
+    #app-frame {
+      width: 100%;
+      min-height: 100vh;
+      margin: 0 auto;
+      transition: max-width 0.3s ease, box-shadow 0.3s ease;
+      position: relative;
+    }
+
+    body.view-mobile #app-frame {
+      max-width: 390px;
+      box-shadow: -4px 0 20px rgba(0,0,0,0.5), 4px 0 20px rgba(0,0,0,0.5);
+      border-left: 1px solid #2a2e38;
+      border-right: 1px solid #2a2e38;
+    }
+
+    body.view-tablet #app-frame {
+      max-width: 820px;
+      box-shadow: -4px 0 20px rgba(0,0,0,0.5), 4px 0 20px rgba(0,0,0,0.5);
+      border-left: 1px solid #2a2e38;
+      border-right: 1px solid #2a2e38;
+    }
+
+    body.view-mobile .nav-bottom,
+    body.view-tablet .nav-bottom {
+      max-width: inherit;
+      margin: 0 auto;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    body.view-mobile .nav-bottom { width: 390px; }
+    body.view-tablet .nav-bottom { width: 820px; }
+
+    .nav-btn {
+      background: none;
+      border: none;
+      color: #5a5040;
+      font-size: 0.75rem;
+      font-family: 'Assistant', sans-serif;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      transition: color 0.2s;
+    }
+
+    .nav-btn.active, .nav-btn:hover {
+      color: #c9a84c;
+    }
+
+    .nav-icon {
+      font-size: 1.3rem;
+    }
+
+    /* Logo */
+    .logo-small {
+      width: 50px;
+      height: 50px;
+      margin-bottom: 15px;
+    }
+
+    @media (max-width: 480px) {
+      .gate-logo { width: 150px; height: 150px; }
+      .gate-title { font-size: 1.7rem; }
+      .gate-subtitle { font-size: 0.85rem; }
+      .gate-welcome { font-size: 0.82rem; }
+      .gate-code-input { width: 220px; height: 50px; font-size: 1.3rem; }
+      .btn-gate { padding: 12px 40px; font-size: 1rem; }
+    }
+
+    @media (max-width: 480px) {
+      .vault-image { width: 200px; height: 200px; }
+      .vault-title { font-size: 1.5rem; }
+      .flip-digit { width: 40px; height: 56px; font-size: 1.9rem; }
+      .flip-sep { font-size: 1.9rem; }
+      .code-inputs { gap: 8px; }
+      .code-input { width: 60px; height: 46px; font-size: 1rem; }
+      .code-input-wide { width: 80px; }
+    }
+  </style>
+</head>
+<body>
+<div id="app-frame">
+
+<!-- ===== SCREEN 0: GATE ===== -->
+<div class="screen active" id="screen-gate">
+  <div class="gate-container">
+    <img src="assets/images/logo.png" alt="הצופן הסודי" class="gate-logo" />
+    <h1 class="gate-title">הצופן הסודי</h1>
+    <p class="gate-subtitle">The Secret Code</p>
+    <p class="gate-welcome">
+      ברוכים הבאים להרפתקה!<br/>
+      כדי להיכנס, הזינו את קוד הגישה<br/>
+      שקיבלתם עם הספר
+    </p>
+    <div class="gate-code-label">קוד גישה אישי</div>
+    <input
+      type="text"
+      class="gate-code-input"
+      id="gate-code"
+      placeholder="A12345678Z"
+      maxlength="10"
+      autocomplete="off"
+      spellcheck="false"
+    />
+    <div class="gate-code-hint">הקוד מורכב מאות, 8 ספרות ואות</div>
+    <div class="gate-code-label" style="margin-top:18px;">מספר נייד</div>
+    <input
+      type="tel"
+      class="gate-code-input"
+      id="gate-phone"
+      placeholder="050-1234567"
+      maxlength="11"
+      autocomplete="tel"
+      style="width:220px;font-size:1.2rem;letter-spacing:1px;"
+    />
+    <div class="gate-code-hint">כדי שסבא חיים יוכל לשלוח לך הודעות</div>
+    <button class="btn-gate" id="btn-gate" onclick="tryGate()">כניסה</button>
+    <div class="gate-error" id="gate-error"></div>
+    <div class="gate-spinner" id="gate-spinner"></div>
+
+    <!-- Purchase Banner -->
+    <a href="https://mrng.to/sf7xO0EmJw" target="_blank" class="purchase-banner" id="purchase-banner">
+      <div class="purchase-badge">חדש!</div>
+      <div class="purchase-text">
+        <div class="purchase-title">עדיין לא רכשת את הספר?</div>
+        <div class="purchase-sub">הצטרף להרפתקה של הצופן הסודי — חידות, מדע וסודות מסבא חיים</div>
+      </div>
+      <div class="purchase-cta">לרכישה מהירה ←</div>
+    </a>
+  </div>
+</div>
+
+<!-- ===== SCREEN 1: VAULT CLOSED ===== -->
+<div class="screen" id="screen-vault">
+  <div class="vault-container">
+    <div class="vault-image">
+      <img src="assets/images/vault-closed.jpg" alt="כספת סגורה" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" />
+      <div class="vault-blink" id="vault-blink"></div>
+    </div>
+    <h1 class="vault-title">הצופן הסודי</h1>
+    <p class="vault-subtitle">הזן את המשקלים הסגוליים כדי לפתוח את הכספת</p>
+
+    <div class="flip-clock" id="flip-clock">
+      <div class="flip-digit" id="flip-m1">1</div>
+      <div class="flip-digit" id="flip-m0">0</div>
+      <div class="flip-sep">:</div>
+      <div class="flip-digit" id="flip-s1">0</div>
+      <div class="flip-digit" id="flip-s0">0</div>
+    </div>
+    <div id="timer-text" style="font-family:'Courier New',monospace;font-size:2rem;font-weight:800;color:#00ff88;text-shadow:0 0 15px rgba(0,255,136,0.4);margin-bottom:10px;letter-spacing:4px;display:none;">10:00</div>
+    <div class="attempts-display" id="attempts-display">
+      ניסיון <span id="attempt-num">1</span> מתוך 3 &nbsp;
+      <span class="attempt-dot" id="dot-1"></span>
+      <span class="attempt-dot" id="dot-2"></span>
+      <span class="attempt-dot" id="dot-3"></span>
+    </div>
+
+    <div class="code-inputs">
+      <div class="code-group">
+        <div class="code-label">ברזל</div>
+        <input type="text" class="code-input" id="code-iron" placeholder="0.00" maxlength="4" />
+      </div>
+      <div class="code-group">
+        <div class="code-label">נחושת</div>
+        <input type="text" class="code-input" id="code-copper" placeholder="0.00" maxlength="4" />
+      </div>
+      <div class="code-group">
+        <div class="code-label">כסף</div>
+        <input type="text" class="code-input code-input-wide" id="code-silver" placeholder="00.00" maxlength="5" />
+      </div>
+      <div class="code-group">
+        <div class="code-label">זהב</div>
+        <input type="text" class="code-input code-input-wide" id="code-gold" placeholder="00.00" maxlength="5" />
+      </div>
+    </div>
+
+    <button class="btn-open" onclick="tryOpen()">פתיחת הכספת</button>
+    <div class="error-msg" id="error-msg">הקוד שגוי! נסה שנית</div>
+  </div>
+</div>
+
+<!-- ===== SCREEN 2: VAULT OPEN ===== -->
+<div class="screen" id="screen-open">
+  <div class="open-container">
+    <div class="vault-image vault-image-open">
+      <img src="assets/images/vault-open.jpeg" alt="כספת פתוחה" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" />
+      <div class="vault-blink-green" id="vault-blink-green"></div>
+    </div>
+    <h1 class="open-title">הכספת נפתחה!</h1>
+    <div class="open-countdown" id="open-countdown">
+      <p class="open-urgent">יש לך דקה לחלץ את המעטפה מסבא.<br/>תיכף הדלת ננעלת!</p>
+      <div class="open-timer" id="open-timer">01:00</div>
+    </div>
+    <a href="#" class="btn-download" id="btn-extract" onclick="extractEnvelope()">📜 חלץ את המעטפה!</a>
+  </div>
+</div>
+
+<!-- ===== SCREEN 3: VAULT LOCKED ===== -->
+<div class="screen" id="screen-locked">
+  <div style="text-align:center;max-width:400px;">
+    <div class="vault-image" style="animation:none; border-color:#ff4444; box-shadow:0 0 60px rgba(255,68,68,0.3);">
+      <img src="assets/images/vault-closed.jpg" alt="כספת נעולה" style="width:100%;height:100%;object-fit:cover;border-radius:50%;filter:brightness(0.5);" />
+    </div>
+    <h1 class="locked-title">הכספת ננעלה!</h1>
+    <p class="locked-text">
+      נגמר הזמן או שהקוד שגוי.<br/>
+      חזור לספר, בדוק את התשובות שלך<br/>
+      ונסה שוב.
+    </p>
+    <button class="btn-retry" onclick="resetVault()">🔄 נסה שוב</button>
+  </div>
+</div>
+
+<!-- ===== SCREEN 4: MATRIX ===== -->
+<div class="screen" id="screen-matrix">
+  <div class="matrix-wrap" id="matrix-root"></div>
+</div>
+
+<!-- ===== SCREEN 5: LETTER ===== -->
+<div class="screen" id="screen-letter">
+  <div style="text-align:center;max-width:500px;width:100%;padding-bottom:80px;">
+    <h1 style="color:#c9a84c;font-size:1.5rem;margin-bottom:20px;">📜 המכתב מסבא חיים</h1>
+    <div style="background:#1a1e28;border:2px solid #3a3228;border-radius:16px;padding:25px;text-align:right;line-height:2;font-size:0.95rem;">
+      <img src="/assets/images/letter.png" alt="מכתב מסבא חיים" style="width:100%;border-radius:8px;margin-bottom:15px;" onerror="this.style.display='none'" />
+      <p>דרור היקר,</p>
+      <p>אם אתה קורא את המכתב הזה, סימן שפיצחת את הצופן. אני גאה בך.</p>
+      <p>זכור — המדע הוא המפתח. המוח האנושי מסוגל לדברים שאנחנו עוד לא יכולים לדמיין.</p>
+      <p>המסע שלך רק מתחיל...</p>
+      <p style="text-align:left;color:#c9a84c;margin-top:15px;">סבא חיים ❤️</p>
+    </div>
+    <button class="btn-print" onclick="trackEvent('print_letter');window.print()" style="margin-top:20px;">🖨️ הדפס את המכתב</button>
+    <p style="color:#5a5040;font-size:0.8rem;margin-top:15px;">הדפס והדבק בעמוד 52 בספר שלך</p>
+    <button onclick="goHome()" style="margin-top:20px;background:none;border:1px solid #3a3228;color:#8a7e6a;padding:10px 30px;border-radius:8px;cursor:pointer;font-family:'Assistant',sans-serif;font-size:0.9rem;font-weight:600;">חזור לדף הראשי</button>
+
+    <a href="https://mrng.to/sf7xO0EmJw" target="_blank" class="gift-banner">
+      <div class="gift-badge">🎁 מתנה</div>
+      <div class="gift-text">
+        <div class="gift-title">נהנית? עברת חוויה טובה?</div>
+        <div class="gift-sub">רכוש את הספר כמתנה עבור חברים או בני משפחה!</div>
+      </div>
+      <div class="gift-cta">לרכישת מארז מתנה ←</div>
+    </a>
+  </div>
+</div>
+
+<!-- ===== SCREEN 6: CERTIFICATE ===== -->
+<div class="screen" id="screen-certificate">
+  <div style="text-align:center;max-width:600px;width:100%;padding-bottom:80px;">
+    <h1 style="color:#c9a84c;font-size:1.5rem;margin-bottom:20px;">🏆 תעודת הצופן הסודי</h1>
+    <div style="background:#1a1e28;border:2px solid #c9a84c;border-radius:16px;padding:20px;">
+      <img src="/assets/images/certificate.png" alt="תעודה" style="width:100%;border-radius:8px;" onerror="this.style.display='none'" />
+    </div>
+    <button class="btn-print" onclick="trackEvent('print_certificate');window.print()" style="margin-top:20px;">🖨️ הדפס את התעודה</button>
+    <p style="color:#5a5040;font-size:0.8rem;margin-top:10px;">הדפס ומלא את שמך על התעודה</p>
+    <button onclick="goHome()" style="margin-top:20px;background:none;border:1px solid #3a3228;color:#8a7e6a;padding:10px 30px;border-radius:8px;cursor:pointer;font-family:'Assistant',sans-serif;font-size:0.9rem;font-weight:600;">חזור לדף הראשי</button>
+
+    <a href="https://mrng.to/sf7xO0EmJw" target="_blank" class="gift-banner">
+      <div class="gift-badge">🎁 מתנה</div>
+      <div class="gift-text">
+        <div class="gift-title">נהנית? עברת חוויה טובה?</div>
+        <div class="gift-sub">רכוש את הספר כמתנה עבור חברים או בני משפחה!</div>
+      </div>
+      <div class="gift-cta">לרכישת מארז מתנה ←</div>
+    </a>
+  </div>
+</div>
+
+<!-- ===== SCREEN 7: COMPLETED HOME ===== -->
+<div class="screen" id="screen-home">
+  <div style="text-align:center;max-width:500px;width:100%;padding-bottom:80px;">
+    <img src="assets/images/logo.png" alt="הצופן הסודי" style="width:150px;height:150px;border-radius:50%;object-fit:cover;margin:0 auto 20px;display:block;border:3px solid #c9a84c;box-shadow:0 0 40px rgba(201,168,76,0.2);" />
+    <h1 style="color:#c9a84c;font-size:1.8rem;margin-bottom:10px;">כל הכבוד!</h1>
+    <p style="color:#a09480;font-size:1rem;line-height:1.8;margin-bottom:25px;">
+      סיימת את ההרפתקה של הצופן הסודי.<br/>
+      סבא חיים גאה בך!
+    </p>
+    <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
+      <button class="btn-gate" onclick="showScreen('screen-letter')" style="font-size:0.95rem;padding:12px 24px;">📜 המכתב</button>
+      <button class="btn-gate" onclick="trackEvent('got_certificate');showScreen('screen-certificate')" style="font-size:0.95rem;padding:12px 24px;">🏆 התעודה</button>
+    </div>
+
+    <a href="https://mrng.to/sf7xO0EmJw" target="_blank" class="gift-banner">
+      <div class="gift-badge">🎁 מתנה</div>
+      <div class="gift-text">
+        <div class="gift-title">נהנית? עברת חוויה טובה?</div>
+        <div class="gift-sub">רכוש את הספר כמתנה עבור חברים או בני משפחה ותן להם להצטרף להרפתקה!</div>
+      </div>
+      <div class="gift-cta">לרכישת מארז מתנה ←</div>
+    </a>
+  </div>
+</div>
+
+<!-- ===== SCREEN 8: ADMIN ===== -->
+<div class="screen" id="screen-admin">
+  <!-- Login -->
+  <div id="admin-login" style="text-align:center;max-width:400px;width:100%;">
+    <h1 style="color:#ff6b35;font-size:1.5rem;margin-bottom:6px;">⚙️ לוח ניהול</h1>
+    <p style="color:#666;font-size:0.8rem;margin-bottom:20px;">אזור מנהלים בלבד</p>
+    <div style="background:#1c1410;border:2px solid #ff6b35;border-radius:16px;padding:25px;">
+      <input type="password" id="admin-pass" placeholder="סיסמת מנהל"
+        style="width:100%;padding:12px;background:#0d1117;border:2px solid #ff6b35;border-radius:8px;color:#ff6b35;font-size:1rem;text-align:center;font-family:'Assistant',sans-serif;outline:none;direction:ltr;" />
+      <button onclick="loginAdmin()" style="width:100%;margin-top:12px;background:linear-gradient(135deg,#ff6b35,#cc5522);color:#fff;border:none;padding:12px;font-size:1rem;font-weight:800;border-radius:8px;cursor:pointer;font-family:'Assistant',sans-serif;">כניסה</button>
+      <div id="admin-error" style="color:#ff4444;margin-top:10px;display:none;font-weight:600;"></div>
+    </div>
+  </div>
+
+  <!-- Panel (hidden until login) -->
+  <div id="admin-panel" style="display:none;width:100%;max-width:800px;padding-bottom:80px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:15px;">
+      <h1 style="color:#ff6b35;font-size:1.3rem;">⚙️ לוח ניהול</h1>
+      <button onclick="logoutAdmin()" style="background:none;border:1px solid #555;color:#888;padding:6px 14px;border-radius:6px;cursor:pointer;font-family:'Assistant',sans-serif;font-size:0.8rem;">התנתק</button>
+    </div>
+
+    <!-- Tabs -->
+    <div class="admin-tabs" id="admin-tabs">
+      <button class="admin-tab active" onclick="showAdminTab('codes')">קודי גישה</button>
+      <button class="admin-tab" onclick="showAdminTab('demo')">מספרי דמו</button>
+      <button class="admin-tab" onclick="showAdminTab('master')">מספרי מאסטר</button>
+      <button class="admin-tab" onclick="showAdminTab('leads')">לידים</button>
+      <button class="admin-tab" onclick="showAdminTab('matrix')">מטריצה</button>
+      <button class="admin-tab" onclick="showAdminTab('password')">סיסמה</button>
+    </div>
+
+    <!-- Tab: Access Codes -->
+    <div class="admin-page active" id="admin-codes">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px;">
+        <h2 style="color:#e0d5c0;font-size:1rem;">מאגר קודי גישה</h2>
+      </div>
+      <div class="admin-summary" id="codes-summary"></div>
+
+      <!-- Batch generation -->
+      <div style="background:#0d1117;border:1px solid #2a2e38;border-radius:8px;padding:15px;margin-bottom:15px;">
+        <h3 style="color:#ff6b35;font-size:0.9rem;margin-bottom:10px;">ייצור מנות</h3>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+          <span style="color:#8a7e6a;font-size:0.8rem;">מנה:</span>
+          <select id="gen-batch" style="background:#1a1e28;color:#e0d5c0;border:1px solid #2a2e38;border-radius:6px;padding:6px 10px;font-family:'Assistant',sans-serif;">
+            <option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option>
+            <option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10</option>
+          </select>
+          <button class="admin-btn" onclick="generateBatch()">ייצר 1,000 קודים</button>
+          <span id="gen-status" style="color:#00ff88;font-size:0.8rem;display:none;"></span>
+        </div>
+      </div>
+
+      <!-- Batch list -->
+      <div style="background:#0d1117;border:1px solid #2a2e38;border-radius:8px;padding:15px;margin-bottom:15px;">
+        <h3 style="color:#ff6b35;font-size:0.9rem;margin-bottom:10px;">מנות קיימות</h3>
+        <div id="batch-list" style="display:flex;gap:6px;flex-wrap:wrap;"></div>
+      </div>
+
+      <!-- Batch detail / print -->
+      <div id="batch-detail" style="display:none;background:#0d1117;border:1px solid #2a2e38;border-radius:8px;padding:15px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:8px;">
+          <h3 style="color:#ff6b35;font-size:0.9rem;">מנה <span id="batch-detail-num"></span> — <span id="batch-detail-count"></span> קודים</h3>
+        </div>
+        <p style="color:#8a7e6a;font-size:0.8rem;margin-bottom:10px;">בחר דפי הדפסה (100 קודים לכל חוברת, 28 קודים בדף A4):</p>
+        <div id="print-pages" style="display:flex;gap:6px;flex-wrap:wrap;"></div>
+      </div>
+    </div>
+
+    <!-- Tab: Demo Codes -->
+    <div class="admin-page" id="admin-demo">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px;">
+        <h2 style="color:#e0d5c0;font-size:1rem;">מאגר מספרי דמו</h2>
+        <button class="admin-btn" onclick="generateDemoCodes(5)">+ ייצר 5 קודים</button>
+      </div>
+      <p style="color:#8a7e6a;font-size:0.8rem;margin-bottom:12px;">קודים זמניים להדגמה — פג תוקף אחרי שימוש אחד</p>
+      <div class="admin-table-wrap">
+        <table class="admin-table" id="demo-table">
+          <thead><tr><th>קוד</th><th>סטטוס</th><th>נוצר</th><th>שימוש</th><th>פעולות</th></tr></thead>
+          <tbody id="demo-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Tab: Master Codes -->
+    <div class="admin-page" id="admin-master">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px;">
+        <h2 style="color:#e0d5c0;font-size:1rem;">מאגר מספרי מאסטר</h2>
+        <button class="admin-btn" onclick="addMasterCode()">+ הוסף קוד מאסטר</button>
+      </div>
+      <p style="color:#8a7e6a;font-size:0.8rem;margin-bottom:12px;">קודים ללא הגבלה — לצוות, שותפים, בודקים</p>
+      <div class="admin-table-wrap">
+        <table class="admin-table" id="master-table">
+          <thead><tr><th>קוד</th><th>שם</th><th>סטטוס</th><th>שימושים</th><th>פעולות</th></tr></thead>
+          <tbody id="master-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Tab: Leads -->
+    <div class="admin-page" id="admin-leads">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px;">
+        <h2 style="color:#e0d5c0;font-size:1rem;">טבלת לידים</h2>
+        <button class="admin-btn secondary" onclick="exportLeads()">📥 ייצוא</button>
+      </div>
+      <div class="admin-summary" id="leads-summary"></div>
+      <div class="admin-table-wrap">
+        <table class="admin-table" id="leads-table">
+          <thead><tr>
+            <th>קוד כניסה</th>
+            <th>נייד</th>
+            <th>נכנס לכספת</th>
+            <th>הדפיס מכתב</th>
+            <th>קיבל תעודה</th>
+            <th>הדפיס תעודה</th>
+            <th>כניסה אחרונה</th>
+          </tr></thead>
+          <tbody id="leads-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Tab: Matrix (admin editable) -->
+    <div class="admin-page" id="admin-matrix">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px;">
+        <h2 style="color:#e0d5c0;font-size:1rem;">עריכת מטריצה</h2>
+        <div style="display:flex;gap:8px;">
+          <button class="admin-btn" onclick="window.print()">🖨️ הדפסה</button>
+          <button class="admin-btn secondary" onclick="resetMatrix()">↩️ איפוס</button>
+        </div>
+      </div>
+      <div class="matrix-wrap" id="matrix-admin-root"></div>
+    </div>
+
+    <!-- Tab: Password -->
+    <div class="admin-page" id="admin-password">
+      <h2 style="color:#e0d5c0;font-size:1rem;margin-bottom:15px;">שינוי סיסמת ניהול</h2>
+      <div style="max-width:350px;">
+        <label style="color:#8a7e6a;font-size:0.85rem;display:block;margin-bottom:4px;">סיסמה נוכחית</label>
+        <input type="password" id="pw-current" class="admin-input" />
+        <label style="color:#8a7e6a;font-size:0.85rem;display:block;margin-bottom:4px;margin-top:12px;">סיסמה חדשה</label>
+        <input type="password" id="pw-new" class="admin-input" />
+        <label style="color:#8a7e6a;font-size:0.85rem;display:block;margin-bottom:4px;margin-top:12px;">אימות סיסמה חדשה</label>
+        <input type="password" id="pw-confirm" class="admin-input" />
+        <button class="admin-btn" onclick="changePassword()" style="width:100%;margin-top:15px;padding:12px;">שנה סיסמה</button>
+        <div id="pw-msg" style="margin-top:10px;font-weight:600;display:none;"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /app-frame -->
+
+<!-- ===== BOTTOM NAV ===== -->
+<div class="nav-bottom" id="nav-bottom" style="display:none;">
+  <button class="nav-btn active" onclick="showScreen('screen-vault')">
+    <span class="nav-icon">🔐</span>
+    <span>כספת</span>
+  </button>
+  <button class="nav-btn" onclick="showScreen('screen-matrix')">
+    <span class="nav-icon">📋</span>
+    <span>מטריצה</span>
+  </button>
+  <button class="nav-btn" onclick="showScreen('screen-letter')">
+    <span class="nav-icon">📜</span>
+    <span>מכתב</span>
+  </button>
+  <button class="nav-btn" onclick="trackEvent('got_certificate');showScreen('screen-certificate')">
+    <span class="nav-icon">🏆</span>
+    <span>תעודה</span>
+  </button>
+  <div class="nav-separator"></div>
+  <button class="nav-btn mode-btn" onclick="setViewMode('mobile')" data-mode="mobile">
+    <span class="nav-icon">📱</span>
+    <span>נייד</span>
+  </button>
+  <button class="nav-btn mode-btn" onclick="setViewMode('tablet')" data-mode="tablet">
+    <span class="nav-icon">📟</span>
+    <span>אייפד</span>
+  </button>
+  <button class="nav-btn mode-btn active-mode" onclick="setViewMode('desktop')" data-mode="desktop">
+    <span class="nav-icon">🖥️</span>
+    <span>מחשב</span>
+  </button>
+  <div class="nav-separator"></div>
+  <button class="nav-btn" onclick="showScreen('screen-admin')">
+    <span class="nav-icon">⚙️</span>
+    <span>ניהול</span>
+  </button>
+</div>
+
+<script>
+window.onerror = function(msg, url, line) {
+  document.title = 'ERROR: ' + msg + ' (line ' + line + ')';
+  var d = document.createElement('div');
+  d.style.cssText = 'position:fixed;top:0;left:0;right:0;background:red;color:white;padding:10px;z-index:9999;font-size:14px;direction:ltr;text-align:left;';
+  d.textContent = 'JS ERROR: ' + msg + ' at line ' + line;
+  document.body.appendChild(d);
+};
+// ===== GATE =====
+var gateInput = document.getElementById('gate-code');
+var gatePhone = document.getElementById('gate-phone');
+var gateAttempts = 0;
+var maxGateAttempts = 10;
+var currentUserCode = null;
+var isMaster = false;
+
+// Check URL for code (QR scan)
+(function() {
+  var params = new URLSearchParams(window.location.search);
+  var urlCode = params.get('code');
+  if (urlCode) {
+    gateInput.value = urlCode.toUpperCase();
+  }
+})();
+
+// Auto-uppercase and format enforcement
+gateInput.addEventListener('input', function() {
+  this.value = this.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+});
+
+// Phone format
+gatePhone.addEventListener('input', function() {
+  this.value = this.value.replace(/[^0-9\-]/g, '');
+});
+
+// Enter key submits
+gatePhone.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') tryGate();
+});
+gateInput.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    if (gateInput.value.length === 10) gatePhone.focus();
+  }
+});
+
+async function tryGate() {
+  var code = gateInput.value.trim();
+  var phone = gatePhone.value.trim().replace(/\-/g, '');
+  var errorEl = document.getElementById('gate-error');
+  var spinnerEl = document.getElementById('gate-spinner');
+  var btnEl = document.getElementById('btn-gate');
+
+  errorEl.style.display = 'none';
+
+  // Client-side format check
+  if (code.length !== 10 || !/^[A-Z]\d{8}[A-Z]$/.test(code)) {
+    errorEl.textContent = 'הקוד חייב להיות: אות, 8 ספרות, אות';
+    errorEl.style.display = 'block';
+    gateInput.focus();
+    return;
+  }
+
+  if (!phone || phone.length < 9 || !/^0\d+$/.test(phone)) {
+    errorEl.textContent = 'יש להזין מספר נייד תקין (מתחיל ב-0)';
+    errorEl.style.display = 'block';
+    gatePhone.focus();
+    return;
+  }
+
+  gateAttempts++;
+  if (gateAttempts > maxGateAttempts) {
+    errorEl.textContent = 'חרגת ממספר הניסיונות המותר. נסה מאוחר יותר.';
+    errorEl.style.display = 'block';
+    btnEl.disabled = true;
+    return;
+  }
+
+  // Show spinner
+  spinnerEl.style.display = 'block';
+  btnEl.disabled = true;
+
+  try {
+    var res = await fetch('/api/gate/verify', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ code: code, phone: phone })
+    });
+    var data = await res.json();
+
+    spinnerEl.style.display = 'none';
+    btnEl.disabled = false;
+
+    if (data.success) {
+      currentUserCode = code;
+      isMaster = !!data.master;
+      console.log('[DEBUG] Gate success, master=' + isMaster, 'response:', JSON.stringify(data));
+      sessionStorage.setItem('gateCode', code);
+      sessionStorage.setItem('gatePhone', phone);
+      if (isMaster) sessionStorage.setItem('isMaster', '1');
+      trackEvent('gate_entry');
+      showScreen('screen-vault');
+      if (!isMaster) {
+        console.log('[DEBUG] Starting timer for regular user');
+        startTimer();
+      } else {
+        console.log('[DEBUG] Master mode - no timer');
+        maxAttempts = 999;
+      }
+    } else {
+      errorEl.textContent = data.message || 'הקוד אינו תקין';
+      errorEl.style.display = 'block';
+      gateInput.focus();
+      gateInput.select();
+    }
+  } catch (e) {
+    spinnerEl.style.display = 'none';
+    btnEl.disabled = false;
+    errorEl.textContent = 'שגיאת תקשורת, נסה שנית';
+    errorEl.style.display = 'block';
+  }
+}
+
+// ===== ACTIVITY TRACKING =====
+function trackEvent(event) {
+  var code = currentUserCode || sessionStorage.getItem('gateCode');
+  if (!code) return;
+  fetch('/api/track', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ code: code, event: event })
+  }).catch(function() {});
+}
+
+// ===== SOUNDS (Web Audio API) =====
+var audioCtx = null;
+function getAudioCtx() {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  return audioCtx;
+}
+
+function playTick() {
+  var ctx = getAudioCtx();
+  var osc = ctx.createOscillator();
+  var gain = ctx.createGain();
+  osc.connect(gain);
+  gain.connect(ctx.destination);
+  osc.frequency.value = 800;
+  osc.type = 'sine';
+  gain.gain.setValueAtTime(0.08, ctx.currentTime);
+  gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.08);
+  osc.start(ctx.currentTime);
+  osc.stop(ctx.currentTime + 0.08);
+}
+
+function playTickUrgent() {
+  var ctx = getAudioCtx();
+  var osc = ctx.createOscillator();
+  var gain = ctx.createGain();
+  osc.connect(gain);
+  gain.connect(ctx.destination);
+  osc.frequency.value = 1200;
+  osc.type = 'square';
+  gain.gain.setValueAtTime(0.12, ctx.currentTime);
+  gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.1);
+  osc.start(ctx.currentTime);
+  osc.stop(ctx.currentTime + 0.1);
+}
+
+function playBuzz() {
+  var ctx = getAudioCtx();
+  var osc = ctx.createOscillator();
+  var gain = ctx.createGain();
+  osc.connect(gain);
+  gain.connect(ctx.destination);
+  osc.frequency.value = 150;
+  osc.type = 'sawtooth';
+  gain.gain.setValueAtTime(0.25, ctx.currentTime);
+  gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.5);
+  osc.start(ctx.currentTime);
+  osc.stop(ctx.currentTime + 0.5);
+}
+
+function playFanfare() {
+  var ctx = getAudioCtx();
+  var notes = [523, 659, 784, 1047];
+  notes.forEach(function(freq, i) {
+    var osc = ctx.createOscillator();
+    var gain = ctx.createGain();
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.frequency.value = freq;
+    osc.type = 'triangle';
+    gain.gain.setValueAtTime(0, ctx.currentTime + i * 0.15);
+    gain.gain.linearRampToValueAtTime(0.2, ctx.currentTime + i * 0.15 + 0.05);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + i * 0.15 + 0.4);
+    osc.start(ctx.currentTime + i * 0.15);
+    osc.stop(ctx.currentTime + i * 0.15 + 0.4);
+  });
+}
+
+function playLockdown() {
+  var ctx = getAudioCtx();
+  [400, 300, 200].forEach(function(freq, i) {
+    var osc = ctx.createOscillator();
+    var gain = ctx.createGain();
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.frequency.value = freq;
+    osc.type = 'sawtooth';
+    gain.gain.setValueAtTime(0.2, ctx.currentTime + i * 0.25);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + i * 0.25 + 0.3);
+    osc.start(ctx.currentTime + i * 0.25);
+    osc.stop(ctx.currentTime + i * 0.25 + 0.3);
+  });
+}
+
+// ===== VAULT BLINK =====
+var blinkInterval = null;
+
+function startBlink() {
+  if (blinkInterval) clearInterval(blinkInterval);
+  doBlink();
+}
+
+function doBlink() {
+  var blink = document.getElementById('vault-blink');
+  if (!blink) return;
+
+  // Blink speed based on time left
+  var speed;
+  if (timeLeft <= 30) speed = 250;       // frantic
+  else if (timeLeft <= 60) speed = 400;   // fast
+  else if (timeLeft <= 180) speed = 800;  // medium
+  else speed = 1500;                       // slow/calm
+
+  blink.classList.add('blink-on');
+  setTimeout(function() {
+    blink.classList.remove('blink-on');
+  }, speed * 0.4);
+
+  blinkInterval = setTimeout(doBlink, speed);
+}
+
+function stopBlink() {
+  if (blinkInterval) { clearTimeout(blinkInterval); blinkInterval = null; }
+  var blink = document.getElementById('vault-blink');
+  if (blink) blink.classList.remove('blink-on');
+}
+
+// ===== FLIP CLOCK =====
+var timeLeft = 600; // 10 minutes
+var timerInterval = null;
+var attempts = 0;
+var maxAttempts = 3;
+var prevDigits = { m1: '', m0: '', s1: '', s0: '' };
+
+function flipDigit(id, newVal) {
+  var el = document.getElementById(id);
+  var key = id.replace('flip-', '');
+  if (prevDigits[key] === newVal) return;
+  el.textContent = newVal;
+  // Tick animation
+  el.classList.remove('ticking');
+  void el.offsetWidth; // force reflow
+  el.classList.add('ticking');
+  prevDigits[key] = newVal;
+}
+
+function updateTimerText() {
+  var tt = document.getElementById('timer-text');
+  if (!tt) return;
+  var m = Math.floor(timeLeft / 60).toString().padStart(2, '0');
+  var s = (timeLeft % 60).toString().padStart(2, '0');
+  tt.textContent = m + ':' + s;
+  if (timeLeft <= 60) { tt.style.color = '#ff4444'; }
+  else if (timeLeft <= 180) { tt.style.color = '#ffaa00'; }
+  else { tt.style.color = '#00ff88'; }
+}
+
+function updateFlipClock() {
+  var m = Math.floor(timeLeft / 60);
+  var s = timeLeft % 60;
+  flipDigit('flip-m1', Math.floor(m / 10).toString());
+  flipDigit('flip-m0', (m % 10).toString());
+  flipDigit('flip-s1', Math.floor(s / 10).toString());
+  flipDigit('flip-s0', (s % 10).toString());
+
+  var clock = document.getElementById('flip-clock');
+  clock.classList.remove('warning', 'danger');
+  if (timeLeft <= 60) clock.classList.add('danger');
+  else if (timeLeft <= 180) clock.classList.add('warning');
+}
+
+function startTimer() {
+  // Show timer text as fallback
+  var tt = document.getElementById('timer-text');
+  if (tt) tt.style.display = 'block';
+  updateFlipClock();
+  updateTimerText();
+  startBlink();
+  timerInterval = setInterval(function() {
+    timeLeft--;
+    if (timeLeft <= 0) {
+      clearInterval(timerInterval);
+      stopBlink();
+      playLockdown();
+      showScreen('screen-locked');
+      return;
+    }
+    updateFlipClock();
+    updateTimerText();
+
+    // Sound: tick every second, urgent in last 60s
+    if (timeLeft <= 60) {
+      playTickUrgent();
+    } else if (timeLeft <= 180 && timeLeft % 2 === 0) {
+      playTick();
+    } else if (timeLeft % 10 === 0) {
+      playTick();
+    }
+  }, 1000);
+}
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(function(s) { s.classList.remove('active'); });
+  document.getElementById(id).classList.add('active');
+  document.querySelectorAll('.nav-btn').forEach(function(b) { b.classList.remove('active'); });
+  // Highlight active nav
+  document.querySelectorAll('.nav-btn').forEach(function(b) {
+    if (b.onclick && b.onclick.toString().indexOf(id) > -1) b.classList.add('active');
+  });
+  // Hide nav on gate screen, show on all others
+  var nav = document.getElementById('nav-bottom');
+  nav.style.display = (id === 'screen-gate') ? 'none' : 'flex';
+}
+
+function updateAttemptDots() {
+  for (var i = 1; i <= 3; i++) {
+    var dot = document.getElementById('dot-' + i);
+    if (i <= attempts) dot.classList.add('used');
+    else dot.classList.remove('used');
+  }
+  document.getElementById('attempt-num').textContent = Math.min(attempts + 1, 3);
+}
+
+async function tryOpen() {
+  var iron = document.getElementById('code-iron').value.trim();
+  var copper = document.getElementById('code-copper').value.trim();
+  var silver = document.getElementById('code-silver').value.trim();
+  var gold = document.getElementById('code-gold').value.trim();
+
+  if (!iron || !copper || !silver || !gold) {
+    document.getElementById('error-msg').textContent = 'יש למלא את כל השדות';
+    document.getElementById('error-msg').style.display = 'block';
+    playBuzz();
+    return;
+  }
+
+  attempts++;
+  updateAttemptDots();
+
+  try {
+    var res = await fetch('/api/vault/open', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ iron: iron, copper: copper, silver: silver, gold: gold })
+    });
+    var data = await res.json();
+
+    if (data.success) {
+      clearInterval(timerInterval);
+      stopBlink();
+      playFanfare();
+      trackEvent('vault_opened');
+      showScreen('screen-open');
+      if (!isMaster) {
+        setTimeout(startOpenCountdown, 1500);
+      }
+    } else {
+      playBuzz();
+      if (attempts >= maxAttempts) {
+        clearInterval(timerInterval);
+        stopBlink();
+        setTimeout(function() { playLockdown(); }, 600);
+        showScreen('screen-locked');
+      } else {
+        document.getElementById('error-msg').textContent = 'הקוד שגוי! נותרו ' + (maxAttempts - attempts) + ' נסיונות';
+        document.getElementById('error-msg').style.display = 'block';
+        // Shake animation
+        document.querySelector('.vault-image').style.animation = 'none';
+        setTimeout(function() { document.querySelector('.vault-image').style.animation = 'pulse-glow 3s ease-in-out infinite'; }, 100);
+      }
+    }
+  } catch (e) {
+    document.getElementById('error-msg').textContent = 'שגיאת תקשורת';
+    document.getElementById('error-msg').style.display = 'block';
+  }
+}
+
+function resetVault() {
+  timeLeft = 600;
+  attempts = 0;
+  prevDigits = { m1: '', m0: '', s1: '', s0: '' };
+  updateFlipClock();
+  updateAttemptDots();
+  document.getElementById('error-msg').style.display = 'none';
+  document.querySelectorAll('.code-input').forEach(function(inp) { inp.value = ''; });
+  document.getElementById('flip-clock').classList.remove('warning', 'danger');
+  // Reset open screen
+  clearInterval(openInterval);
+  stopGreenBlink();
+  document.getElementById('open-timer').textContent = '01:00';
+  document.getElementById('open-timer').classList.remove('urgent');
+  showScreen('screen-vault');
+  startTimer();
+}
+
+// Auto-advance to next input
+document.querySelectorAll('.code-input').forEach(function(inp, idx, arr) {
+  inp.addEventListener('input', function() {
+    var max = parseInt(this.getAttribute('maxlength')) || 5;
+    if (this.value.length >= max && idx < arr.length - 1) {
+      arr[idx + 1].focus();
+    }
+  });
+});
+
+// Start — timer begins only after gate entry (called from tryGate)
+
+// ===== MATRIX ENGINE =====
+var COLS = 10;
+// Section info: which rows belong to which metal
+var matrixSections = [
+  { label: null, metal: null, rows: [0] },
+  { label: 'ברזל', metal: 'iron', rows: [1,2,3,4] },
+  { label: 'נחושת', metal: 'copper', rows: [5,6,7] },
+  { label: 'כסף', metal: 'silver', rows: [8,9,10] },
+  { label: 'זהב', metal: 'gold', rows: [11,12,13,14] }
+];
+
+var matrixData = [
+  // Row 0: Title
+  [
+    {t:'ה',type:'title',s:1},{t:'מ',type:'title',s:1},{t:'ט',type:'title',s:1},{t:'ר',type:'title',s:1},
+    {t:'י',type:'title',s:1},{t:'צ',type:'title',s:1},{t:'ה',type:'title',s:1},
+    {t:'של',type:'title',s:1},{t:'סבא',type:'title',s:1},{t:'חיים',type:'title',s:1}
+  ],
+  // === IRON (4 rows) ===
+  // Row 1: Sentence puzzle
+  [
+    {t:'סדר את המשפט',type:'label',s:3},
+    {t:'הזיכרון',type:'word',s:1},{t:'נשמר',type:'word',s:1},{t:'בנפש',type:'word',s:1},
+    {t:'האדם',type:'word',s:1},{t:'חזק',type:'word',s:1},{t:'כמו',type:'word',s:1},{t:'ברזל',type:'word',s:1}
+  ],
+  // Row 2: Iron symbol
+  [
+    {t:'e',type:'symbol',s:1},{t:'F',type:'symbol',s:1},{t:'',type:'empty',s:2},
+    {t:'הסמל של הברזל במדע בשתי אותיות הוא',type:'text',s:6}
+  ],
+  // Row 3: Iron protons/electrons
+  [
+    {t:'מספר פרוטונים בגרעין האטום של הברזל',type:'text',s:4},{t:'26',type:'number',s:1},
+    {t:'מספר אלקטרונים חופשיים מסביב לגרעין אטום הברזל',type:'text',s:4},{t:'26',type:'number',s:1}
+  ],
+  // Row 4: Iron specific gravity ★
+  [
+    {t:'7.87',type:'code',s:1},{t:'',type:'empty',s:2},
+    {t:'זהו המשקל הסגולי של הברזל',type:'text',s:7}
+  ],
+  // === COPPER (3 rows) ===
+  // Row 5: Copper symbol
+  [
+    {t:'u',type:'symbol',s:1},{t:'C',type:'symbol',s:1},{t:'',type:'empty',s:2},
+    {t:'סימון הנחושת במדע (ובטבלה המחזורית) — בשתי אותיות',type:'text',s:6}
+  ],
+  // Row 6: Copper protons/electrons
+  [
+    {t:'כמה פרוטונים יש בגרעין האטום של הנחושת',type:'text',s:4},{t:'29',type:'number',s:1},
+    {t:'כמה אלקטרונים חופשיים מסביב לגרעין אטום הנחושת',type:'text',s:4},{t:'29',type:'number',s:1}
+  ],
+  // Row 7: Copper gravity ★ + bronze
+  [
+    {t:'8.96',type:'code',s:1},{t:'זהו המשקל הסגולי\nשל הנחושת',type:'text',s:2},
+    {t:'שם קדום\nלנחושת',type:'label',s:1},
+    {t:'ב',type:'letter',s:1},{t:'ר',type:'letter',s:1},{t:'ו',type:'letter',s:1},
+    {t:'נ',type:'letter',s:1},{t:'ז',type:'letter',s:1},{t:'ה',type:'letter',s:1}
+  ],
+  // === SILVER (3 rows) ===
+  // Row 8: Silver - Argentum
+  [
+    {t:'m',type:'symbol',s:1},{t:'u',type:'symbol',s:1},{t:'t',type:'symbol',s:1},
+    {t:'n',type:'symbol',s:1},{t:'e',type:'symbol',s:1},{t:'g',type:'symbol',s:1},
+    {t:'r',type:'symbol',s:1},{t:'A',type:'symbol',s:1},
+    {t:'',type:'empty',s:1},{t:'סוד הכסף',type:'label',s:1}
+  ],
+  // Row 9: Silver protons/electrons
+  [
+    {t:'מספר הפרוטונים בגרעין האטום של הכסף',type:'text',s:4},{t:'47',type:'number',s:1},
+    {t:'מספר האלקטרונים חופשיים מסביב לגרעין אטום הכסף',type:'text',s:4},{t:'47',type:'number',s:1}
+  ],
+  // Row 10: Silver gravity ★
+  [
+    {t:'10.49',type:'code',s:2},
+    {t:'זהו המשקל הסגולי של מתכת הכסף',type:'text',s:8}
+  ],
+  // === GOLD (4 rows) ===
+  // Row 11: Gold - Aurum
+  [
+    {t:'m',type:'symbol',s:1},{t:'u',type:'symbol',s:1},{t:'r',type:'symbol',s:1},
+    {t:'u',type:'symbol',s:1},{t:'A',type:'symbol',s:1},
+    {t:'',type:'empty',s:1},{t:'מהו השם שהזמן אינו מסתיר',type:'text',s:4}
+  ],
+  // Row 12: Gold Fcc
+  [
+    {t:'c',type:'symbol',s:1},{t:'c',type:'symbol',s:1},{t:'F',type:'symbol',s:1},
+    {t:'',type:'empty',s:1},{t:'המבנה שמחזיק הכל',type:'text',s:6}
+  ],
+  // Row 13: Gold protons/electrons
+  [
+    {t:'מספר הפרוטונים בגרעין האטום של הזהב',type:'text',s:4},{t:'79',type:'number',s:1},
+    {t:'מספר האלקטרונים החופשיים מסביב לגרעין אטום הזהב',type:'text',s:4},{t:'79',type:'number',s:1}
+  ],
+  // Row 14: Gold gravity ★
+  [
+    {t:'19.32',type:'code',s:2},
+    {t:'זהו המשקל הסגולי של מתכת הזהב',type:'text',s:8}
+  ]
+];
+
+var originalData = JSON.parse(JSON.stringify(matrixData));
+
+function renderMatrix(targetId, editable) {
+  var rootId = targetId || 'matrix-root';
+  var root = document.getElementById(rootId);
+  if (!root) return;
+  root.innerHTML = '';
+
+  matrixSections.forEach(function(sec) {
+    if (sec.label) {
+      var sectionEl = document.createElement('div');
+      sectionEl.className = 'm-section';
+
+      var labelEl = document.createElement('div');
+      labelEl.className = 'm-section-label';
+      labelEl.dataset.metal = sec.metal;
+      labelEl.textContent = sec.label;
+      sectionEl.appendChild(labelEl);
+
+      var rowsEl = document.createElement('div');
+      rowsEl.className = 'm-section-rows';
+
+      sec.rows.forEach(function(ri) {
+        if (ri >= matrixData.length) return;
+        rowsEl.appendChild(editable ? buildRow(ri) : buildReadOnlyRow(ri));
+      });
+
+      sectionEl.appendChild(rowsEl);
+      root.appendChild(sectionEl);
+    } else {
+      sec.rows.forEach(function(ri) {
+        if (ri >= matrixData.length) return;
+        root.appendChild(editable ? buildRow(ri) : buildReadOnlyRow(ri));
+      });
+    }
+  });
+
+  if (editable) {
+    var bar = document.createElement('div');
+    bar.className = 'matrix-bar';
+    bar.innerHTML = '<button class="m-bar-btn secondary" onclick="addRow()">+ שורה</button>';
+    root.appendChild(bar);
+  } else {
+    // Print button for reader
+    var bar = document.createElement('div');
+    bar.className = 'matrix-bar';
+    bar.innerHTML = '<button class="m-bar-btn" onclick="window.print()">🖨️ הדפס מטריצה</button>';
+    root.appendChild(bar);
+  }
+}
+
+function buildReadOnlyRow(ri) {
+  var row = matrixData[ri];
+  var rowEl = document.createElement('div');
+  rowEl.className = 'm-row';
+  row.forEach(function(cell) {
+    var cube = document.createElement('div');
+    cube.className = 'm-cube';
+    cube.dataset.type = cell.type || 'text';
+    if (cell.w) cube.style.width = cell.w + 'px';
+    if (cell.h) cube.style.height = cell.h + 'px';
+    if (cell.type === 'image' && cell.src) {
+      cube.innerHTML = '<img src="' + cell.src + '" alt="" />';
+    } else {
+      cube.textContent = cell.text || '';
+    }
+    // No toolbar, no drag, no resize
+    rowEl.appendChild(cube);
+  });
+  return rowEl;
+}
+
+function buildRow(ri) {
+  var row = matrixData[ri];
+  var rowEl = document.createElement('div');
+  rowEl.className = 'm-row';
+  rowEl.dataset.row = ri;
+
+  row.forEach(function(cell, ci) {
+    rowEl.appendChild(buildCube(cell, ri, ci));
+  });
+
+  var addBtn = document.createElement('div');
+  addBtn.className = 'm-add-cube';
+  addBtn.textContent = '+';
+  addBtn.onclick = function() { addCube(ri); };
+  rowEl.appendChild(addBtn);
+
+  return rowEl;
+}
+
+function buildCube(cell, ri, ci) {
+  var el = document.createElement('div');
+  el.className = 'm-cube';
+  el.dataset.type = cell.type;
+  el.dataset.row = ri;
+  el.dataset.col = ci;
+  el.draggable = true;
+
+  // Width based on span (each unit = ~10% of row)
+  var pct = (cell.s / COLS * 100);
+  el.style.flex = '0 0 calc(' + pct + '% - 6px)';
+
+  // Content
+  if (cell.type === 'empty') {
+    el.textContent = '+';
+  } else if (cell.type === 'image') {
+    el.innerHTML = '<img src="' + (cell.t || '').replace(/"/g, '&quot;') + '" alt="" />';
+  } else {
+    el.textContent = cell.t;
+  }
+
+  // Toolbar
+  var tb = document.createElement('div');
+  tb.className = 'm-toolbar';
+  tb.innerHTML =
+    '<button class="m-tb-btn" title="הרחב" onclick="resizeCube(' + ri + ',' + ci + ',1)">⇔</button>' +
+    '<button class="m-tb-btn" title="כווץ" onclick="resizeCube(' + ri + ',' + ci + ',-1)">⇿</button>' +
+    '<button class="m-tb-btn" title="ערוך" onclick="editCube(' + ri + ',' + ci + ')">✎</button>' +
+    '<button class="m-tb-btn" title="מחק" onclick="deleteCube(' + ri + ',' + ci + ')">✕</button>';
+  el.appendChild(tb);
+
+  // Resize handle
+  var handle = document.createElement('div');
+  handle.className = 'm-resize';
+  handle.addEventListener('mousedown', function(e) { startResize(e, ri, ci); });
+  handle.addEventListener('touchstart', function(e) { startResize(e, ri, ci); }, { passive: false });
+  el.appendChild(handle);
+
+  // Drag events
+  el.addEventListener('dragstart', function(e) { mDragStart(e, ri, ci); });
+  el.addEventListener('dragover', function(e) { e.preventDefault(); });
+  el.addEventListener('dragenter', function() { el.classList.add('drag-over'); });
+  el.addEventListener('dragleave', function() { el.classList.remove('drag-over'); });
+  el.addEventListener('drop', function(e) { mDrop(e, ri, ci); });
+  el.addEventListener('dragend', mDragEnd);
+
+  // Touch drag
+  el.addEventListener('touchstart', function(e) { mTouchStart(e, ri, ci); }, { passive: false });
+  el.addEventListener('touchmove', mTouchMove, { passive: false });
+  el.addEventListener('touchend', mTouchEnd);
+
+  // Click empty
+  if (cell.type === 'empty') {
+    el.addEventListener('click', function(ev) {
+      if (ev.target.closest('.m-toolbar') || ev.target.closest('.m-resize')) return;
+      editCube(ri, ci);
+    });
+  }
+
+  // Long-press on mobile to show toolbar
+  var pressTimer;
+  el.addEventListener('touchstart', function() {
+    pressTimer = setTimeout(function() { el.classList.add('tb-open'); }, 500);
+  });
+  el.addEventListener('touchend', function() { clearTimeout(pressTimer); });
+  el.addEventListener('touchmove', function() { clearTimeout(pressTimer); });
+
+  return el;
+}
+
+// ---- CUBE ACTIONS ----
+
+function resizeCube(ri, ci, delta) {
+  var cell = matrixData[ri][ci];
+  var newSpan = cell.s + delta;
+  if (newSpan < 1) newSpan = 1;
+  if (newSpan > COLS) newSpan = COLS;
+  cell.s = newSpan;
+  renderAllMatrix();
+}
+
+function editCube(ri, ci) {
+  var cell = matrixData[ri][ci];
+  var choice = prompt('מה להוסיף?\n1 = טקסט\n2 = תמונה (URL)\n3 = אימוג׳י / אייקון\n4 = מספר\n5 = סימן כימי\n6 = אות\n7 = צופן (ירוק זוהר)');
+  if (!choice) return;
+
+  if (choice === '1') {
+    var text = prompt('טקסט:', cell.t || '');
+    if (text !== null) { cell.t = text; cell.type = 'text'; }
+  } else if (choice === '2') {
+    var url = prompt('כתובת תמונה:', cell.t || '');
+    if (url) { cell.t = url; cell.type = 'image'; }
+  } else if (choice === '3') {
+    var emoji = prompt('אימוג׳י / אייקון:', cell.t || '');
+    if (emoji !== null) { cell.t = emoji; cell.type = 'title'; }
+  } else if (choice === '4') {
+    var num = prompt('מספר:', cell.t || '');
+    if (num !== null) { cell.t = num; cell.type = 'number'; }
+  } else if (choice === '5') {
+    var sym = prompt('סימן:', cell.t || '');
+    if (sym !== null) { cell.t = sym; cell.type = 'symbol'; }
+  } else if (choice === '6') {
+    var ltr = prompt('אות:', cell.t || '');
+    if (ltr !== null) { cell.t = ltr; cell.type = 'letter'; }
+  } else if (choice === '7') {
+    var code = prompt('ערך צופן:', cell.t || '');
+    if (code !== null) { cell.t = code; cell.type = 'code'; }
+  }
+  renderAllMatrix();
+}
+
+function deleteCube(ri, ci) {
+  matrixData[ri].splice(ci, 1);
+  if (matrixData[ri].length === 0) matrixData.splice(ri, 1);
+  renderAllMatrix();
+}
+
+function addCube(ri) {
+  matrixData[ri].push({ t: '', type: 'empty', s: 1 });
+  renderAllMatrix();
+}
+
+function addRow() {
+  matrixData.push([{ t: '', type: 'empty', s: COLS }]);
+  renderAllMatrix();
+}
+
+function resetMatrix() {
+  matrixData = JSON.parse(JSON.stringify(originalData));
+  renderAllMatrix();
+}
+
+// ---- DRAG & DROP ----
+var mDragSrcR = -1, mDragSrcC = -1;
+
+function mDragStart(e, ri, ci) {
+  mDragSrcR = ri;
+  mDragSrcC = ci;
+  e.target.closest('.m-cube').classList.add('dragging');
+  e.dataTransfer.effectAllowed = 'move';
+  e.dataTransfer.setData('text/plain', ri + ',' + ci);
+}
+
+function mDrop(e, ri, ci) {
+  e.preventDefault();
+  e.stopPropagation();
+  if (mDragSrcR === ri && mDragSrcC === ci) return;
+  // Swap data
+  var temp = matrixData[mDragSrcR][mDragSrcC];
+  matrixData[mDragSrcR][mDragSrcC] = matrixData[ri][ci];
+  matrixData[ri][ci] = temp;
+  renderAllMatrix();
+}
+
+function mDragEnd() {
+  document.querySelectorAll('.m-cube').forEach(function(c) {
+    c.classList.remove('dragging', 'drag-over');
+  });
+  mDragSrcR = -1; mDragSrcC = -1;
+}
+
+// ---- TOUCH DRAG ----
+var mTouchEl = null, mTouchClone = null, mTouchTarget = null;
+var mTouchSrcR = -1, mTouchSrcC = -1;
+var mTouchOX = 0, mTouchOY = 0;
+var mTouchMoved = false;
+
+function mTouchStart(e, ri, ci) {
+  if (e.touches.length !== 1) return;
+  mTouchMoved = false;
+  var touch = e.touches[0];
+  mTouchEl = e.target.closest('.m-cube');
+  if (!mTouchEl) return;
+  mTouchSrcR = ri; mTouchSrcC = ci;
+  var rect = mTouchEl.getBoundingClientRect();
+  mTouchOX = touch.clientX - rect.left;
+  mTouchOY = touch.clientY - rect.top;
+}
+
+function mTouchMove(e) {
+  if (!mTouchEl) return;
+  e.preventDefault();
+  mTouchMoved = true;
+  var touch = e.touches[0];
+
+  if (!mTouchClone) {
+    var rect = mTouchEl.getBoundingClientRect();
+    mTouchClone = mTouchEl.cloneNode(true);
+    mTouchClone.querySelector('.m-toolbar') && mTouchClone.querySelector('.m-toolbar').remove();
+    mTouchClone.style.cssText = 'position:fixed;z-index:9999;pointer-events:none;opacity:0.85;' +
+      'box-shadow:0 10px 40px rgba(0,0,0,0.3);transform:scale(1.05);' +
+      'width:' + rect.width + 'px;height:' + rect.height + 'px;' +
+      'left:' + rect.left + 'px;top:' + rect.top + 'px;border-radius:10px;';
+    document.body.appendChild(mTouchClone);
+    mTouchEl.classList.add('dragging');
+  }
+
+  mTouchClone.style.left = (touch.clientX - mTouchOX) + 'px';
+  mTouchClone.style.top = (touch.clientY - mTouchOY) + 'px';
+
+  mTouchClone.style.display = 'none';
+  var below = document.elementFromPoint(touch.clientX, touch.clientY);
+  mTouchClone.style.display = '';
+
+  if (mTouchTarget) mTouchTarget.classList.remove('drag-over');
+  var cube = below && below.closest ? below.closest('.m-cube') : null;
+  if (cube && cube !== mTouchEl) {
+    cube.classList.add('drag-over');
+    mTouchTarget = cube;
+  } else {
+    mTouchTarget = null;
+  }
+}
+
+function mTouchEnd() {
+  if (mTouchMoved && mTouchTarget && mTouchEl) {
+    var tr = parseInt(mTouchTarget.dataset.row);
+    var tc = parseInt(mTouchTarget.dataset.col);
+    if (!(mTouchSrcR === tr && mTouchSrcC === tc)) {
+      var temp = matrixData[mTouchSrcR][mTouchSrcC];
+      matrixData[mTouchSrcR][mTouchSrcC] = matrixData[tr][tc];
+      matrixData[tr][tc] = temp;
+      renderAllMatrix();
+    }
+  }
+  if (mTouchEl) mTouchEl.classList.remove('dragging');
+  if (mTouchTarget) mTouchTarget.classList.remove('drag-over');
+  if (mTouchClone && mTouchClone.parentNode) mTouchClone.parentNode.removeChild(mTouchClone);
+  mTouchEl = null; mTouchClone = null; mTouchTarget = null;
+  mTouchSrcR = -1; mTouchSrcC = -1; mTouchMoved = false;
+}
+
+// ---- RESIZE BY DRAG ----
+var resizeData = null;
+
+function startResize(e, ri, ci) {
+  e.preventDefault();
+  e.stopPropagation();
+  var clientX = e.touches ? e.touches[0].clientX : e.clientX;
+  var cubeEl = e.target.closest('.m-cube');
+  resizeData = { ri: ri, ci: ci, startX: clientX, startW: cubeEl.offsetWidth, el: cubeEl };
+  document.addEventListener('mousemove', doResize);
+  document.addEventListener('mouseup', endResize);
+  document.addEventListener('touchmove', doResize, { passive: false });
+  document.addEventListener('touchend', endResize);
+}
+
+function doResize(e) {
+  if (!resizeData) return;
+  e.preventDefault();
+  var clientX = e.touches ? e.touches[0].clientX : e.clientX;
+  var diff = resizeData.startX - clientX; // RTL: dragging left = wider
+  var rowEl = resizeData.el.closest('.m-row');
+  var colW = rowEl.offsetWidth / COLS;
+  var newSpan = Math.round((resizeData.startW + diff) / colW);
+  if (newSpan < 1) newSpan = 1;
+  if (newSpan > COLS) newSpan = COLS;
+  matrixData[resizeData.ri][resizeData.ci].s = newSpan;
+  var pct = (newSpan / COLS * 100);
+  resizeData.el.style.flex = '0 0 calc(' + pct + '% - 6px)';
+}
+
+function endResize() {
+  document.removeEventListener('mousemove', doResize);
+  document.removeEventListener('mouseup', endResize);
+  document.removeEventListener('touchmove', doResize);
+  document.removeEventListener('touchend', endResize);
+  resizeData = null;
+  renderAllMatrix();
+}
+
+// Close toolbar on tap outside
+document.addEventListener('click', function(e) {
+  if (!e.target.closest('.m-cube')) {
+    document.querySelectorAll('.tb-open').forEach(function(el) { el.classList.remove('tb-open'); });
+  }
+});
+
+// ===== OPEN VAULT COUNTDOWN =====
+var openTimeLeft = 60;
+var openInterval = null;
+var greenBlinkInterval = null;
+
+function playTickOpen() {
+  var ctx = getAudioCtx();
+  var osc = ctx.createOscillator();
+  var gain = ctx.createGain();
+  osc.connect(gain);
+  gain.connect(ctx.destination);
+  osc.frequency.value = openTimeLeft <= 15 ? 1400 : 1000;
+  osc.type = 'triangle';
+  gain.gain.setValueAtTime(0.1, ctx.currentTime);
+  gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.12);
+  osc.start(ctx.currentTime);
+  osc.stop(ctx.currentTime + 0.12);
+}
+
+function startGreenBlink() {
+  if (greenBlinkInterval) clearTimeout(greenBlinkInterval);
+  doGreenBlink();
+}
+
+function doGreenBlink() {
+  var blink = document.getElementById('vault-blink-green');
+  if (!blink) return;
+  var speed = openTimeLeft <= 15 ? 300 : 600;
+  blink.classList.add('blink-on');
+  setTimeout(function() { blink.classList.remove('blink-on'); }, speed * 0.4);
+  greenBlinkInterval = setTimeout(doGreenBlink, speed);
+}
+
+function stopGreenBlink() {
+  if (greenBlinkInterval) { clearTimeout(greenBlinkInterval); greenBlinkInterval = null; }
+  var blink = document.getElementById('vault-blink-green');
+  if (blink) blink.classList.remove('blink-on');
+}
+
+function startOpenCountdown() {
+  openTimeLeft = 60;
+  var timerEl = document.getElementById('open-timer');
+  startGreenBlink();
+
+  openInterval = setInterval(function() {
+    openTimeLeft--;
+    var s = openTimeLeft;
+    timerEl.textContent = '00:' + s.toString().padStart(2, '0');
+
+    playTickOpen();
+
+    if (openTimeLeft <= 15) {
+      timerEl.classList.add('urgent');
+    }
+
+    if (openTimeLeft <= 0) {
+      clearInterval(openInterval);
+      stopGreenBlink();
+      playLockdown();
+      showScreen('screen-locked');
+    }
+  }, 1000);
+}
+
+function extractEnvelope() {
+  clearInterval(openInterval);
+  stopGreenBlink();
+  playFanfare();
+  trackEvent('envelope_extracted');
+  showScreen('screen-letter');
+}
+
+// ===== HOME =====
+function goHome() {
+  showScreen('screen-home');
+}
+
+// ===== VIEW MODES =====
+function setViewMode(mode) {
+  document.body.classList.remove('view-mobile', 'view-tablet', 'view-desktop');
+  document.body.classList.add('view-' + mode);
+  document.querySelectorAll('.mode-btn').forEach(function(b) {
+    b.classList.toggle('active-mode', b.getAttribute('data-mode') === mode);
+  });
+}
+
+// Helper: render both matrices
+function renderAllMatrix() {
+  try { renderMatrix('matrix-admin-root', true); } catch(e) { console.error('Admin matrix error:', e); }
+  try { renderMatrix('matrix-root', false); } catch(e) { console.error('Reader matrix error:', e); }
+}
+
+// Init matrix
+renderAllMatrix();
+
+// ===== ADMIN =====
+var adminToken = null;
+
+document.getElementById('admin-pass').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') loginAdmin();
+});
+
+async function loginAdmin() {
+  var pass = document.getElementById('admin-pass').value.trim();
+  var errorEl = document.getElementById('admin-error');
+  errorEl.style.display = 'none';
+
+  if (!pass) {
+    errorEl.textContent = 'יש להזין סיסמה';
+    errorEl.style.display = 'block';
+    return;
+  }
+
+  try {
+    var res = await fetch('/api/admin/attempts?token=' + encodeURIComponent(pass));
+    var data = await res.json();
+
+    if (data.error) {
+      errorEl.textContent = 'סיסמה שגויה';
+      errorEl.style.display = 'block';
+      return;
+    }
+
+    adminToken = pass;
+    document.getElementById('admin-login').style.display = 'none';
+    document.getElementById('admin-panel').style.display = 'block';
+    showAdminTab('codes');
+  } catch (e) {
+    errorEl.textContent = 'שגיאת תקשורת';
+    errorEl.style.display = 'block';
+  }
+}
+
+function logoutAdmin() {
+  adminToken = null;
+  document.getElementById('admin-login').style.display = 'block';
+  document.getElementById('admin-panel').style.display = 'none';
+  document.getElementById('admin-pass').value = '';
+}
+
+function showAdminTab(tab) {
+  document.querySelectorAll('.admin-tab').forEach(function(t) { t.classList.remove('active'); });
+  document.querySelectorAll('.admin-page').forEach(function(p) { p.classList.remove('active'); });
+  document.getElementById('admin-' + tab).classList.add('active');
+  document.querySelectorAll('.admin-tab').forEach(function(t) {
+    if (t.onclick && t.onclick.toString().indexOf("'" + tab + "'") > -1) t.classList.add('active');
+  });
+  // Load tab data
+  if (tab === 'codes') loadCodesTab();
+  else if (tab === 'demo') loadDemoTab();
+  else if (tab === 'master') loadMasterTab();
+  else if (tab === 'leads') loadLeadsTab();
+  else if (tab === 'matrix') renderMatrix('matrix-admin-root', true);
+}
+
+// --- Codes tab ---
+var allCodes = [];
+
+async function loadCodesTab() {
+  try {
+    var res = await fetch('/api/admin/codes?token=' + encodeURIComponent(adminToken));
+    var data = await res.json();
+    if (data.error) return;
+    allCodes = data.codes || [];
+
+    var active = allCodes.filter(function(c) { return c.active; }).length;
+    var totalUses = allCodes.reduce(function(s, c) { return s + (c.uses || 0); }, 0);
+
+    // Count batches
+    var batches = {};
+    allCodes.forEach(function(c) {
+      var b = c.batch || 0;
+      if (!batches[b]) batches[b] = 0;
+      batches[b]++;
+    });
+
+    document.getElementById('codes-summary').innerHTML =
+      '<div class="stat"><div class="stat-num">' + allCodes.length + '</div><div class="stat-label">סה"כ קודים</div></div>' +
+      '<div class="stat"><div class="stat-num">' + active + '</div><div class="stat-label">פעילים</div></div>' +
+      '<div class="stat"><div class="stat-num">' + Object.keys(batches).filter(function(k){return k!=='0';}).length + '</div><div class="stat-label">מנות</div></div>' +
+      '<div class="stat"><div class="stat-num">' + totalUses + '</div><div class="stat-label">שימושים</div></div>';
+
+    // Batch list
+    var batchList = document.getElementById('batch-list');
+    var batchKeys = Object.keys(batches).filter(function(k){return k!=='0';}).sort(function(a,b){return a-b;});
+    if (batchKeys.length === 0) {
+      batchList.innerHTML = '<span style="color:#5a5040;font-size:0.85rem;">אין מנות עדיין — ייצר מנה ראשונה למעלה</span>';
+    } else {
+      batchList.innerHTML = batchKeys.map(function(b) {
+        return '<button class="admin-btn secondary" style="font-size:0.8rem;" onclick="showBatchDetail(' + b + ')">מנה ' + b + ' (' + batches[b] + ')</button>';
+      }).join('');
+    }
+
+    // Hide detail
+    document.getElementById('batch-detail').style.display = 'none';
+  } catch (e) { console.error(e); }
+}
+
+async function generateBatch() {
+  var batch = document.getElementById('gen-batch').value;
+  var statusEl = document.getElementById('gen-status');
+  statusEl.textContent = 'מייצר...';
+  statusEl.style.display = 'inline';
+  statusEl.style.color = '#ffaa00';
+
+  try {
+    var res = await fetch('/api/admin/codes/generate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ token: adminToken, batch: batch, count: 1000 })
+    });
+    var data = await res.json();
+    if (data.success) {
+      statusEl.textContent = 'נוצרו ' + data.generated + ' קודים במנה ' + data.batch;
+      statusEl.style.color = '#00ff88';
+      loadCodesTab();
+    } else {
+      statusEl.textContent = 'שגיאה';
+      statusEl.style.color = '#ff4444';
+    }
+  } catch (e) {
+    statusEl.textContent = 'שגיאת תקשורת';
+    statusEl.style.color = '#ff4444';
+  }
+}
+
+function showBatchDetail(batchNum) {
+  var batchCodes = allCodes.filter(function(c) { return c.batch === batchNum; });
+  document.getElementById('batch-detail').style.display = 'block';
+  document.getElementById('batch-detail-num').textContent = batchNum;
+  document.getElementById('batch-detail-count').textContent = batchCodes.length;
+
+  // Split into print booklets of 100
+  var totalBooklets = Math.ceil(batchCodes.length / 100);
+  var printPages = document.getElementById('print-pages');
+  var html = '';
+  for (var i = 0; i < totalBooklets; i++) {
+    var from = i * 100 + 1;
+    var to = Math.min((i + 1) * 100, batchCodes.length);
+    html += '<button class="admin-btn" style="font-size:0.8rem;" onclick="printBooklet(' + batchNum + ',' + i + ')">🖨️ חוברת ' + (i + 1) + '<br><span style="font-size:0.7rem;font-weight:400;">קודים ' + from + '–' + to + '</span></button>';
+  }
+  printPages.innerHTML = html;
+}
+
+function printBooklet(batchNum, bookletIndex) {
+  var batchCodes = allCodes.filter(function(c) { return c.batch === batchNum; });
+  var start = bookletIndex * 100;
+  var codes = batchCodes.slice(start, start + 100);
+  var codesPerPage = 28; // 2 cols x 14 rows
+  var totalPages = Math.ceil(codes.length / codesPerPage);
+
+  var html = '<!DOCTYPE html><html dir="ltr"><head><meta charset="UTF-8"><title>מנה ' + batchNum + ' — חוברת ' + (bookletIndex + 1) + '</title><style>';
+  html += '@page { size: A4; margin: 10mm; }';
+  html += '* { margin:0; padding:0; box-sizing:border-box; }';
+  html += 'body { font-family: "Courier New", monospace; }';
+  html += '.page { width: 190mm; height: 277mm; page-break-after: always; display: flex; flex-wrap: wrap; align-content: flex-start; gap: 0; }';
+  html += '.page:last-child { page-break-after: auto; }';
+  html += '.code-card { width: 95mm; height: 19.5mm; border: 0.5px dashed #ccc; display: flex; align-items: center; justify-content: center; font-size: 16pt; font-weight: 700; letter-spacing: 3px; color: #333; }';
+  html += '.page-header { width: 100%; text-align: center; font-size: 8pt; color: #999; margin-bottom: 2mm; font-family: Arial, sans-serif; }';
+  html += '@media print { .no-print { display: none; } }';
+  html += '</style></head><body>';
+
+  // Print button
+  html += '<div class="no-print" style="text-align:center;padding:15px;background:#333;color:#fff;font-family:Arial,sans-serif;">';
+  html += '<span>מנה ' + batchNum + ' | חוברת ' + (bookletIndex + 1) + ' | ' + codes.length + ' קודים | ' + totalPages + ' דפים</span> ';
+  html += '<button onclick="window.print()" style="margin-right:15px;padding:8px 20px;font-size:14px;cursor:pointer;">🖨️ הדפס</button>';
+  html += '</div>';
+
+  for (var p = 0; p < totalPages; p++) {
+    var pageCodes = codes.slice(p * codesPerPage, (p + 1) * codesPerPage);
+    html += '<div class="page">';
+    html += '<div class="page-header">הצופן הסודי — מנה ' + batchNum + ' / חוברת ' + (bookletIndex + 1) + ' / דף ' + (p + 1) + ' מתוך ' + totalPages + '</div>';
+    for (var c = 0; c < pageCodes.length; c++) {
+      html += '<div class="code-card">' + pageCodes[c].code + '</div>';
+    }
+    html += '</div>';
+  }
+
+  html += '</body></html>';
+
+  var w = window.open('', '_blank');
+  w.document.write(html);
+  w.document.close();
+}
+
+// --- Demo tab ---
+function loadDemoTab() {
+  document.getElementById('demo-tbody').innerHTML = '<tr><td colspan="5" class="admin-empty">אין קודי דמו עדיין</td></tr>';
+}
+function generateDemoCodes(n) { alert('פיצ׳ר בבנייה — ייצור ' + n + ' קודי דמו'); }
+
+// --- Master tab ---
+async function loadMasterTab() {
+  try {
+    var res = await fetch('/api/admin/master?token=' + encodeURIComponent(adminToken));
+    var data = await res.json();
+    if (data.error) return;
+    var codes = data.codes || [];
+
+    var tbody = document.getElementById('master-tbody');
+    if (codes.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="5" class="admin-empty">אין קודי מאסטר עדיין</td></tr>';
+      return;
+    }
+    tbody.innerHTML = codes.map(function(c) {
+      return '<tr>' +
+        '<td class="code-cell">' + c.code + '</td>' +
+        '<td>' + (c.name || '—') + '</td>' +
+        '<td><span class="admin-badge ' + (c.active ? 'active' : 'inactive') + '">' + (c.active ? 'פעיל' : 'מושבת') + '</span></td>' +
+        '<td>' + (c.uses || 0) + '</td>' +
+        '<td style="font-size:0.7rem;color:#8a7e6a;">' + (c.lastUsed ? new Date(c.lastUsed).toLocaleString('he-IL') : '—') + '</td>' +
+        '</tr>';
+    }).join('');
+  } catch (e) { console.error(e); }
+}
+function addMasterCode() { alert('פיצ׳ר בבנייה — הוספת קוד מאסטר'); }
+
+// --- Leads tab ---
+async function loadLeadsTab() {
+  try {
+    var res = await fetch('/api/admin/leads?token=' + encodeURIComponent(adminToken));
+    var data = await res.json();
+    if (data.error) return;
+    var leads = data.leads || [];
+
+    var vaultCount = leads.filter(function(l) { return l.vaultOpened; }).length;
+    var letterCount = leads.filter(function(l) { return l.printedLetter; }).length;
+
+    document.getElementById('leads-summary').innerHTML =
+      '<div class="stat"><div class="stat-num">' + leads.length + '</div><div class="stat-label">סה"כ קוראים</div></div>' +
+      '<div class="stat"><div class="stat-num">' + vaultCount + '</div><div class="stat-label">פתחו כספת</div></div>' +
+      '<div class="stat"><div class="stat-num">' + letterCount + '</div><div class="stat-label">חילצו מכתב</div></div>';
+
+    var tbody = document.getElementById('leads-tbody');
+    if (leads.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="7" class="admin-empty">אין לידים עדיין</td></tr>';
+      return;
+    }
+    tbody.innerHTML = leads.map(function(l) {
+      function badge(val) {
+        return '<span class="admin-badge ' + (val ? 'active' : 'inactive') + '">' + (val ? '✓' : '✗') + '</span>';
+      }
+      return '<tr>' +
+        '<td class="code-cell">' + l.code + '</td>' +
+        '<td style="direction:ltr;text-align:left;">' + (l.phone || '—') + '</td>' +
+        '<td style="text-align:center;">' + badge(l.vaultOpened) + '</td>' +
+        '<td style="text-align:center;">' + badge(l.printedLetter) + '</td>' +
+        '<td style="text-align:center;">' + badge(l.gotCertificate) + '</td>' +
+        '<td style="text-align:center;">' + badge(l.printedCertificate) + '</td>' +
+        '<td style="font-size:0.7rem;color:#8a7e6a;">' + new Date(l.lastEntry).toLocaleString('he-IL') + '</td>' +
+        '</tr>';
+    }).join('');
+  } catch (e) { console.error(e); }
+}
+function exportLeads() { alert('פיצ׳ר בבנייה — ייצוא לידים'); }
+
+// --- Password tab ---
+async function changePassword() {
+  var current = document.getElementById('pw-current').value;
+  var newPw = document.getElementById('pw-new').value;
+  var confirm = document.getElementById('pw-confirm').value;
+  var msgEl = document.getElementById('pw-msg');
+
+  if (!current || !newPw || !confirm) {
+    msgEl.textContent = 'יש למלא את כל השדות';
+    msgEl.style.color = '#ff4444';
+    msgEl.style.display = 'block';
+    return;
+  }
+  if (newPw !== confirm) {
+    msgEl.textContent = 'הסיסמאות אינן תואמות';
+    msgEl.style.color = '#ff4444';
+    msgEl.style.display = 'block';
+    return;
+  }
+  if (newPw.length < 4) {
+    msgEl.textContent = 'סיסמה חייבת להכיל לפחות 4 תווים';
+    msgEl.style.color = '#ff4444';
+    msgEl.style.display = 'block';
+    return;
+  }
+
+  try {
+    var res = await fetch('/api/admin/password', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ token: adminToken, currentPassword: current, newPassword: newPw })
+    });
+    var data = await res.json();
+    if (data.success) {
+      adminToken = newPw;
+      msgEl.textContent = 'הסיסמה שונתה בהצלחה!';
+      msgEl.style.color = '#00ff88';
+      document.getElementById('pw-current').value = '';
+      document.getElementById('pw-new').value = '';
+      document.getElementById('pw-confirm').value = '';
+    } else {
+      msgEl.textContent = data.message || 'שגיאה';
+      msgEl.style.color = '#ff4444';
+    }
+    msgEl.style.display = 'block';
+  } catch (e) {
+    msgEl.textContent = 'שגיאת תקשורת';
+    msgEl.style.color = '#ff4444';
+    msgEl.style.display = 'block';
+  }
+}
+</script>
+
+</body>
+</html>

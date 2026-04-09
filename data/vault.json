@@ -1,0 +1,104 @@
+{
+  "keys": [],
+  "attempts": [
+    {
+      "key": "anonymous",
+      "iron": "7.87",
+      "copper": "8.96",
+      "silver": "10.49",
+      "gold": "19.32",
+      "correct": true,
+      "timestamp": "2026-04-08T21:32:50.670Z"
+    },
+    {
+      "key": "anonymous",
+      "iron": "7.87",
+      "copper": "8.96",
+      "silver": "10.49",
+      "gold": "19.32",
+      "correct": true,
+      "timestamp": "2026-04-09T08:10:52.545Z"
+    },
+    {
+      "key": "anonymous",
+      "iron": "7.87",
+      "copper": "8.96",
+      "silver": "10.49",
+      "gold": "19.32",
+      "correct": true,
+      "timestamp": "2026-04-09T08:17:54.285Z"
+    },
+    {
+      "key": "anonymous",
+      "iron": "7.87",
+      "copper": "8.96",
+      "silver": "10.49",
+      "gold": "19.32",
+      "correct": true,
+      "timestamp": "2026-04-09T08:22:02.729Z"
+    },
+    {
+      "key": "anonymous",
+      "iron": "7.87",
+      "copper": "8.96",
+      "silver": "10.49",
+      "gold": "19.32",
+      "correct": true,
+      "timestamp": "2026-04-09T08:30:08.826Z"
+    },
+    {
+      "key": "anonymous",
+      "iron": "7ץ87",
+      "copper": "8.96",
+      "silver": "10.49",
+      "gold": "19.32",
+      "correct": false,
+      "timestamp": "2026-04-09T08:44:27.340Z"
+    },
+    {
+      "key": "anonymous",
+      "iron": "7.87",
+      "copper": "8.96",
+      "silver": "10.49",
+      "gold": "19.32",
+      "correct": true,
+      "timestamp": "2026-04-09T08:44:40.391Z"
+    },
+    {
+      "key": "anonymous",
+      "iron": "7.87",
+      "copper": "8.96",
+      "silver": "10.49",
+      "gold": "19.32",
+      "correct": true,
+      "timestamp": "2026-04-09T11:11:15.463Z"
+    },
+    {
+      "key": "anonymous",
+      "iron": "7.87",
+      "copper": "8.96",
+      "silver": "10.49",
+      "gold": "19.32",
+      "correct": true,
+      "timestamp": "2026-04-09T11:24:42.108Z"
+    },
+    {
+      "key": "anonymous",
+      "iron": "7.87",
+      "copper": "8.96",
+      "silver": "10.49",
+      "gold": "19.32",
+      "correct": true,
+      "timestamp": "2026-04-09T11:37:11.054Z"
+    },
+    {
+      "key": "anonymous",
+      "iron": "7.87",
+      "copper": "8.96",
+      "silver": "10.49",
+      "gold": "19.32",
+      "correct": true,
+      "timestamp": "2026-04-09T11:57:11.258Z"
+    }
+  ]
+}
