@@ -1,0 +1,14 @@
+{
+  "codes": [
+    { "code": "A14031879N", "name": "אלברט איינשטיין", "nameEn": "Albert Einstein", "active": true, "uses": 0, "createdAt": "2026-04-09T00:00:00.000Z" },
+    { "code": "L15041452I", "name": "לאונרדו דה וינצ'י", "nameEn": "Leonardo da Vinci", "active": true, "uses": 0, "createdAt": "2026-04-09T00:00:00.000Z" },
+    { "code": "G15021564I", "name": "גלילאו גליליי", "nameEn": "Galileo Galilei", "active": true, "uses": 0, "createdAt": "2026-04-09T00:00:00.000Z" },
+    { "code": "N19021473S", "name": "ניקולאוס קופרניקוס", "nameEn": "Nicolaus Copernicus", "active": true, "uses": 0, "createdAt": "2026-04-09T00:00:00.000Z" },
+    { "code": "R31031596T", "name": "רנה דקארט", "nameEn": "René Descartes", "active": true, "uses": 0, "createdAt": "2026-04-09T00:00:00.000Z" },
+    { "code": "T11021847N", "name": "תומס אדיסון", "nameEn": "Thomas Edison", "active": true, "uses": 0, "createdAt": "2026-04-09T00:00:00.000Z" },
+    { "code": "N10071856A", "name": "ניקולה טסלה", "nameEn": "Nikola Tesla", "active": true, "uses": 0, "createdAt": "2026-04-09T00:00:00.000Z" },
+    { "code": "M22091791Y", "name": "מייקל פרדיי", "nameEn": "Michael Faraday", "active": true, "uses": 0, "createdAt": "2026-04-09T00:00:00.000Z" },
+    { "code": "M07111867E", "name": "מארי קירי", "nameEn": "Marie Curie", "active": true, "uses": 0, "createdAt": "2026-04-09T00:00:00.000Z" },
+    { "code": "D08021834V", "name": "דמיטרי מנדלייב", "nameEn": "Dmitri Mendeleev", "active": true, "uses": 0, "createdAt": "2026-04-09T00:00:00.000Z" }
+  ]
+}

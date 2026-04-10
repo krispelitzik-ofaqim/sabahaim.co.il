@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html dir="ltr" lang="he">
+<head>
+<meta charset="UTF-8">
+<title>דמו — הדפסת קודים 10×2 ס"מ (24 בדף, מופרדים)</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  @page {
+    size: A4;
+    margin: 0;
+  }
+
+  body {
+    font-family: "Courier New", monospace;
+    background: #e5e5e5;
+    padding: 20px;
+  }
+
+  /* Toolbar (screen only) */
+  .toolbar {
+    background: #1a1e28;
+    color: #e0d5c0;
+    padding: 15px 20px;
+    border-radius: 8px;
+    margin: 0 auto 20px;
+    max-width: 210mm;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: Arial, sans-serif;
+  }
+  .toolbar h1 { font-size: 16px; font-weight: 700; color: #c9a84c; }
+  .toolbar p { font-size: 12px; color: #8a7e6a; margin-top: 4px; line-height: 1.6; }
+  .toolbar button {
+    background: linear-gradient(135deg, #c9a84c, #a08030);
+    color: #0a0e14;
+    border: none;
+    padding: 10px 22px;
+    font-size: 14px;
+    font-weight: 700;
+    border-radius: 8px;
+    cursor: pointer;
+    font-family: Arial, sans-serif;
+  }
+
+  /* The printable A4 page */
+  .page {
+    width: 210mm;
+    height: 297mm;
+    background: white;
+    margin: 0 auto 20px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+    position: relative;
+    padding: 15mm 5mm 15mm;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .page-header {
+    text-align: center;
+    font-family: Arial, sans-serif;
+    font-size: 9pt;
+    color: #888;
+    letter-spacing: 1px;
+    margin-bottom: 4mm;
+    height: 4mm;
+  }
+
+  /* Grid of 24 code cards: 12 rows × 2 columns, each 100mm × 20mm, with 2mm gap all around */
+  .code-grid {
+    display: grid;
+    grid-template-columns: 100mm 100mm;
+    grid-template-rows: repeat(12, 20mm);
+    gap: 2mm;
+  }
+
+  .code-card {
+    width: 100mm;
+    height: 20mm;
+    border: 0.3mm solid #000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: "Courier New", monospace;
+    font-size: 28pt;
+    font-weight: 900;
+    letter-spacing: 2px;
+    color: #000;
+    background: white;
+  }
+
+  @media print {
+    body { background: white; padding: 0; }
+    .toolbar { display: none; }
+    .page {
+      box-shadow: none;
+      margin: 0;
+      page-break-after: always;
+    }
+    .page:last-child { page-break-after: auto; }
+  }
+</style>
+</head>
+<body>
+
+<div class="toolbar">
+  <div>
+    <h1>🖨️ דמו הדפסת קודים</h1>
+    <p>24 קודים לדף A4 • כל קוד 10×2 ס"מ בדיוק • רווח 2mm בין הכרטיסים לחיתוך נוח • פונט מודגש וגדול</p>
+  </div>
+  <button onclick="window.print()">🖨️ הדפס / תצוגה מקדימה</button>
+</div>
+
+<div class="page">
+  <div class="page-header">הצופן הסודי — דמו הדפסת קודים</div>
+  <div class="code-grid">
+    <div class="code-card">A12345678B</div>
+    <div class="code-card">C23456789D</div>
+    <div class="code-card">E34567890F</div>
+    <div class="code-card">G45678901H</div>
+    <div class="code-card">I56789012J</div>
+    <div class="code-card">K67890123L</div>
+    <div class="code-card">M78901234N</div>
+    <div class="code-card">O89012345P</div>
+    <div class="code-card">Q90123456R</div>
+    <div class="code-card">S01234567T</div>
+    <div class="code-card">U12345678V</div>
+    <div class="code-card">W23456789X</div>
+    <div class="code-card">Y34567890Z</div>
+    <div class="code-card">A45678901B</div>
+    <div class="code-card">C56789012D</div>
+    <div class="code-card">E67890123F</div>
+    <div class="code-card">G78901234H</div>
+    <div class="code-card">I89012345J</div>
+    <div class="code-card">K90123456L</div>
+    <div class="code-card">M01234567N</div>
+    <div class="code-card">O12345678P</div>
+    <div class="code-card">Q23456789R</div>
+    <div class="code-card">S34567890T</div>
+    <div class="code-card">U45678901V</div>
+  </div>
+</div>
+
+</body>
+</html>

@@ -2,3 +2,20 @@ node_modules/
 .DS_Store
 .env
 data/admin_pass.json
+
+# Runtime logs — keep local, do not push to repo or production
+data/leads.json
+data/vault.json
+
+# Binary vault images — local working copies, not served by the site
+vault/*.jpg
+vault/*.jpeg
+
+# Raw working materials — kept locally, not needed at runtime
+answers/
+certificate/
+cover/
+letter/
+logo/
+pages/
+טיוטות/

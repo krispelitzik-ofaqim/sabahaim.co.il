@@ -4,6 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>הצופן הסודי | The Secret Code</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <script>if (window.location.hash === '#admin') document.documentElement.classList.add('direct-admin');</script>
   <style>
     * { margin:0; padding:0; box-sizing:border-box; }
     @import url('https://fonts.googleapis.com/css2?family=Assistant:wght@400;600;700;800&display=swap');
@@ -443,78 +445,6 @@
       margin-bottom: 30px;
     }
 
-    /* Flip Clock */
-    .flip-clock {
-      display: flex;
-      gap: 8px;
-      justify-content: center;
-      align-items: center;
-      margin-bottom: 25px;
-      direction: ltr;
-    }
-
-    .flip-sep {
-      font-size: 2.4rem;
-      font-weight: 800;
-      color: #00ff88;
-      text-shadow: 0 0 10px rgba(0,255,136,0.4);
-      line-height: 1;
-    }
-
-    .flip-digit {
-      width: 50px;
-      height: 68px;
-      background: linear-gradient(180deg, #222833 0%, #1a1e28 49.5%, #0a0e14 50%, #1a1e28 50.5%, #151922 100%);
-      border-radius: 10px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-family: 'Courier New', monospace;
-      font-size: 2.4rem;
-      font-weight: 800;
-      color: #00ff88;
-      text-shadow: 0 0 12px rgba(0,255,136,0.4);
-      box-shadow: 0 3px 12px rgba(0,0,0,0.5);
-      position: relative;
-      overflow: hidden;
-      transition: color 0.3s, text-shadow 0.3s;
-    }
-
-    /* Center line */
-    .flip-digit::after {
-      content: '';
-      position: absolute;
-      left: 0; right: 0;
-      top: 50%;
-      height: 1px;
-      background: #0a0e14;
-      box-shadow: 0 1px 0 rgba(255,255,255,0.05);
-    }
-
-    /* Tick animation */
-    @keyframes digit-tick {
-      0% { transform: scaleY(1); }
-      20% { transform: scaleY(0.85); }
-      50% { transform: scaleY(1.05); }
-      100% { transform: scaleY(1); }
-    }
-
-    .flip-digit.ticking {
-      animation: digit-tick 0.3s ease;
-    }
-
-    /* Timer states */
-    .flip-clock.warning .flip-digit {
-      color: #ffaa00;
-      text-shadow: 0 0 12px rgba(255,170,0,0.4);
-    }
-    .flip-clock.warning .flip-sep { color: #ffaa00; text-shadow: 0 0 10px rgba(255,170,0,0.4); }
-
-    .flip-clock.danger .flip-digit {
-      color: #ff4444;
-      text-shadow: 0 0 12px rgba(255,68,68,0.5);
-    }
-    .flip-clock.danger .flip-sep { color: #ff4444; text-shadow: 0 0 10px rgba(255,68,68,0.4); }
 
     /* Attempts display */
     .attempts-display {
@@ -933,6 +863,183 @@
       50% { box-shadow: 0 0 28px rgba(0,255,136,0.3), inset 0 0 16px rgba(0,255,136,0.1); }
     }
 
+    /* ===== FLIP CLOCK ===== */
+    .flip-clock {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      margin: 15px auto;
+      direction: ltr;
+    }
+    .flip-group {
+      display: flex;
+      gap: 3px;
+    }
+    .flip-digit {
+      width: 38px;
+      height: 54px;
+      background: #0a1a10;
+      border-radius: 6px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0,255,136,0.1), inset 0 1px 0 rgba(0,255,136,0.05);
+      border: 1px solid #00ff88;
+      perspective: 300px;
+    }
+    .flip-digit-inner {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Courier New', monospace;
+      font-size: 2rem;
+      font-weight: 900;
+      color: #00ff88;
+      text-shadow: 0 0 12px rgba(0,255,136,0.6), 0 0 30px rgba(0,255,136,0.3);
+    }
+    /* Split line */
+    .flip-digit::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: rgba(0,0,0,0.6);
+      z-index: 2;
+    }
+    /* Flip animation */
+    .flip-digit.flipping .flip-digit-inner {
+      animation: flipDown 0.3s ease-in;
+    }
+    @keyframes flipDown {
+      0% { transform: rotateX(0deg); }
+      50% { transform: rotateX(-90deg); }
+      100% { transform: rotateX(0deg); }
+    }
+    .flip-sep {
+      font-size: 2rem;
+      font-weight: 900;
+      color: #00ff88;
+      text-shadow: 0 0 12px rgba(0,255,136,0.6), 0 0 30px rgba(0,255,136,0.3);
+      padding: 0 2px;
+      line-height: 54px;
+    }
+    /* Urgency states */
+    .flip-clock.warning .flip-digit-inner { color: #ff6b35; text-shadow: 0 0 12px rgba(255,107,53,0.5); }
+    .flip-clock.warning .flip-sep { color: #ff6b35; text-shadow: 0 0 12px rgba(255,107,53,0.5); }
+    .flip-clock.critical .flip-digit-inner { color: #ff2222; text-shadow: 0 0 16px rgba(255,34,34,0.7); }
+    .flip-clock.critical .flip-sep { color: #ff2222; text-shadow: 0 0 16px rgba(255,34,34,0.7); }
+    .flip-clock.critical .flip-digit { border-color: #ff2222; box-shadow: 0 2px 8px rgba(255,34,34,0.3), inset 0 1px 0 rgba(255,255,255,0.05); }
+    .flip-clock.final .flip-digit-inner { color: #ff0000; text-shadow: 0 0 20px rgba(255,0,0,0.9); animation: finalPulse 0.5s ease-in-out infinite; }
+    .flip-clock.final .flip-sep { color: #ff0000; }
+    .flip-clock.final .flip-digit { border-color: #ff0000; box-shadow: 0 0 20px rgba(255,0,0,0.4); }
+    @keyframes finalPulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.08); }
+    }
+
+    /* Cube editor modal */
+    .cube-modal-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.7);
+      z-index: 9999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      direction: rtl;
+    }
+    .cube-modal {
+      background: #1a1e28;
+      border: 1px solid #2a2e38;
+      border-radius: 14px;
+      padding: 20px;
+      max-width: 380px;
+      width: 90%;
+      max-height: 80vh;
+      overflow-y: auto;
+      box-shadow: 0 16px 48px rgba(0,0,0,0.5);
+    }
+    .cube-modal h3 {
+      color: #c9a84c;
+      font-size: 1rem;
+      margin-bottom: 14px;
+      text-align: center;
+    }
+    .cube-modal-section {
+      margin-bottom: 16px;
+    }
+    .cube-modal-section-title {
+      color: #8a7e6a;
+      font-size: 0.75rem;
+      margin-bottom: 8px;
+      font-weight: 600;
+    }
+    .cube-modal-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+    }
+    .cube-modal-btn {
+      border: 2px solid #2a2e38;
+      border-radius: 10px;
+      padding: 10px 6px;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.15s;
+      font-family: 'Assistant', sans-serif;
+      font-size: 0.8rem;
+      font-weight: 700;
+    }
+    .cube-modal-btn:hover {
+      border-color: #c9a84c;
+      transform: scale(1.05);
+    }
+    .cube-modal-btn .btn-icon {
+      font-size: 1.6rem;
+      display: block;
+      margin-bottom: 4px;
+    }
+    .cube-modal-btn .btn-label {
+      font-size: 0.65rem;
+      opacity: 0.7;
+    }
+    /* Metal image tiles */
+    .metal-tile {
+      width: 100%;
+      aspect-ratio: 1;
+      border-radius: 8px;
+      margin-bottom: 4px;
+    }
+    .metal-iron { background: linear-gradient(135deg, #7a7a7a, #b8b8b8, #6e6e6e, #a0a0a0); }
+    .metal-copper { background: linear-gradient(135deg, #b87333, #da8a47, #a0522d, #cd7f32); }
+    .metal-silver { background: linear-gradient(135deg, #c0c0c0, #e8e8e8, #a8a8a8, #d4d4d4); }
+    .metal-gold { background: linear-gradient(135deg, #c9a84c, #ffd700, #b8860b, #daa520); }
+    .cube-modal-close {
+      display: block;
+      width: 100%;
+      padding: 10px;
+      background: #2a2e38;
+      color: #8a7e6a;
+      border: none;
+      border-radius: 8px;
+      font-family: 'Assistant', sans-serif;
+      font-size: 0.85rem;
+      cursor: pointer;
+      margin-top: 8px;
+    }
+    .cube-modal-close:hover { background: #3a3e48; color: #e0d5c0; }
+
+    /* Metal background colors for cubes */
+    .m-cube[data-bg="iron"] { background: linear-gradient(135deg, #7a7a7a, #b8b8b8) !important; color: #1a1a1a !important; border-color: #999 !important; }
+    .m-cube[data-bg="copper"] { background: linear-gradient(135deg, #b87333, #da8a47) !important; color: #fff !important; border-color: #cd7f32 !important; }
+    .m-cube[data-bg="silver"] { background: linear-gradient(135deg, #c0c0c0, #e8e8e8) !important; color: #333 !important; border-color: #d4d4d4 !important; }
+    .m-cube[data-bg="gold"] { background: linear-gradient(135deg, #c9a84c, #ffd700) !important; color: #2a1a00 !important; border-color: #daa520 !important; }
+
     /* Section wrapper */
     .m-section {
       display: flex;
@@ -1043,10 +1150,43 @@
     }
 
     @media print {
-      .nav-bottom, .matrix-bar, .m-toolbar, .m-add-cube, .m-resize, .btn-print { display: none !important; }
+      .nav-bottom, .matrix-bar, .m-toolbar, .m-add-cube, .m-resize, .btn-print, #lang-toggle { display: none !important; }
       .screen { display: none !important; }
       .screen.active { display: block !important; background: white !important; }
       .m-cube { box-shadow: none !important; border: 1px solid #ccc !important; }
+    }
+
+    /* ===== CERTIFICATE PRINT: landscape, full page, image only =====
+       Note: @page size:A4 landscape is injected dynamically by printCertificate()
+       (named @page rules aren't reliable across browsers) */
+    @media print {
+      body.printing-cert * { visibility: hidden !important; }
+      body.printing-cert #cert-print-wrap,
+      body.printing-cert #cert-print-wrap * { visibility: visible !important; }
+      body.printing-cert #cert-print-wrap {
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        width: 100% !important;
+        height: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        background: white !important;
+        border: none !important;
+        border-radius: 0 !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+      }
+      body.printing-cert #cert-print-wrap img {
+        width: 100% !important;
+        height: 100% !important;
+        max-width: 100% !important;
+        max-height: 100% !important;
+        object-fit: contain !important;
+        border-radius: 0 !important;
+        display: block !important;
+      }
     }
 
     .btn-print {
@@ -1325,11 +1465,94 @@
     @media (max-width: 480px) {
       .vault-image { width: 200px; height: 200px; }
       .vault-title { font-size: 1.5rem; }
-      .flip-digit { width: 40px; height: 56px; font-size: 1.9rem; }
-      .flip-sep { font-size: 1.9rem; }
       .code-inputs { gap: 8px; }
       .code-input { width: 60px; height: 46px; font-size: 1rem; }
       .code-input-wide { width: 80px; }
+    }
+
+    /* ===== a11y + mobile touch target improvements (additive) ===== */
+    /* Visible focus outline for keyboard navigation — applies only to
+       users navigating via keyboard (mouse clicks won't show the ring). */
+    button:focus-visible,
+    a:focus-visible,
+    input:focus-visible {
+      outline: 2px solid #c9a84c;
+      outline-offset: 2px;
+    }
+
+    /* Larger, friendlier vault inputs on phones.
+       Minimum 48px touch target per WCAG, wider fields to fit "10.49" etc. */
+    @media (max-width: 480px) {
+      .code-inputs {
+        gap: 10px;
+        flex-wrap: wrap;
+        padding: 0 8px;
+      }
+      .code-input {
+        width: 68px;
+        height: 54px;
+        font-size: 1.15rem;
+      }
+      .code-input-wide {
+        width: 88px;
+      }
+      .code-label {
+        font-size: 0.85rem;
+      }
+    }
+    /* Extra-small phones: allow wrap to 2x2 grid so nothing overflows */
+    @media (max-width: 360px) {
+      .code-input {
+        width: 64px;
+        height: 52px;
+      }
+      .code-input-wide {
+        width: 82px;
+      }
+    }
+
+    /* Prevent flash of gate screen when visiting #admin directly */
+    html.direct-admin #screen-gate { display: none !important; }
+    html.direct-admin #screen-admin { display: flex !important; }
+
+    /* ===== DEAD-END COUNTDOWN RING ===== */
+    .countdown-widget {
+      position: relative;
+      width: 70px;
+      height: 70px;
+      margin: 20px auto 5px;
+      animation: countdownPulse 1s ease-in-out infinite;
+    }
+    .countdown-widget svg { display: block; }
+    .countdown-ring {
+      transform: rotate(-90deg);
+      transform-origin: center;
+      transition: stroke-dashoffset 1s linear;
+      stroke-linecap: round;
+      stroke: #ff2222 !important;
+      filter: drop-shadow(0 0 6px rgba(255,34,34,0.6));
+    }
+    .countdown-number {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      color: #ff2222;
+      font-weight: 900;
+      font-size: 1.4rem;
+      font-family: 'Assistant', sans-serif;
+      text-shadow: 0 0 10px rgba(255,34,34,0.7);
+    }
+    .countdown-label {
+      text-align: center;
+      color: #ff6b35;
+      font-size: 0.75rem;
+      font-weight: 700;
+      margin-top: 2px;
+    }
+    @keyframes countdownPulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.08); }
     }
   </style>
 </head>
@@ -1340,14 +1563,14 @@
 <div class="screen active" id="screen-gate">
   <div class="gate-container">
     <img src="assets/images/logo.png" alt="הצופן הסודי" class="gate-logo" />
-    <h1 class="gate-title">הצופן הסודי</h1>
-    <p class="gate-subtitle">The Secret Code</p>
-    <p class="gate-welcome">
-      ברוכים הבאים להרפתקה!<br/>
+    <h1 class="gate-title" data-i18n="gate_title">הצופן הסודי</h1>
+    <p class="gate-subtitle" data-i18n="gate_subtitle">The Secret Code</p>
+    <p class="gate-welcome" data-i18n="gate_welcome">
+      ברוכים/ות הבאים/ות להרפתקה!<br/>
       כדי להיכנס, הזינו את קוד הגישה<br/>
       שקיבלתם עם הספר
     </p>
-    <div class="gate-code-label">קוד גישה אישי</div>
+    <div class="gate-code-label" data-i18n="gate_code_label">קוד גישה אישי</div>
     <input
       type="text"
       class="gate-code-input"
@@ -1356,9 +1579,11 @@
       maxlength="10"
       autocomplete="off"
       spellcheck="false"
+      aria-label="קוד גישה אישי — אות, שמונה ספרות, אות"
+      inputmode="text"
     />
-    <div class="gate-code-hint">הקוד מורכב מאות, 8 ספרות ואות</div>
-    <div class="gate-code-label" style="margin-top:18px;">מספר נייד</div>
+    <div class="gate-code-hint" data-i18n="gate_code_hint">הקוד מורכב מאות, 8 ספרות ואות</div>
+    <div class="gate-code-label" style="margin-top:18px;" data-i18n="gate_phone_label">מספר נייד</div>
     <input
       type="tel"
       class="gate-code-input"
@@ -1366,21 +1591,23 @@
       placeholder="050-1234567"
       maxlength="11"
       autocomplete="tel"
+      aria-label="מספר נייד ליצירת קשר"
+      inputmode="tel"
       style="width:220px;font-size:1.2rem;letter-spacing:1px;"
     />
-    <div class="gate-code-hint">כדי שסבא חיים יוכל לשלוח לך הודעות</div>
-    <button class="btn-gate" id="btn-gate" onclick="tryGate()">כניסה</button>
+    <div class="gate-code-hint" data-i18n="gate_phone_hint">כדי שסבא חיים יוכל לשלוח לך הודעות</div>
+    <button class="btn-gate" id="btn-gate" onclick="tryGate()" data-i18n="gate_btn">כניסה</button>
     <div class="gate-error" id="gate-error"></div>
     <div class="gate-spinner" id="gate-spinner"></div>
 
     <!-- Purchase Banner -->
-    <a href="https://mrng.to/sf7xO0EmJw" target="_blank" class="purchase-banner" id="purchase-banner">
-      <div class="purchase-badge">חדש!</div>
+    <a href="https://mrng.to/sf7xO0EmJw" target="_blank" class="purchase-banner" id="purchase-banner" onclick="trackEvent('click_purchase')">
+      <div class="purchase-badge" data-i18n="purchase_badge">חדש!</div>
       <div class="purchase-text">
-        <div class="purchase-title">עדיין לא רכשת את הספר?</div>
-        <div class="purchase-sub">הצטרף להרפתקה של הצופן הסודי — חידות, מדע וסודות מסבא חיים</div>
+        <div class="purchase-title" data-i18n="purchase_title">עדיין לא רכשתם את הספר?</div>
+        <div class="purchase-sub" data-i18n="purchase_sub">הצטרפו להרפתקה של הצופן הסודי — חידות, מדע וסודות מסבא חיים</div>
       </div>
-      <div class="purchase-cta">לרכישה מהירה ←</div>
+      <div class="purchase-cta" data-i18n="purchase_cta">לרכישה מהירה ←</div>
     </a>
   </div>
 </div>
@@ -1392,19 +1619,24 @@
       <img src="assets/images/vault-closed.jpg" alt="כספת סגורה" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" />
       <div class="vault-blink" id="vault-blink"></div>
     </div>
-    <h1 class="vault-title">הצופן הסודי</h1>
-    <p class="vault-subtitle">הזן את המשקלים הסגוליים כדי לפתוח את הכספת</p>
+    <h1 class="vault-title" data-i18n="vault_title">הצופן הסודי</h1>
+    <p class="vault-subtitle" data-i18n="vault_subtitle">הזן/י את המשקלים הסגוליים כדי לפתוח את הכספת</p>
 
-    <div class="flip-clock" id="flip-clock">
-      <div class="flip-digit" id="flip-m1">1</div>
-      <div class="flip-digit" id="flip-m0">0</div>
+    <!-- Flip Clock Timer -->
+    <div class="flip-clock" id="flip-clock" style="display:none;">
+      <div class="flip-group">
+        <div class="flip-digit" id="flip-m1"><div class="flip-digit-inner">1</div></div>
+        <div class="flip-digit" id="flip-m0"><div class="flip-digit-inner">0</div></div>
+      </div>
       <div class="flip-sep">:</div>
-      <div class="flip-digit" id="flip-s1">0</div>
-      <div class="flip-digit" id="flip-s0">0</div>
+      <div class="flip-group">
+        <div class="flip-digit" id="flip-s1"><div class="flip-digit-inner">0</div></div>
+        <div class="flip-digit" id="flip-s0"><div class="flip-digit-inner">0</div></div>
+      </div>
     </div>
-    <div id="timer-text" style="font-family:'Courier New',monospace;font-size:2rem;font-weight:800;color:#00ff88;text-shadow:0 0 15px rgba(0,255,136,0.4);margin-bottom:10px;letter-spacing:4px;display:none;">10:00</div>
+
     <div class="attempts-display" id="attempts-display">
-      ניסיון <span id="attempt-num">1</span> מתוך 3 &nbsp;
+      <span id="attempt-text">ניסיון 1 מתוך 3</span> &nbsp;
       <span class="attempt-dot" id="dot-1"></span>
       <span class="attempt-dot" id="dot-2"></span>
       <span class="attempt-dot" id="dot-3"></span>
@@ -1412,25 +1644,25 @@
 
     <div class="code-inputs">
       <div class="code-group">
-        <div class="code-label">ברזל</div>
-        <input type="text" class="code-input" id="code-iron" placeholder="0.00" maxlength="4" />
+        <div class="code-label" id="label-iron" data-i18n="metal_iron">ברזל</div>
+        <input type="text" class="code-input" id="code-iron" placeholder="0.00" maxlength="4" inputmode="decimal" autocomplete="new-password" name="metal-iron-a1b2" aria-label="המשקל האטומי של ברזל" aria-labelledby="label-iron" />
       </div>
       <div class="code-group">
-        <div class="code-label">נחושת</div>
-        <input type="text" class="code-input" id="code-copper" placeholder="0.00" maxlength="4" />
+        <div class="code-label" id="label-copper" data-i18n="metal_copper">נחושת</div>
+        <input type="text" class="code-input" id="code-copper" placeholder="0.00" maxlength="4" inputmode="decimal" autocomplete="new-password" name="metal-copper-c3d4" aria-label="המשקל האטומי של נחושת" aria-labelledby="label-copper" />
       </div>
       <div class="code-group">
-        <div class="code-label">כסף</div>
-        <input type="text" class="code-input code-input-wide" id="code-silver" placeholder="00.00" maxlength="5" />
+        <div class="code-label" id="label-silver" data-i18n="metal_silver">כסף</div>
+        <input type="text" class="code-input code-input-wide" id="code-silver" placeholder="00.00" maxlength="5" inputmode="decimal" autocomplete="new-password" name="metal-silver-e5f6" aria-label="המשקל האטומי של כסף" aria-labelledby="label-silver" />
       </div>
       <div class="code-group">
-        <div class="code-label">זהב</div>
-        <input type="text" class="code-input code-input-wide" id="code-gold" placeholder="00.00" maxlength="5" />
+        <div class="code-label" id="label-gold" data-i18n="metal_gold">זהב</div>
+        <input type="text" class="code-input code-input-wide" id="code-gold" placeholder="00.00" maxlength="5" inputmode="decimal" autocomplete="new-password" name="metal-gold-g7h8" aria-label="המשקל האטומי של זהב" aria-labelledby="label-gold" />
       </div>
     </div>
 
-    <button class="btn-open" onclick="tryOpen()">פתיחת הכספת</button>
-    <div class="error-msg" id="error-msg">הקוד שגוי! נסה שנית</div>
+    <button class="btn-open" onclick="tryOpen()" data-i18n="vault_btn">פתיחת הכספת</button>
+    <div class="error-msg" id="error-msg" data-i18n="vault_error">הקוד שגוי! נסו שנית</div>
   </div>
 </div>
 
@@ -1441,28 +1673,56 @@
       <img src="assets/images/vault-open.jpeg" alt="כספת פתוחה" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" />
       <div class="vault-blink-green" id="vault-blink-green"></div>
     </div>
-    <h1 class="open-title">הכספת נפתחה!</h1>
+    <h1 class="open-title" data-i18n="open_title">הכספת נפתחה!</h1>
     <div class="open-countdown" id="open-countdown">
-      <p class="open-urgent">יש לך דקה לחלץ את המעטפה מסבא.<br/>תיכף הדלת ננעלת!</p>
-      <div class="open-timer" id="open-timer">01:00</div>
+      <p class="open-urgent" data-i18n="open_urgent">יש לך 5 דקות לחלץ את המעטפה מסבא.<br/>תיכף הדלת נסגרת!</p>
+      <div class="flip-clock" id="open-flip-clock">
+        <div class="flip-group">
+          <div class="flip-digit" id="open-flip-m1"><div class="flip-digit-inner">0</div></div>
+          <div class="flip-digit" id="open-flip-m0"><div class="flip-digit-inner">5</div></div>
+        </div>
+        <div class="flip-sep">:</div>
+        <div class="flip-group">
+          <div class="flip-digit" id="open-flip-s1"><div class="flip-digit-inner">0</div></div>
+          <div class="flip-digit" id="open-flip-s0"><div class="flip-digit-inner">0</div></div>
+        </div>
+      </div>
     </div>
-    <a href="#" class="btn-download" id="btn-extract" onclick="extractEnvelope()">📜 חלץ את המעטפה!</a>
+    <a href="#" class="btn-download" id="btn-extract" onclick="extractEnvelope()" data-i18n="open_extract">📜 חלץ/י את המעטפה!</a>
   </div>
 </div>
 
-<!-- ===== SCREEN 3: VAULT LOCKED ===== -->
+<!-- ===== SCREEN 3a: VAULT WARNING (3 options before lockout) ===== -->
+<div class="screen" id="screen-vault-warning">
+  <div style="text-align:center;max-width:420px;">
+    <div class="vault-image" style="animation:none; border-color:#ff6b35; box-shadow:0 0 60px rgba(255,107,53,0.4);">
+      <img src="assets/images/vault-closed.jpg" alt="כספת" style="width:100%;height:100%;object-fit:cover;border-radius:50%;filter:brightness(0.7) sepia(0.3);" />
+    </div>
+    <h1 style="color:#ff6b35;font-size:1.5rem;margin:15px 0 8px;" data-i18n="warning_title">הזמן נגמר!</h1>
+    <p style="color:#a09480;font-size:0.9rem;line-height:1.8;margin-bottom:20px;" data-i18n="warning_text">
+      לפני שהכספת ננעלת לגמרי, בחרו מה לעשות:
+    </p>
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      <button onclick="warningRetry()" style="background:linear-gradient(135deg,#ff6b35,#e05520);color:#fff;border:none;border-radius:10px;padding:14px 20px;font-family:'Assistant',sans-serif;font-size:1rem;font-weight:700;cursor:pointer;" data-i18n="warning_opt1">🔄 ניסיון נוסף — עוד 3 דקות</button>
+      <button onclick="warningMatrix()" style="background:linear-gradient(135deg,#c9a84c,#a08030);color:#1a1e28;border:none;border-radius:10px;padding:14px 20px;font-family:'Assistant',sans-serif;font-size:1rem;font-weight:700;cursor:pointer;" data-i18n="warning_opt2">📋 חזרה למטריצה — לבדוק את הרמזים</button>
+      <button onclick="warningLock()" style="background:none;border:2px solid #3a3228;color:#8a7e6a;border-radius:10px;padding:14px 20px;font-family:'Assistant',sans-serif;font-size:0.9rem;font-weight:600;cursor:pointer;" data-i18n="warning_opt3">🔒 נעילה — אחזור מאוחר יותר</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== SCREEN 3b: VAULT LOCKED ===== -->
 <div class="screen" id="screen-locked">
   <div style="text-align:center;max-width:400px;">
     <div class="vault-image" style="animation:none; border-color:#ff4444; box-shadow:0 0 60px rgba(255,68,68,0.3);">
       <img src="assets/images/vault-closed.jpg" alt="כספת נעולה" style="width:100%;height:100%;object-fit:cover;border-radius:50%;filter:brightness(0.5);" />
     </div>
-    <h1 class="locked-title">הכספת ננעלה!</h1>
-    <p class="locked-text">
+    <h1 class="locked-title" data-i18n="locked_title">הכספת ננעלה!</h1>
+    <p class="locked-text" data-i18n="locked_text">
       נגמר הזמן או שהקוד שגוי.<br/>
-      חזור לספר, בדוק את התשובות שלך<br/>
-      ונסה שוב.
+      חזרו לספר, בדקו את התשובות שלכם<br/>
+      ונסו שוב.
     </p>
-    <button class="btn-retry" onclick="resetVault()">🔄 נסה שוב</button>
+    <button class="btn-retry" onclick="resetVault()" data-i18n="locked_retry">🔄 נסו שוב</button>
   </div>
 </div>
 
@@ -1474,26 +1734,39 @@
 <!-- ===== SCREEN 5: LETTER ===== -->
 <div class="screen" id="screen-letter">
   <div style="text-align:center;max-width:500px;width:100%;padding-bottom:80px;">
-    <h1 style="color:#c9a84c;font-size:1.5rem;margin-bottom:20px;">📜 המכתב מסבא חיים</h1>
-    <div style="background:#1a1e28;border:2px solid #3a3228;border-radius:16px;padding:25px;text-align:right;line-height:2;font-size:0.95rem;">
+    <h1 style="color:#c9a84c;font-size:1.5rem;margin-bottom:20px;" data-i18n="letter_title">📜 המכתב מסבא חיים</h1>
+    <div id="letter-body" style="background:#1a1e28;border:2px solid #3a3228;border-radius:16px;padding:25px;text-align:right;line-height:2;font-size:0.95rem;">
       <img src="/assets/images/letter.png" alt="מכתב מסבא חיים" style="width:100%;border-radius:8px;margin-bottom:15px;" onerror="this.style.display='none'" />
-      <p>דרור היקר,</p>
-      <p>אם אתה קורא את המכתב הזה, סימן שפיצחת את הצופן. אני גאה בך.</p>
-      <p>זכור — המדע הוא המפתח. המוח האנושי מסוגל לדברים שאנחנו עוד לא יכולים לדמיין.</p>
-      <p>המסע שלך רק מתחיל...</p>
-      <p style="text-align:left;color:#c9a84c;margin-top:15px;">סבא חיים ❤️</p>
+      <p data-i18n="letter_dear">דרור/ה היקר/ה,</p>
+      <p data-i18n="letter_p1">אם את/ה קורא/ת את המכתב הזה, סימן שפיצחת את הצופן. אני גאה בך.</p>
+      <p data-i18n="letter_p2">זכרו — המדע הוא המפתח. המוח האנושי מסוגל לדברים שאנחנו עוד לא יכולים לדמיין.</p>
+      <p data-i18n="letter_p3">המסע שלכם רק מתחיל...</p>
+      <p style="text-align:left;color:#c9a84c;margin-top:15px;" data-i18n="letter_sign">סבא חיים ❤️</p>
     </div>
-    <button class="btn-print" onclick="trackEvent('print_letter');window.print()" style="margin-top:20px;">🖨️ הדפס את המכתב</button>
-    <p style="color:#5a5040;font-size:0.8rem;margin-top:15px;">הדפס והדבק בעמוד 52 בספר שלך</p>
-    <button onclick="goHome()" style="margin-top:20px;background:none;border:1px solid #3a3228;color:#8a7e6a;padding:10px 30px;border-radius:8px;cursor:pointer;font-family:'Assistant',sans-serif;font-size:0.9rem;font-weight:600;">חזור לדף הראשי</button>
+    <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:20px;">
+      <button class="btn-print" onclick="trackEvent('print_letter');window.print()" data-i18n="letter_print">🖨️ הדפסה</button>
+      <button onclick="saveLetter()" style="background:#1a1e28;border:1px solid #c9a84c;color:#c9a84c;padding:10px 20px;border-radius:8px;cursor:pointer;font-family:'Assistant',sans-serif;font-size:0.9rem;font-weight:600;">💾 שמירה</button>
+      <button onclick="shareLetter()" style="background:#1a1e28;border:1px solid #c9a84c;color:#c9a84c;padding:10px 20px;border-radius:8px;cursor:pointer;font-family:'Assistant',sans-serif;font-size:0.9rem;font-weight:600;">📤 שיתוף</button>
+    </div>
+    <p style="color:#5a5040;font-size:0.8rem;margin-top:15px;" data-i18n="letter_print_hint">הדפיסו והדביקו בעמוד 52 בספר שלכם</p>
+    <button onclick="goHome()" style="margin-top:20px;background:none;border:1px solid #3a3228;color:#8a7e6a;padding:10px 30px;border-radius:8px;cursor:pointer;font-family:'Assistant',sans-serif;font-size:0.9rem;font-weight:600;" data-i18n="btn_home">חזרה לדף הראשי</button>
 
-    <a href="https://mrng.to/sf7xO0EmJw" target="_blank" class="gift-banner">
-      <div class="gift-badge">🎁 מתנה</div>
+    <div class="countdown-widget">
+      <svg viewBox="0 0 60 60" width="70" height="70">
+        <circle cx="30" cy="30" r="26" stroke="#3a3228" stroke-width="4" fill="none"/>
+        <circle class="countdown-ring" cx="30" cy="30" r="26" stroke="#c9a84c" stroke-width="4" fill="none"/>
+      </svg>
+      <span class="countdown-number">60</span>
+    </div>
+    <p class="countdown-label">מעבר אוטומטי בעוד שניות</p>
+
+    <a href="https://mrng.to/sf7xO0EmJw" target="_blank" class="gift-banner" onclick="trackEvent('click_gift');pauseDeadEndTimer()">
+      <div class="gift-badge" data-i18n="gift_badge">🎁 מתנה</div>
       <div class="gift-text">
-        <div class="gift-title">נהנית? עברת חוויה טובה?</div>
-        <div class="gift-sub">רכוש את הספר כמתנה עבור חברים או בני משפחה!</div>
+        <div class="gift-title" data-i18n="gift_title">נהניתם? עברתם חוויה טובה?</div>
+        <div class="gift-sub" data-i18n="gift_sub">רכשו את הספר כמתנה עבור חברים או בני משפחה!</div>
       </div>
-      <div class="gift-cta">לרכישת מארז מתנה ←</div>
+      <div class="gift-cta" data-i18n="gift_cta">לרכישת מארז מתנה ←</div>
     </a>
   </div>
 </div>
@@ -1501,21 +1774,34 @@
 <!-- ===== SCREEN 6: CERTIFICATE ===== -->
 <div class="screen" id="screen-certificate">
   <div style="text-align:center;max-width:600px;width:100%;padding-bottom:80px;">
-    <h1 style="color:#c9a84c;font-size:1.5rem;margin-bottom:20px;">🏆 תעודת הצופן הסודי</h1>
-    <div style="background:#1a1e28;border:2px solid #c9a84c;border-radius:16px;padding:20px;">
+    <h1 style="color:#c9a84c;font-size:1.5rem;margin-bottom:20px;" data-i18n="cert_title">🏆 תעודת הצופן הסודי</h1>
+    <div id="cert-print-wrap" style="background:#1a1e28;border:2px solid #c9a84c;border-radius:16px;padding:20px;">
       <img src="/assets/images/certificate.png" alt="תעודה" style="width:100%;border-radius:8px;" onerror="this.style.display='none'" />
     </div>
-    <button class="btn-print" onclick="trackEvent('print_certificate');window.print()" style="margin-top:20px;">🖨️ הדפס את התעודה</button>
-    <p style="color:#5a5040;font-size:0.8rem;margin-top:10px;">הדפס ומלא את שמך על התעודה</p>
-    <button onclick="goHome()" style="margin-top:20px;background:none;border:1px solid #3a3228;color:#8a7e6a;padding:10px 30px;border-radius:8px;cursor:pointer;font-family:'Assistant',sans-serif;font-size:0.9rem;font-weight:600;">חזור לדף הראשי</button>
+    <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:20px;">
+      <button class="btn-print" onclick="printCertificate()" data-i18n="cert_print">🖨️ הדפסה</button>
+      <button onclick="saveCertificate()" style="background:#1a1e28;border:1px solid #c9a84c;color:#c9a84c;padding:10px 20px;border-radius:8px;cursor:pointer;font-family:'Assistant',sans-serif;font-size:0.9rem;font-weight:600;">💾 שמירה</button>
+      <button onclick="shareCertificate()" style="background:#1a1e28;border:1px solid #c9a84c;color:#c9a84c;padding:10px 20px;border-radius:8px;cursor:pointer;font-family:'Assistant',sans-serif;font-size:0.9rem;font-weight:600;">📤 שיתוף</button>
+    </div>
+    <p style="color:#5a5040;font-size:0.8rem;margin-top:10px;" data-i18n="cert_print_hint">הדפיסו ומלאו את שמכם על התעודה</p>
+    <button onclick="goHome()" style="margin-top:20px;background:none;border:1px solid #3a3228;color:#8a7e6a;padding:10px 30px;border-radius:8px;cursor:pointer;font-family:'Assistant',sans-serif;font-size:0.9rem;font-weight:600;" data-i18n="btn_home">חזרה לדף הראשי</button>
 
-    <a href="https://mrng.to/sf7xO0EmJw" target="_blank" class="gift-banner">
-      <div class="gift-badge">🎁 מתנה</div>
+    <div class="countdown-widget">
+      <svg viewBox="0 0 60 60" width="70" height="70">
+        <circle cx="30" cy="30" r="26" stroke="#3a3228" stroke-width="4" fill="none"/>
+        <circle class="countdown-ring" cx="30" cy="30" r="26" stroke="#c9a84c" stroke-width="4" fill="none"/>
+      </svg>
+      <span class="countdown-number">60</span>
+    </div>
+    <p class="countdown-label">מעבר אוטומטי בעוד שניות</p>
+
+    <a href="https://mrng.to/sf7xO0EmJw" target="_blank" class="gift-banner" onclick="trackEvent('click_gift');pauseDeadEndTimer()">
+      <div class="gift-badge" data-i18n="gift_badge">🎁 מתנה</div>
       <div class="gift-text">
-        <div class="gift-title">נהנית? עברת חוויה טובה?</div>
-        <div class="gift-sub">רכוש את הספר כמתנה עבור חברים או בני משפחה!</div>
+        <div class="gift-title" data-i18n="gift_title">נהניתם? עברתם חוויה טובה?</div>
+        <div class="gift-sub" data-i18n="gift_sub">רכשו את הספר כמתנה עבור חברים או בני משפחה!</div>
       </div>
-      <div class="gift-cta">לרכישת מארז מתנה ←</div>
+      <div class="gift-cta" data-i18n="gift_cta">לרכישת מארז מתנה ←</div>
     </a>
   </div>
 </div>
@@ -1524,29 +1810,38 @@
 <div class="screen" id="screen-home">
   <div style="text-align:center;max-width:500px;width:100%;padding-bottom:80px;">
     <img src="assets/images/logo.png" alt="הצופן הסודי" style="width:150px;height:150px;border-radius:50%;object-fit:cover;margin:0 auto 20px;display:block;border:3px solid #c9a84c;box-shadow:0 0 40px rgba(201,168,76,0.2);" />
-    <h1 style="color:#c9a84c;font-size:1.8rem;margin-bottom:10px;">כל הכבוד!</h1>
-    <p style="color:#a09480;font-size:1rem;line-height:1.8;margin-bottom:25px;">
-      סיימת את ההרפתקה של הצופן הסודי.<br/>
-      סבא חיים גאה בך!
+    <h1 style="color:#c9a84c;font-size:1.8rem;margin-bottom:10px;" data-i18n="home_title">כל הכבוד!</h1>
+    <p style="color:#a09480;font-size:1rem;line-height:1.8;margin-bottom:25px;" data-i18n="home_text">
+      סיימתם את ההרפתקה של הצופן הסודי.<br/>
+      סבא חיים גאה בכם!
     </p>
     <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
-      <button class="btn-gate" onclick="showScreen('screen-letter')" style="font-size:0.95rem;padding:12px 24px;">📜 המכתב</button>
-      <button class="btn-gate" onclick="trackEvent('got_certificate');showScreen('screen-certificate')" style="font-size:0.95rem;padding:12px 24px;">🏆 התעודה</button>
+      <button class="btn-gate" onclick="showScreen('screen-letter')" style="font-size:0.95rem;padding:12px 24px;" data-i18n="home_letter">📜 המכתב</button>
+      <button class="btn-gate" onclick="trackEvent('got_certificate');showScreen('screen-certificate')" style="font-size:0.95rem;padding:12px 24px;" data-i18n="home_cert">🏆 התעודה</button>
     </div>
 
-    <a href="https://mrng.to/sf7xO0EmJw" target="_blank" class="gift-banner">
-      <div class="gift-badge">🎁 מתנה</div>
+    <div class="countdown-widget">
+      <svg viewBox="0 0 60 60" width="70" height="70">
+        <circle cx="30" cy="30" r="26" stroke="#3a3228" stroke-width="4" fill="none"/>
+        <circle class="countdown-ring" cx="30" cy="30" r="26" stroke="#c9a84c" stroke-width="4" fill="none"/>
+      </svg>
+      <span class="countdown-number">60</span>
+    </div>
+    <p class="countdown-label">מעבר אוטומטי בעוד שניות</p>
+
+    <a href="https://mrng.to/sf7xO0EmJw" target="_blank" class="gift-banner" onclick="trackEvent('click_gift');pauseDeadEndTimer()">
+      <div class="gift-badge" data-i18n="gift_badge">🎁 מתנה</div>
       <div class="gift-text">
-        <div class="gift-title">נהנית? עברת חוויה טובה?</div>
-        <div class="gift-sub">רכוש את הספר כמתנה עבור חברים או בני משפחה ותן להם להצטרף להרפתקה!</div>
+        <div class="gift-title" data-i18n="gift_title">נהניתם? עברתם חוויה טובה?</div>
+        <div class="gift-sub" data-i18n="gift_sub_home">רכשו את הספר כמתנה עבור חברים או בני משפחה ותנו להם להצטרף להרפתקה!</div>
       </div>
-      <div class="gift-cta">לרכישת מארז מתנה ←</div>
+      <div class="gift-cta" data-i18n="gift_cta">לרכישת מארז מתנה ←</div>
     </a>
   </div>
 </div>
 
 <!-- ===== SCREEN 8: ADMIN ===== -->
-<div class="screen" id="screen-admin">
+<div class="screen" id="screen-admin" style="direction:rtl;text-align:right;">
   <!-- Login -->
   <div id="admin-login" style="text-align:center;max-width:400px;width:100%;">
     <h1 style="color:#ff6b35;font-size:1.5rem;margin-bottom:6px;">⚙️ לוח ניהול</h1>
@@ -1560,10 +1855,19 @@
   </div>
 
   <!-- Panel (hidden until login) -->
-  <div id="admin-panel" style="display:none;width:100%;max-width:800px;padding-bottom:80px;">
+  <div id="admin-panel" style="display:none;width:100%;max-width:800px;padding-bottom:80px;direction:rtl;text-align:right;">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:15px;">
       <h1 style="color:#ff6b35;font-size:1.3rem;">⚙️ לוח ניהול</h1>
       <button onclick="logoutAdmin()" style="background:none;border:1px solid #555;color:#888;padding:6px 14px;border-radius:6px;cursor:pointer;font-family:'Assistant',sans-serif;font-size:0.8rem;">התנתק</button>
+    </div>
+
+    <!-- Global search (across all leads: active + archive + trash) -->
+    <div style="background:#0d1117;border:1px solid #2a2e38;border-radius:8px;padding:12px;margin-bottom:15px;">
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+        <input type="text" id="admin-search-input" placeholder="חיפוש לפי קוד או טלפון..." oninput="runAdminSearch()" style="flex:1;min-width:200px;background:#0a0e14;border:1px solid #2a3a2a;border-radius:6px;color:#e0d5c0;padding:8px 12px;font-family:'Assistant',sans-serif;font-size:0.9rem;direction:rtl;" aria-label="חיפוש לידים לפי קוד או טלפון" />
+        <button onclick="clearAdminSearch()" style="background:none;border:1px solid #555;color:#888;padding:7px 12px;border-radius:6px;cursor:pointer;font-family:'Assistant',sans-serif;font-size:0.8rem;">נקה</button>
+      </div>
+      <div id="admin-search-results" style="margin-top:10px;display:none;"></div>
     </div>
 
     <!-- Tabs -->
@@ -1572,7 +1876,10 @@
       <button class="admin-tab" onclick="showAdminTab('demo')">מספרי דמו</button>
       <button class="admin-tab" onclick="showAdminTab('master')">מספרי מאסטר</button>
       <button class="admin-tab" onclick="showAdminTab('leads')">לידים</button>
+      <button class="admin-tab" onclick="showAdminTab('archive')">ארכיון</button>
+      <button class="admin-tab" onclick="showAdminTab('trash')">פח זבל</button>
       <button class="admin-tab" onclick="showAdminTab('matrix')">מטריצה</button>
+      <button class="admin-tab" onclick="showAdminTab('qa')">שאלה ותשובה</button>
       <button class="admin-tab" onclick="showAdminTab('password')">סיסמה</button>
     </div>
 
@@ -1593,6 +1900,7 @@
             <option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10</option>
           </select>
           <button class="admin-btn" onclick="generateBatch()">ייצר 1,000 קודים</button>
+          <button class="admin-btn secondary" onclick="window.open('/demo-codes.html','_blank')">👁️ דמו הדפסה</button>
           <span id="gen-status" style="color:#00ff88;font-size:0.8rem;display:none;"></span>
         </div>
       </div>
@@ -1616,13 +1924,12 @@
     <!-- Tab: Demo Codes -->
     <div class="admin-page" id="admin-demo">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px;">
-        <h2 style="color:#e0d5c0;font-size:1rem;">מאגר מספרי דמו</h2>
-        <button class="admin-btn" onclick="generateDemoCodes(5)">+ ייצר 5 קודים</button>
+        <h2 style="color:#e0d5c0;font-size:1rem;">מאגר מספרי דמו — מדענים</h2>
       </div>
-      <p style="color:#8a7e6a;font-size:0.8rem;margin-bottom:12px;">קודים זמניים להדגמה — פג תוקף אחרי שימוש אחד</p>
+      <p style="color:#8a7e6a;font-size:0.8rem;margin-bottom:12px;">10 קודים רב-פעמיים לחילוץ קוראים שנתקעו. ללא הגבלת זמן או ניסיונות.</p>
       <div class="admin-table-wrap">
         <table class="admin-table" id="demo-table">
-          <thead><tr><th>קוד</th><th>סטטוס</th><th>נוצר</th><th>שימוש</th><th>פעולות</th></tr></thead>
+          <thead><tr><th>מדען</th><th>שם באנגלית</th><th>קוד</th><th>סטטוס</th><th>שימושים</th><th>שימוש אחרון</th></tr></thead>
           <tbody id="demo-tbody"></tbody>
         </table>
       </div>
@@ -1649,6 +1956,13 @@
         <h2 style="color:#e0d5c0;font-size:1rem;">טבלת לידים</h2>
         <button class="admin-btn secondary" onclick="exportLeads()">📥 ייצוא</button>
       </div>
+
+      <!-- Stats Dashboard -->
+      <div id="stats-dashboard" style="background:#0d1117;border:1px solid #2a2e38;border-radius:10px;padding:15px;margin-bottom:15px;">
+        <h3 style="color:#ff6b35;font-size:0.9rem;margin-bottom:12px;">סטטיסטיקות</h3>
+        <div id="stats-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px;"></div>
+      </div>
+
       <div class="admin-summary" id="leads-summary"></div>
       <div class="admin-table-wrap">
         <table class="admin-table" id="leads-table">
@@ -1660,8 +1974,51 @@
             <th>קיבל תעודה</th>
             <th>הדפיס תעודה</th>
             <th>כניסה אחרונה</th>
+            <th>פעולות</th>
           </tr></thead>
           <tbody id="leads-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Tab: Archive -->
+    <div class="admin-page" id="admin-archive">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px;">
+        <h2 style="color:#e0d5c0;font-size:1rem;">ארכיון לידים</h2>
+      </div>
+      <div class="admin-summary" id="archive-summary"></div>
+      <div class="admin-table-wrap">
+        <table class="admin-table" id="archive-table">
+          <thead><tr>
+            <th>קוד כניסה</th>
+            <th>נייד</th>
+            <th>נכנס לכספת</th>
+            <th>הדפיס מכתב</th>
+            <th>כניסה אחרונה</th>
+            <th>פעולות</th>
+          </tr></thead>
+          <tbody id="archive-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Tab: Trash -->
+    <div class="admin-page" id="admin-trash">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px;">
+        <h2 style="color:#e0d5c0;font-size:1rem;">פח זבל</h2>
+      </div>
+      <div class="admin-summary" id="trash-summary"></div>
+      <div class="admin-table-wrap">
+        <table class="admin-table" id="trash-table">
+          <thead><tr>
+            <th>קוד כניסה</th>
+            <th>נייד</th>
+            <th>נכנס לכספת</th>
+            <th>הדפיס מכתב</th>
+            <th>כניסה אחרונה</th>
+            <th>פעולות</th>
+          </tr></thead>
+          <tbody id="trash-tbody"></tbody>
         </table>
       </div>
     </div>
@@ -1676,6 +2033,33 @@
         </div>
       </div>
       <div class="matrix-wrap" id="matrix-admin-root"></div>
+    </div>
+
+    <!-- Tab: Q&A -->
+    <div class="admin-page" id="admin-qa">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px;">
+        <h2 style="color:#e0d5c0;font-size:1rem;">שאלות ותשובות — הכנה לבוט סבא חיים</h2>
+      </div>
+      <p style="color:#8a7e6a;font-size:0.8rem;margin-bottom:15px;">הוסיפו שאלות שהקוראים עשויים לשאול את סבא חיים, והתשובות שהבוט ייתן.</p>
+
+      <!-- Add new Q&A -->
+      <div style="background:#0d1117;border:1px solid #2a2e38;border-radius:8px;padding:15px;margin-bottom:15px;">
+        <h3 style="color:#ff6b35;font-size:0.9rem;margin-bottom:10px;">הוספת שאלה ותשובה</h3>
+        <div style="margin-bottom:10px;">
+          <label style="color:#ff6b35;font-size:0.8rem;font-weight:700;display:block;margin-bottom:4px;">שאלה</label>
+          <textarea id="qa-question" rows="2" style="width:100%;background:#1a1e28;color:#ff6b35;border:2px solid #ff6b35;border-radius:8px;padding:10px;font-family:'Assistant',sans-serif;font-size:0.85rem;resize:vertical;direction:rtl;" placeholder="מה השאלה שהקורא ישאל?"></textarea>
+        </div>
+        <div style="margin-bottom:10px;">
+          <label style="color:#00ff88;font-size:0.8rem;font-weight:700;display:block;margin-bottom:4px;">תשובה</label>
+          <textarea id="qa-answer" rows="3" style="width:100%;background:#1a1e28;color:#00ff88;border:2px solid #00ff88;border-radius:8px;padding:10px;font-family:'Assistant',sans-serif;font-size:0.85rem;resize:vertical;direction:rtl;" placeholder="מה סבא חיים יענה?"></textarea>
+        </div>
+        <button class="admin-btn" onclick="addQA()">+ הוסף</button>
+        <span id="qa-status" style="color:#00ff88;font-size:0.8rem;margin-right:10px;display:none;"></span>
+      </div>
+
+      <!-- Q&A list -->
+      <div class="admin-summary" id="qa-summary"></div>
+      <div id="qa-list" style="display:flex;flex-direction:column;gap:10px;"></div>
     </div>
 
     <!-- Tab: Password -->
@@ -1701,19 +2085,19 @@
 <div class="nav-bottom" id="nav-bottom" style="display:none;">
   <button class="nav-btn active" onclick="showScreen('screen-vault')">
     <span class="nav-icon">🔐</span>
-    <span>כספת</span>
+    <span data-i18n="nav_vault">כספת</span>
   </button>
   <button class="nav-btn" onclick="showScreen('screen-matrix')">
     <span class="nav-icon">📋</span>
-    <span>מטריצה</span>
+    <span data-i18n="nav_matrix">מטריצה</span>
   </button>
   <button class="nav-btn" onclick="showScreen('screen-letter')">
     <span class="nav-icon">📜</span>
-    <span>מכתב</span>
+    <span data-i18n="nav_letter">מכתב</span>
   </button>
   <button class="nav-btn" onclick="trackEvent('got_certificate');showScreen('screen-certificate')">
     <span class="nav-icon">🏆</span>
-    <span>תעודה</span>
+    <span data-i18n="nav_cert">תעודה</span>
   </button>
   <div class="nav-separator"></div>
   <button class="nav-btn mode-btn" onclick="setViewMode('mobile')" data-mode="mobile">
@@ -1736,13 +2120,6 @@
 </div>
 
 <script>
-window.onerror = function(msg, url, line) {
-  document.title = 'ERROR: ' + msg + ' (line ' + line + ')';
-  var d = document.createElement('div');
-  d.style.cssText = 'position:fixed;top:0;left:0;right:0;background:red;color:white;padding:10px;z-index:9999;font-size:14px;direction:ltr;text-align:left;';
-  d.textContent = 'JS ERROR: ' + msg + ' at line ' + line;
-  document.body.appendChild(d);
-};
 // ===== GATE =====
 var gateInput = document.getElementById('gate-code');
 var gatePhone = document.getElementById('gate-phone');
@@ -1791,14 +2168,14 @@ async function tryGate() {
 
   // Client-side format check
   if (code.length !== 10 || !/^[A-Z]\d{8}[A-Z]$/.test(code)) {
-    errorEl.textContent = 'הקוד חייב להיות: אות, 8 ספרות, אות';
+    errorEl.textContent = t('err_code_format');
     errorEl.style.display = 'block';
     gateInput.focus();
     return;
   }
 
   if (!phone || phone.length < 9 || !/^0\d+$/.test(phone)) {
-    errorEl.textContent = 'יש להזין מספר נייד תקין (מתחיל ב-0)';
+    errorEl.textContent = t('err_phone');
     errorEl.style.display = 'block';
     gatePhone.focus();
     return;
@@ -1806,7 +2183,7 @@ async function tryGate() {
 
   gateAttempts++;
   if (gateAttempts > maxGateAttempts) {
-    errorEl.textContent = 'חרגת ממספר הניסיונות המותר. נסה מאוחר יותר.';
+    errorEl.textContent = t('err_attempts');
     errorEl.style.display = 'block';
     btnEl.disabled = true;
     return;
@@ -1830,21 +2207,17 @@ async function tryGate() {
     if (data.success) {
       currentUserCode = code;
       isMaster = !!data.master;
-      console.log('[DEBUG] Gate success, master=' + isMaster, 'response:', JSON.stringify(data));
       sessionStorage.setItem('gateCode', code);
       sessionStorage.setItem('gatePhone', phone);
       if (isMaster) sessionStorage.setItem('isMaster', '1');
       trackEvent('gate_entry');
       showScreen('screen-vault');
-      if (!isMaster) {
-        console.log('[DEBUG] Starting timer for regular user');
-        startTimer();
-      } else {
-        console.log('[DEBUG] Master mode - no timer');
-        maxAttempts = 999;
-      }
+      try { getAudioCtx(); } catch(e) {}
+      if (isMaster) maxAttempts = 999;
+      timeLeft = 600;
+      startTimer();
     } else {
-      errorEl.textContent = data.message || 'הקוד אינו תקין';
+      errorEl.textContent = data.message || t('err_invalid_code');
       errorEl.style.display = 'block';
       gateInput.focus();
       gateInput.select();
@@ -1852,7 +2225,7 @@ async function tryGate() {
   } catch (e) {
     spinnerEl.style.display = 'none';
     btnEl.disabled = false;
-    errorEl.textContent = 'שגיאת תקשורת, נסה שנית';
+    errorEl.textContent = t('err_network');
     errorEl.style.display = 'block';
   }
 }
@@ -1984,79 +2357,98 @@ function stopBlink() {
   if (blink) blink.classList.remove('blink-on');
 }
 
-// ===== FLIP CLOCK =====
-var timeLeft = 600; // 10 minutes
+// ===== TIMER =====
+var timeLeft = 600;
 var timerInterval = null;
 var attempts = 0;
 var maxAttempts = 3;
-var prevDigits = { m1: '', m0: '', s1: '', s0: '' };
 
-function flipDigit(id, newVal) {
+function updateFlipDigit(id, val) {
   var el = document.getElementById(id);
-  var key = id.replace('flip-', '');
-  if (prevDigits[key] === newVal) return;
-  el.textContent = newVal;
-  // Tick animation
-  el.classList.remove('ticking');
-  void el.offsetWidth; // force reflow
-  el.classList.add('ticking');
-  prevDigits[key] = newVal;
+  if (!el) return;
+  var inner = el.querySelector('.flip-digit-inner');
+  if (!inner) return;
+  var newVal = String(val);
+  if (inner.textContent !== newVal) {
+    el.classList.add('flipping');
+    setTimeout(function() {
+      inner.textContent = newVal;
+      el.classList.remove('flipping');
+    }, 150);
+  }
 }
 
-function updateTimerText() {
-  var tt = document.getElementById('timer-text');
-  if (!tt) return;
-  var m = Math.floor(timeLeft / 60).toString().padStart(2, '0');
-  var s = (timeLeft % 60).toString().padStart(2, '0');
-  tt.textContent = m + ':' + s;
-  if (timeLeft <= 60) { tt.style.color = '#ff4444'; }
-  else if (timeLeft <= 180) { tt.style.color = '#ffaa00'; }
-  else { tt.style.color = '#00ff88'; }
-}
-
-function updateFlipClock() {
-  var m = Math.floor(timeLeft / 60);
-  var s = timeLeft % 60;
-  flipDigit('flip-m1', Math.floor(m / 10).toString());
-  flipDigit('flip-m0', (m % 10).toString());
-  flipDigit('flip-s1', Math.floor(s / 10).toString());
-  flipDigit('flip-s0', (s % 10).toString());
+function updateFlipClock(seconds) {
+  var m = Math.floor(seconds / 60);
+  var s = seconds % 60;
+  updateFlipDigit('flip-m1', Math.floor(m / 10));
+  updateFlipDigit('flip-m0', m % 10);
+  updateFlipDigit('flip-s1', Math.floor(s / 10));
+  updateFlipDigit('flip-s0', s % 10);
 
   var clock = document.getElementById('flip-clock');
-  clock.classList.remove('warning', 'danger');
-  if (timeLeft <= 60) clock.classList.add('danger');
-  else if (timeLeft <= 180) clock.classList.add('warning');
+  clock.classList.remove('warning', 'critical', 'final');
+  if (seconds <= 10) clock.classList.add('final');
+  else if (seconds <= 60) clock.classList.add('critical');
+  else if (seconds <= 300) clock.classList.add('warning');
+}
+
+function playFlipTick(loud) {
+  try {
+    var ctx = getAudioCtx();
+    var osc = ctx.createOscillator();
+    var gain = ctx.createGain();
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.frequency.value = loud ? 1400 : 900;
+    osc.type = loud ? 'square' : 'sine';
+    var vol = loud ? 0.2 : 0.06;
+    gain.gain.setValueAtTime(vol, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + (loud ? 0.12 : 0.06));
+    osc.start(ctx.currentTime);
+    osc.stop(ctx.currentTime + (loud ? 0.12 : 0.06));
+  } catch(e) {}
 }
 
 function startTimer() {
-  // Show timer text as fallback
-  var tt = document.getElementById('timer-text');
-  if (tt) tt.style.display = 'block';
-  updateFlipClock();
-  updateTimerText();
-  startBlink();
-  timerInterval = setInterval(function() {
-    timeLeft--;
-    if (timeLeft <= 0) {
-      clearInterval(timerInterval);
-      stopBlink();
-      playLockdown();
-      showScreen('screen-locked');
-      return;
+  if (timerInterval) clearInterval(timerInterval);
+  try {
+    var clock = document.getElementById('flip-clock');
+    if (clock) {
+      clock.style.display = 'flex';
+      clock.classList.remove('warning', 'critical', 'final');
     }
-    updateFlipClock();
-    updateTimerText();
+    try { updateFlipClock(timeLeft); } catch(e) { console.error('updateFlipClock init error:', e); }
+    try { startBlink(); } catch(e) { console.error('startBlink error:', e); }
+  } catch(e) { console.error('startTimer setup error:', e); }
 
-    // Sound: tick every second, urgent in last 60s
-    if (timeLeft <= 60) {
-      playTickUrgent();
-    } else if (timeLeft <= 180 && timeLeft % 2 === 0) {
-      playTick();
-    } else if (timeLeft % 10 === 0) {
-      playTick();
-    }
+  timerInterval = setInterval(function() {
+    try {
+      timeLeft--;
+      if (timeLeft <= 0) {
+        clearInterval(timerInterval);
+        try { stopBlink(); } catch(e) {}
+        try { playLockdown(); } catch(e) {}
+        showScreen('screen-vault-warning');
+        return;
+      }
+
+      try { updateFlipClock(timeLeft); } catch(e) { console.error('updateFlipClock tick error:', e); }
+
+      // Ticking logic (all sound calls are wrapped — a failure must not break the countdown)
+      try {
+        if (timeLeft <= 10) {
+          playFlipTick(true);
+        } else if (timeLeft <= 60) {
+          playFlipTick(false);
+        } else if (timeLeft <= 300) {
+          if (timeLeft % 10 === 0) playFlipTick(false);
+        }
+      } catch(e) { console.error('tick sound error:', e); }
+    } catch(e) { console.error('vault timer interval error:', e); }
   }, 1000);
 }
+
 
 function showScreen(id) {
   document.querySelectorAll('.screen').forEach(function(s) { s.classList.remove('active'); });
@@ -2069,6 +2461,139 @@ function showScreen(id) {
   // Hide nav on gate screen, show on all others
   var nav = document.getElementById('nav-bottom');
   nav.style.display = (id === 'screen-gate') ? 'none' : 'flex';
+
+  // Dead-end auto-redirect: per-screen 60s budget that DOES NOT reset on re-entry.
+  // Each of home/letter/certificate has its own 60s budget for the session.
+  // This prevents the navigation loop (letter↔home↔cert↔home…) from granting fresh time.
+  clearDeadEndTimer();
+  if (DEAD_END_BUDGETS.hasOwnProperty(id)) {
+    if (DEAD_END_BUDGETS[id] <= 0) {
+      // Budget already exhausted on prior visit — redirect immediately.
+      var target = (id === 'screen-home') ? 'screen-gate' : 'screen-home';
+      setTimeout(function() { showScreen(target); }, 50);
+    } else {
+      startDeadEndTimer(id);
+    }
+  }
+}
+
+// ===== DEAD-END AUTO-REDIRECT TIMER (with visual countdown ring) =====
+// Per-screen budgets persist across navigation within a single browser session.
+var DEAD_END_BUDGETS = {
+  'screen-home': 60,
+  'screen-letter': 60,
+  'screen-certificate': 60
+};
+var DEAD_END_MAX_SECONDS = 60;
+var deadEndIntervalId = null;
+var deadEndActiveScreen = null;
+var DEAD_END_RING_CIRCUMFERENCE = 2 * Math.PI * 26; // r=26 in SVG
+
+function startDeadEndTimer(screenId) {
+  clearDeadEndTimer();
+  deadEndActiveScreen = screenId;
+  updateCountdownDisplay();
+  deadEndIntervalId = setInterval(function() {
+    DEAD_END_BUDGETS[screenId]--;
+    updateCountdownDisplay();
+    // Soft tick each second, loud on last 10 seconds
+    try {
+      var left = DEAD_END_BUDGETS[screenId];
+      playFlipTick(left <= 10);
+    } catch(e) {}
+    if (DEAD_END_BUDGETS[screenId] <= 0) {
+      clearDeadEndTimer();
+      var target = (screenId === 'screen-home') ? 'screen-gate' : 'screen-home';
+      showScreen(target);
+    }
+  }, 1000);
+}
+function clearDeadEndTimer() {
+  if (deadEndIntervalId) { clearInterval(deadEndIntervalId); deadEndIntervalId = null; }
+  deadEndActiveScreen = null;
+}
+function pauseDeadEndTimer() { clearDeadEndTimer(); }
+function updateCountdownDisplay() {
+  var seconds = deadEndActiveScreen ? DEAD_END_BUDGETS[deadEndActiveScreen] : 0;
+  var progress = seconds / DEAD_END_MAX_SECONDS;
+  var offset = DEAD_END_RING_CIRCUMFERENCE * (1 - progress);
+  document.querySelectorAll('.countdown-number').forEach(function(el) {
+    el.textContent = Math.max(0, seconds);
+  });
+  document.querySelectorAll('.countdown-ring').forEach(function(el) {
+    el.style.strokeDasharray = DEAD_END_RING_CIRCUMFERENCE;
+    el.style.strokeDashoffset = offset;
+  });
+}
+
+// ===== SAVE / SHARE ACTIONS =====
+function saveAsset(imagePath, downloadName, eventName) {
+  trackEvent(eventName);
+  // Prefer fetch+Blob so iOS Safari actually downloads instead of opening in a new tab.
+  // Falls back to direct <a download> if Blob approach fails (e.g., CORS, old browsers).
+  fetch(imagePath)
+    .then(function(res) { return res.blob(); })
+    .then(function(blob) {
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement('a');
+      a.href = url;
+      a.download = downloadName;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(function() { URL.revokeObjectURL(url); }, 1000);
+    })
+    .catch(function() {
+      var a = document.createElement('a');
+      a.href = imagePath;
+      a.download = downloadName;
+      a.target = '_blank';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    });
+}
+function shareAsset(shareText, eventName) {
+  trackEvent(eventName);
+  var shareUrl = window.location.origin;
+  if (navigator.share) {
+    navigator.share({ title: 'הצופן הסודי', text: shareText, url: shareUrl }).catch(function(){});
+  } else {
+    window.open('https://wa.me/?text=' + encodeURIComponent(shareText + ' ' + shareUrl), '_blank');
+    pauseDeadEndTimer();
+  }
+}
+function saveCertificate() { saveAsset('/assets/images/certificate.png', 'תעודת-הצופן-הסודי.png', 'save_certificate'); }
+function shareCertificate() { shareAsset('סיימתי את הצופן הסודי! 🔐', 'share_certificate'); }
+function printCertificate() {
+  trackEvent('print_certificate');
+  // Inject landscape @page rule dynamically — more reliable than named @page across browsers
+  var style = document.createElement('style');
+  style.id = 'cert-print-page-style';
+  style.textContent = '@page { size: A4 landscape; margin: 0; }';
+  document.head.appendChild(style);
+  document.body.classList.add('printing-cert');
+  var cleanedUp = false;
+  var cleanup = function() {
+    if (cleanedUp) return;
+    cleanedUp = true;
+    document.body.classList.remove('printing-cert');
+    var s = document.getElementById('cert-print-page-style');
+    if (s) s.remove();
+    window.removeEventListener('afterprint', cleanup);
+  };
+  window.addEventListener('afterprint', cleanup);
+  // Safety net: if afterprint never fires (user cancels, tab switch, mobile quirks),
+  // force cleanup after 10s so the landscape @page rule doesn't leak to subsequent prints.
+  setTimeout(cleanup, 10000);
+  window.print();
+}
+function saveLetter() { saveAsset('/assets/images/letter.png', 'מכתב-מסבא-חיים.png', 'save_letter'); }
+function shareLetter() { shareAsset('קיבלתי מכתב מסבא חיים! 📜', 'share_letter'); }
+
+// Direct admin link: visiting with #admin skips the book gate and goes straight to admin login
+if (window.location.hash === '#admin') {
+  showScreen('screen-admin');
 }
 
 function updateAttemptDots() {
@@ -2077,7 +2602,7 @@ function updateAttemptDots() {
     if (i <= attempts) dot.classList.add('used');
     else dot.classList.remove('used');
   }
-  document.getElementById('attempt-num').textContent = Math.min(attempts + 1, 3);
+  document.getElementById('attempt-text').textContent = t('attempt_label', { n: Math.min(attempts + 1, 3), max: maxAttempts > 10 ? '∞' : maxAttempts });
 }
 
 async function tryOpen() {
@@ -2087,7 +2612,7 @@ async function tryOpen() {
   var gold = document.getElementById('code-gold').value.trim();
 
   if (!iron || !copper || !silver || !gold) {
-    document.getElementById('error-msg').textContent = 'יש למלא את כל השדות';
+    document.getElementById('error-msg').textContent = t('err_vault_fields');
     document.getElementById('error-msg').style.display = 'block';
     playBuzz();
     return;
@@ -2110,9 +2635,7 @@ async function tryOpen() {
       playFanfare();
       trackEvent('vault_opened');
       showScreen('screen-open');
-      if (!isMaster) {
-        setTimeout(startOpenCountdown, 1500);
-      }
+      setTimeout(startOpenCountdown, 1500);
     } else {
       playBuzz();
       if (attempts >= maxAttempts) {
@@ -2121,7 +2644,7 @@ async function tryOpen() {
         setTimeout(function() { playLockdown(); }, 600);
         showScreen('screen-locked');
       } else {
-        document.getElementById('error-msg').textContent = 'הקוד שגוי! נותרו ' + (maxAttempts - attempts) + ' נסיונות';
+        document.getElementById('error-msg').textContent = t('err_vault_wrong', { n: maxAttempts - attempts });
         document.getElementById('error-msg').style.display = 'block';
         // Shake animation
         document.querySelector('.vault-image').style.animation = 'none';
@@ -2129,7 +2652,7 @@ async function tryOpen() {
       }
     }
   } catch (e) {
-    document.getElementById('error-msg').textContent = 'שגיאת תקשורת';
+    document.getElementById('error-msg').textContent = t('err_vault_network');
     document.getElementById('error-msg').style.display = 'block';
   }
 }
@@ -2137,19 +2660,45 @@ async function tryOpen() {
 function resetVault() {
   timeLeft = 600;
   attempts = 0;
-  prevDigits = { m1: '', m0: '', s1: '', s0: '' };
-  updateFlipClock();
   updateAttemptDots();
   document.getElementById('error-msg').style.display = 'none';
   document.querySelectorAll('.code-input').forEach(function(inp) { inp.value = ''; });
-  document.getElementById('flip-clock').classList.remove('warning', 'danger');
+  // Reset flip clock
+  var clock = document.getElementById('flip-clock');
+  clock.classList.remove('warning', 'critical', 'final');
+  updateFlipClock(600);
   // Reset open screen
   clearInterval(openInterval);
   stopGreenBlink();
-  document.getElementById('open-timer').textContent = '01:00';
-  document.getElementById('open-timer').classList.remove('urgent');
+  updateOpenFlipClock(300);
+  var openClock = document.getElementById('open-flip-clock');
+  if (openClock) openClock.classList.remove('warning', 'critical', 'final');
+  showScreen('screen-vault');
+  if (!isMaster) startTimer();
+}
+
+// ===== VAULT WARNING OPTIONS =====
+function warningRetry() {
+  // Give 3 more minutes, keep attempts
+  timeLeft = 180;
+  document.getElementById('error-msg').style.display = 'none';
+  document.querySelectorAll('.code-input').forEach(function(inp) { inp.value = ''; });
+  var clock = document.getElementById('flip-clock');
+  clock.classList.remove('warning', 'critical', 'final');
+  updateFlipClock(180);
   showScreen('screen-vault');
   startTimer();
+}
+
+function warningMatrix() {
+  // Go to matrix to check clues, timer stays paused
+  showScreen('screen-matrix');
+}
+
+function warningLock() {
+  // Full lockout
+  playLockdown();
+  showScreen('screen-locked');
 }
 
 // Auto-advance to next input
@@ -2325,10 +2874,10 @@ function buildReadOnlyRow(ri) {
     cube.dataset.type = cell.type || 'text';
     if (cell.w) cube.style.width = cell.w + 'px';
     if (cell.h) cube.style.height = cell.h + 'px';
-    if (cell.type === 'image' && cell.src) {
-      cube.innerHTML = '<img src="' + cell.src + '" alt="" />';
+    if (cell.type === 'image' && cell.t) {
+      cube.innerHTML = '<img src="' + cell.t.replace(/"/g, '&quot;') + '" alt="" />';
     } else {
-      cube.textContent = cell.text || '';
+      cube.textContent = cell.t || '';
     }
     // No toolbar, no drag, no resize
     rowEl.appendChild(cube);
@@ -2359,6 +2908,7 @@ function buildCube(cell, ri, ci) {
   var el = document.createElement('div');
   el.className = 'm-cube';
   el.dataset.type = cell.type;
+  if (cell.bg) el.dataset.bg = cell.bg;
   el.dataset.row = ri;
   el.dataset.col = ci;
   el.draggable = true;
@@ -2370,6 +2920,11 @@ function buildCube(cell, ri, ci) {
   // Content
   if (cell.type === 'empty') {
     el.textContent = '+';
+  } else if (cell.type === 'image' && cell.bg) {
+    // Metal image tile with gradient
+    el.innerHTML = '<div class="metal-tile metal-' + cell.bg + '" style="width:100%;height:100%;border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:0.8rem;color:rgba(0,0,0,0.4);">' + (cell.t || '') + '</div>';
+    el.style.padding = '0';
+    el.style.overflow = 'hidden';
   } else if (cell.type === 'image') {
     el.innerHTML = '<img src="' + (cell.t || '').replace(/"/g, '&quot;') + '" alt="" />';
   } else {
@@ -2438,32 +2993,127 @@ function resizeCube(ri, ci, delta) {
 
 function editCube(ri, ci) {
   var cell = matrixData[ri][ci];
-  var choice = prompt('מה להוסיף?\n1 = טקסט\n2 = תמונה (URL)\n3 = אימוג׳י / אייקון\n4 = מספר\n5 = סימן כימי\n6 = אות\n7 = צופן (ירוק זוהר)');
-  if (!choice) return;
 
-  if (choice === '1') {
-    var text = prompt('טקסט:', cell.t || '');
-    if (text !== null) { cell.t = text; cell.type = 'text'; }
-  } else if (choice === '2') {
-    var url = prompt('כתובת תמונה:', cell.t || '');
-    if (url) { cell.t = url; cell.type = 'image'; }
-  } else if (choice === '3') {
-    var emoji = prompt('אימוג׳י / אייקון:', cell.t || '');
-    if (emoji !== null) { cell.t = emoji; cell.type = 'title'; }
-  } else if (choice === '4') {
-    var num = prompt('מספר:', cell.t || '');
-    if (num !== null) { cell.t = num; cell.type = 'number'; }
-  } else if (choice === '5') {
-    var sym = prompt('סימן:', cell.t || '');
-    if (sym !== null) { cell.t = sym; cell.type = 'symbol'; }
-  } else if (choice === '6') {
-    var ltr = prompt('אות:', cell.t || '');
-    if (ltr !== null) { cell.t = ltr; cell.type = 'letter'; }
-  } else if (choice === '7') {
-    var code = prompt('ערך צופן:', cell.t || '');
-    if (code !== null) { cell.t = code; cell.type = 'code'; }
+  // Build modal
+  var overlay = document.createElement('div');
+  overlay.className = 'cube-modal-overlay';
+  overlay.onclick = function(e) { if (e.target === overlay) overlay.remove(); };
+
+  function applyAndClose(t, type, bg) {
+    cell.t = t;
+    cell.type = type;
+    if (bg) cell.bg = bg; else delete cell.bg;
+    overlay.remove();
+    renderAllMatrix();
   }
-  renderAllMatrix();
+
+  var modal = document.createElement('div');
+  modal.className = 'cube-modal';
+  modal.innerHTML =
+    '<h3>עריכת תא</h3>' +
+
+    // Metal images
+    '<div class="cube-modal-section">' +
+      '<div class="cube-modal-section-title">תמונת מתכת</div>' +
+      '<div class="cube-modal-grid">' +
+        '<div class="cube-modal-btn" data-action="metal-img" data-metal="iron" style="background:#0d1117;color:#b8b8b8;"><div class="metal-tile metal-iron"></div><div class="btn-label">ברזל</div></div>' +
+        '<div class="cube-modal-btn" data-action="metal-img" data-metal="copper" style="background:#0d1117;color:#da8a47;"><div class="metal-tile metal-copper"></div><div class="btn-label">נחושת</div></div>' +
+        '<div class="cube-modal-btn" data-action="metal-img" data-metal="silver" style="background:#0d1117;color:#d4d4d4;"><div class="metal-tile metal-silver"></div><div class="btn-label">כסף</div></div>' +
+        '<div class="cube-modal-btn" data-action="metal-img" data-metal="gold" style="background:#0d1117;color:#ffd700;"><div class="metal-tile metal-gold"></div><div class="btn-label">זהב</div></div>' +
+      '</div>' +
+    '</div>' +
+
+    // Arrows
+    '<div class="cube-modal-section">' +
+      '<div class="cube-modal-section-title">חצים</div>' +
+      '<div class="cube-modal-grid">' +
+        '<div class="cube-modal-btn" data-action="arrow" data-val="→" style="background:#1a1e28;color:#00aaff;"><span class="btn-icon">→</span><div class="btn-label">ימינה</div></div>' +
+        '<div class="cube-modal-btn" data-action="arrow" data-val="←" style="background:#1a1e28;color:#00aaff;"><span class="btn-icon">←</span><div class="btn-label">שמאלה</div></div>' +
+        '<div class="cube-modal-btn" data-action="arrow" data-val="↑" style="background:#1a1e28;color:#00aaff;"><span class="btn-icon">↑</span><div class="btn-label">למעלה</div></div>' +
+        '<div class="cube-modal-btn" data-action="arrow" data-val="↓" style="background:#1a1e28;color:#00aaff;"><span class="btn-icon">↓</span><div class="btn-label">למטה</div></div>' +
+      '</div>' +
+    '</div>' +
+
+    // Chemical symbols
+    '<div class="cube-modal-section">' +
+      '<div class="cube-modal-section-title">סמלים כימיים</div>' +
+      '<div class="cube-modal-grid">' +
+        '<div class="cube-modal-btn" data-action="symbol" data-val="Fe" style="background:linear-gradient(135deg,#fff8e1,#ffecb3);color:#bf860a;"><span class="btn-icon" style="font-family:Courier New,monospace;">Fe</span><div class="btn-label" style="color:#888;">ברזל</div></div>' +
+        '<div class="cube-modal-btn" data-action="symbol" data-val="Cu" style="background:linear-gradient(135deg,#fff8e1,#ffecb3);color:#bf860a;"><span class="btn-icon" style="font-family:Courier New,monospace;">Cu</span><div class="btn-label" style="color:#888;">נחושת</div></div>' +
+        '<div class="cube-modal-btn" data-action="symbol" data-val="Ag" style="background:linear-gradient(135deg,#fff8e1,#ffecb3);color:#bf860a;"><span class="btn-icon" style="font-family:Courier New,monospace;">Ag</span><div class="btn-label" style="color:#888;">כסף</div></div>' +
+        '<div class="cube-modal-btn" data-action="symbol" data-val="Au" style="background:linear-gradient(135deg,#fff8e1,#ffecb3);color:#bf860a;"><span class="btn-icon" style="font-family:Courier New,monospace;">Au</span><div class="btn-label" style="color:#888;">זהב</div></div>' +
+      '</div>' +
+    '</div>' +
+
+    // Background colors
+    '<div class="cube-modal-section">' +
+      '<div class="cube-modal-section-title">צבע רקע מתכת</div>' +
+      '<div class="cube-modal-grid">' +
+        '<div class="cube-modal-btn" data-action="bg" data-val="iron" style="background:#0d1117;"><div class="metal-tile metal-iron" style="height:32px;border-radius:6px;"></div><div class="btn-label" style="color:#b8b8b8;">ברזל</div></div>' +
+        '<div class="cube-modal-btn" data-action="bg" data-val="copper" style="background:#0d1117;"><div class="metal-tile metal-copper" style="height:32px;border-radius:6px;"></div><div class="btn-label" style="color:#da8a47;">נחושת</div></div>' +
+        '<div class="cube-modal-btn" data-action="bg" data-val="silver" style="background:#0d1117;"><div class="metal-tile metal-silver" style="height:32px;border-radius:6px;"></div><div class="btn-label" style="color:#d4d4d4;">כסף</div></div>' +
+        '<div class="cube-modal-btn" data-action="bg" data-val="gold" style="background:#0d1117;"><div class="metal-tile metal-gold" style="height:32px;border-radius:6px;"></div><div class="btn-label" style="color:#ffd700;">זהב</div></div>' +
+      '</div>' +
+    '</div>' +
+
+    // Free text input
+    '<div class="cube-modal-section">' +
+      '<div class="cube-modal-section-title">טקסט חופשי</div>' +
+      '<div style="display:flex;gap:6px;">' +
+        '<input type="text" id="cube-free-text" value="' + (cell.t || '').replace(/"/g, '&quot;') + '" placeholder="הקלד טקסט..." style="flex:1;background:#0d1117;color:#e0d5c0;border:1px solid #2a2e38;border-radius:8px;padding:8px 12px;font-family:Assistant,sans-serif;font-size:0.85rem;direction:rtl;" />' +
+        '<button class="cube-modal-btn" id="cube-free-submit" style="background:#c9a84c;color:#1a1e28;padding:8px 14px;white-space:nowrap;">הוסף</button>' +
+      '</div>' +
+    '</div>' +
+
+    '<button class="cube-modal-close">ביטול</button>';
+
+  overlay.appendChild(modal);
+  document.body.appendChild(overlay);
+
+  // Focus text input
+  setTimeout(function() { document.getElementById('cube-free-text').focus(); }, 100);
+
+  // Event delegation
+  modal.addEventListener('click', function(e) {
+    var btn = e.target.closest('[data-action]');
+    if (!btn) {
+      if (e.target.classList.contains('cube-modal-close')) overlay.remove();
+      return;
+    }
+
+    var action = btn.dataset.action;
+
+    if (action === 'metal-img') {
+      var metal = btn.dataset.metal;
+      var names = { iron: 'ברזל', copper: 'נחושת', silver: 'כסף', gold: 'זהב' };
+      applyAndClose(names[metal], 'image', metal);
+    }
+    else if (action === 'arrow') {
+      applyAndClose(btn.dataset.val, 'title');
+    }
+    else if (action === 'symbol') {
+      applyAndClose(btn.dataset.val, 'symbol');
+    }
+    else if (action === 'bg') {
+      cell.bg = btn.dataset.val;
+      overlay.remove();
+      renderAllMatrix();
+    }
+  });
+
+  // Free text submit
+  document.getElementById('cube-free-submit').addEventListener('click', function() {
+    var val = document.getElementById('cube-free-text').value;
+    if (val !== '') applyAndClose(val, 'text');
+  });
+
+  // Enter key on free text
+  document.getElementById('cube-free-text').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') {
+      var val = this.value;
+      if (val !== '') applyAndClose(val, 'text');
+    }
+  });
 }
 
 function deleteCube(ri, ci) {
@@ -2639,17 +3289,19 @@ var openInterval = null;
 var greenBlinkInterval = null;
 
 function playTickOpen() {
-  var ctx = getAudioCtx();
-  var osc = ctx.createOscillator();
-  var gain = ctx.createGain();
-  osc.connect(gain);
-  gain.connect(ctx.destination);
-  osc.frequency.value = openTimeLeft <= 15 ? 1400 : 1000;
-  osc.type = 'triangle';
-  gain.gain.setValueAtTime(0.1, ctx.currentTime);
-  gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.12);
-  osc.start(ctx.currentTime);
-  osc.stop(ctx.currentTime + 0.12);
+  try {
+    var ctx = getAudioCtx();
+    var osc = ctx.createOscillator();
+    var gain = ctx.createGain();
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.frequency.value = openTimeLeft <= 15 ? 1400 : 1000;
+    osc.type = 'triangle';
+    gain.gain.setValueAtTime(0.1, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.12);
+    osc.start(ctx.currentTime);
+    osc.stop(ctx.currentTime + 0.12);
+  } catch(e) {}
 }
 
 function startGreenBlink() {
@@ -2672,28 +3324,49 @@ function stopGreenBlink() {
   if (blink) blink.classList.remove('blink-on');
 }
 
+function updateOpenFlipClock(seconds) {
+  var m = Math.floor(seconds / 60);
+  var s = seconds % 60;
+  updateFlipDigit('open-flip-m1', Math.floor(m / 10));
+  updateFlipDigit('open-flip-m0', m % 10);
+  updateFlipDigit('open-flip-s1', Math.floor(s / 10));
+  updateFlipDigit('open-flip-s0', s % 10);
+
+  var clock = document.getElementById('open-flip-clock');
+  if (!clock) return;
+  clock.classList.remove('warning', 'critical', 'final');
+  if (seconds <= 10) clock.classList.add('final');
+  else if (seconds <= 30) clock.classList.add('critical');
+  else if (seconds <= 60) clock.classList.add('warning');
+}
+
 function startOpenCountdown() {
-  openTimeLeft = 60;
-  var timerEl = document.getElementById('open-timer');
+  openTimeLeft = 300;
+  updateOpenFlipClock(300);
   startGreenBlink();
 
+  if (openInterval) clearInterval(openInterval);
   openInterval = setInterval(function() {
-    openTimeLeft--;
-    var s = openTimeLeft;
-    timerEl.textContent = '00:' + s.toString().padStart(2, '0');
+    try {
+      openTimeLeft--;
+      updateOpenFlipClock(openTimeLeft);
 
-    playTickOpen();
+      // Ticking: first 4 min every 10s, last minute every second, last 10s loud
+      if (openTimeLeft <= 10) {
+        playFlipTick(true);
+      } else if (openTimeLeft <= 60) {
+        playFlipTick(false);
+      } else if (openTimeLeft % 10 === 0) {
+        playTickOpen();
+      }
 
-    if (openTimeLeft <= 15) {
-      timerEl.classList.add('urgent');
-    }
-
-    if (openTimeLeft <= 0) {
-      clearInterval(openInterval);
-      stopGreenBlink();
-      playLockdown();
-      showScreen('screen-locked');
-    }
+      if (openTimeLeft <= 0) {
+        clearInterval(openInterval);
+        stopGreenBlink();
+        playLockdown();
+        showScreen('screen-locked');
+      }
+    } catch(e) { console.error('Open countdown error:', e); }
   }, 1000);
 }
 
@@ -2774,6 +3447,7 @@ function logoutAdmin() {
 }
 
 function showAdminTab(tab) {
+  currentAdminTab = tab;
   document.querySelectorAll('.admin-tab').forEach(function(t) { t.classList.remove('active'); });
   document.querySelectorAll('.admin-page').forEach(function(p) { p.classList.remove('active'); });
   document.getElementById('admin-' + tab).classList.add('active');
@@ -2785,6 +3459,9 @@ function showAdminTab(tab) {
   else if (tab === 'demo') loadDemoTab();
   else if (tab === 'master') loadMasterTab();
   else if (tab === 'leads') loadLeadsTab();
+  else if (tab === 'archive') loadArchiveTab();
+  else if (tab === 'trash') loadTrashTab();
+  else if (tab === 'qa') loadQATab();
   else if (tab === 'matrix') renderMatrix('matrix-admin-root', true);
 }
 
@@ -2919,10 +3596,30 @@ function printBooklet(batchNum, bookletIndex) {
 }
 
 // --- Demo tab ---
-function loadDemoTab() {
-  document.getElementById('demo-tbody').innerHTML = '<tr><td colspan="5" class="admin-empty">אין קודי דמו עדיין</td></tr>';
+async function loadDemoTab() {
+  try {
+    var res = await fetch('/api/admin/demo?token=' + encodeURIComponent(adminToken));
+    var data = await res.json();
+    if (data.error) return;
+    var codes = data.codes || [];
+
+    var tbody = document.getElementById('demo-tbody');
+    if (codes.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="6" class="admin-empty">אין קודי דמו</td></tr>';
+      return;
+    }
+    tbody.innerHTML = codes.map(function(c) {
+      return '<tr>' +
+        '<td style="font-weight:700;color:#e0d5c0;">' + (c.name || '—') + '</td>' +
+        '<td style="direction:ltr;text-align:left;color:#8a7e6a;font-size:0.8rem;">' + (c.nameEn || '—') + '</td>' +
+        '<td class="code-cell">' + c.code + '</td>' +
+        '<td><span class="admin-badge ' + (c.active ? 'active' : 'inactive') + '">' + (c.active ? 'פעיל' : 'מושבת') + '</span></td>' +
+        '<td>' + (c.uses || 0) + '</td>' +
+        '<td style="font-size:0.7rem;color:#8a7e6a;">' + (c.lastUsed ? new Date(c.lastUsed).toLocaleString('he-IL') : '—') + '</td>' +
+        '</tr>';
+    }).join('');
+  } catch (e) { console.error(e); }
 }
-function generateDemoCodes(n) { alert('פיצ׳ר בבנייה — ייצור ' + n + ' קודי דמו'); }
 
 // --- Master tab ---
 async function loadMasterTab() {
@@ -2952,6 +3649,34 @@ function addMasterCode() { alert('פיצ׳ר בבנייה — הוספת קוד 
 
 // --- Leads tab ---
 async function loadLeadsTab() {
+  // Load stats
+  try {
+    var statsRes = await fetch('/api/admin/stats?token=' + encodeURIComponent(adminToken));
+    var statsData = await statsRes.json();
+    if (statsData.success) {
+      var s = statsData.stats;
+      var items = [
+        { label: 'כניסות לאתר', value: s.siteEntries, color: '#00aaff' },
+        { label: 'קודים שהופקו', value: s.codesGenerated, color: '#c9a84c' },
+        { label: 'נכנסו לכספת', value: s.totalLeads, color: '#ff6b35' },
+        { label: 'פתחו כספת', value: s.openedVault, color: '#00ff88' },
+        { label: 'הדפיסו מכתב', value: s.printedLetter, color: '#aa88ff' },
+        { label: 'הדפיסו תעודה', value: s.printedCertificate, color: '#ff88aa' },
+        { label: 'לחצו רכישה', value: s.clickPurchase, color: '#ffaa00' },
+        { label: 'לחצו מתנה', value: s.clickGift, color: '#00cc66' },
+        { label: 'בארכיון', value: s.archivedLeads || 0, color: '#8888aa' },
+        { label: 'בפח זבל', value: s.trashedLeads || 0, color: '#ff4444' }
+      ];
+      document.getElementById('stats-grid').innerHTML = items.map(function(item) {
+        return '<div style="background:#1a1e28;border-radius:8px;padding:12px;text-align:center;border:1px solid #2a2e38;">' +
+          '<div style="font-size:1.8rem;font-weight:800;color:' + item.color + ';">' + item.value + '</div>' +
+          '<div style="font-size:0.7rem;color:#8a7e6a;margin-top:4px;">' + item.label + '</div>' +
+          '</div>';
+      }).join('');
+    }
+  } catch(e) { console.error(e); }
+
+  // Load leads table
   try {
     var res = await fetch('/api/admin/leads?token=' + encodeURIComponent(adminToken));
     var data = await res.json();
@@ -2968,7 +3693,7 @@ async function loadLeadsTab() {
 
     var tbody = document.getElementById('leads-tbody');
     if (leads.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="7" class="admin-empty">אין לידים עדיין</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="8" class="admin-empty">אין לידים עדיין</td></tr>';
       return;
     }
     tbody.innerHTML = leads.map(function(l) {
@@ -2983,11 +3708,291 @@ async function loadLeadsTab() {
         '<td style="text-align:center;">' + badge(l.gotCertificate) + '</td>' +
         '<td style="text-align:center;">' + badge(l.printedCertificate) + '</td>' +
         '<td style="font-size:0.7rem;color:#8a7e6a;">' + new Date(l.lastEntry).toLocaleString('he-IL') + '</td>' +
+        '<td style="white-space:nowrap;">' +
+          '<button class="admin-btn secondary" style="padding:4px 8px;font-size:0.7rem;margin:0 2px;" onclick="changeLeadStatus(\'' + l.code + '\',\'archived\')">ארכיון</button>' +
+          '<button class="admin-btn secondary" style="padding:4px 8px;font-size:0.7rem;margin:0 2px;color:#ff4444;border-color:#ff4444;" onclick="changeLeadStatus(\'' + l.code + '\',\'trashed\')">מחק</button>' +
+        '</td>' +
         '</tr>';
     }).join('');
   } catch (e) { console.error(e); }
 }
 function exportLeads() { alert('פיצ׳ר בבנייה — ייצוא לידים'); }
+
+var currentAdminTab = 'codes';
+
+async function changeLeadStatus(code, status) {
+  try {
+    var res = await fetch('/api/admin/leads/status', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ token: adminToken, code: code, status: status })
+    });
+    var data = await res.json();
+    if (data.success) {
+      showAdminTab(currentAdminTab);
+    } else {
+      alert(data.message || 'שגיאה');
+    }
+  } catch (e) { console.error(e); }
+}
+
+async function loadArchiveTab() {
+  try {
+    var res = await fetch('/api/admin/leads?token=' + encodeURIComponent(adminToken) + '&status=archived');
+    var data = await res.json();
+    if (data.error) return;
+    var leads = data.leads || [];
+
+    document.getElementById('archive-summary').innerHTML =
+      '<div class="stat"><div class="stat-num">' + leads.length + '</div><div class="stat-label">בארכיון</div></div>';
+
+    var tbody = document.getElementById('archive-tbody');
+    if (leads.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="6" class="admin-empty">אין לידים בארכיון</td></tr>';
+      return;
+    }
+    tbody.innerHTML = leads.map(function(l) {
+      function badge(val) {
+        return '<span class="admin-badge ' + (val ? 'active' : 'inactive') + '">' + (val ? '✓' : '✗') + '</span>';
+      }
+      return '<tr>' +
+        '<td class="code-cell">' + l.code + '</td>' +
+        '<td style="direction:ltr;text-align:left;">' + (l.phone || '—') + '</td>' +
+        '<td style="text-align:center;">' + badge(l.vaultOpened) + '</td>' +
+        '<td style="text-align:center;">' + badge(l.printedLetter) + '</td>' +
+        '<td style="font-size:0.7rem;color:#8a7e6a;">' + new Date(l.lastEntry).toLocaleString('he-IL') + '</td>' +
+        '<td style="white-space:nowrap;">' +
+          '<button class="admin-btn secondary" style="padding:4px 8px;font-size:0.7rem;margin:0 2px;" onclick="changeLeadStatus(\'' + l.code + '\',\'active\')">שחזר</button>' +
+          '<button class="admin-btn secondary" style="padding:4px 8px;font-size:0.7rem;margin:0 2px;color:#ff4444;border-color:#ff4444;" onclick="changeLeadStatus(\'' + l.code + '\',\'trashed\')">מחק</button>' +
+        '</td>' +
+        '</tr>';
+    }).join('');
+  } catch (e) { console.error(e); }
+}
+
+async function loadTrashTab() {
+  try {
+    var res = await fetch('/api/admin/leads?token=' + encodeURIComponent(adminToken) + '&status=trashed');
+    var data = await res.json();
+    if (data.error) return;
+    var leads = data.leads || [];
+
+    document.getElementById('trash-summary').innerHTML =
+      '<div class="stat"><div class="stat-num">' + leads.length + '</div><div class="stat-label">בפח זבל</div></div>';
+
+    var tbody = document.getElementById('trash-tbody');
+    if (leads.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="6" class="admin-empty">פח הזבל ריק</td></tr>';
+      return;
+    }
+    tbody.innerHTML = leads.map(function(l) {
+      function badge(val) {
+        return '<span class="admin-badge ' + (val ? 'active' : 'inactive') + '">' + (val ? '✓' : '✗') + '</span>';
+      }
+      return '<tr>' +
+        '<td class="code-cell">' + l.code + '</td>' +
+        '<td style="direction:ltr;text-align:left;">' + (l.phone || '—') + '</td>' +
+        '<td style="text-align:center;">' + badge(l.vaultOpened) + '</td>' +
+        '<td style="text-align:center;">' + badge(l.printedLetter) + '</td>' +
+        '<td style="font-size:0.7rem;color:#8a7e6a;">' + new Date(l.lastEntry).toLocaleString('he-IL') + '</td>' +
+        '<td style="white-space:nowrap;">' +
+          '<button class="admin-btn secondary" style="padding:4px 8px;font-size:0.7rem;margin:0 2px;" onclick="changeLeadStatus(\'' + l.code + '\',\'active\')">שחזר</button>' +
+          '<button class="admin-btn secondary" style="padding:4px 8px;font-size:0.7rem;margin:0 2px;" onclick="changeLeadStatus(\'' + l.code + '\',\'archived\')">ארכיון</button>' +
+          '<button class="admin-btn secondary" style="padding:4px 8px;font-size:0.7rem;margin:0 2px;color:#ff4444;border-color:#ff4444;" onclick="deleteLeadPermanently(\'' + l.code + '\')">מחק סופית</button>' +
+        '</td>' +
+        '</tr>';
+    }).join('');
+  } catch (e) { console.error(e); }
+}
+
+// --- Global admin search (across all lead statuses) ---
+var adminSearchCache = null;
+var adminSearchTimer = null;
+
+async function fetchAllLeadsForSearch() {
+  try {
+    var res = await fetch('/api/admin/leads?status=all&token=' + encodeURIComponent(adminToken));
+    var data = await res.json();
+    if (data.success) return data.leads || [];
+  } catch (e) {}
+  return [];
+}
+
+function runAdminSearch() {
+  clearTimeout(adminSearchTimer);
+  adminSearchTimer = setTimeout(doAdminSearch, 200);
+}
+
+async function doAdminSearch() {
+  var input = document.getElementById('admin-search-input');
+  var resultsEl = document.getElementById('admin-search-results');
+  if (!input || !resultsEl) return;
+  var q = (input.value || '').trim();
+  if (!q) {
+    resultsEl.style.display = 'none';
+    resultsEl.innerHTML = '';
+    return;
+  }
+  if (!adminSearchCache) {
+    adminSearchCache = await fetchAllLeadsForSearch();
+  }
+  var qLower = q.toLowerCase();
+  var qDigits = q.replace(/\D/g, '');
+  var matches = adminSearchCache.filter(function(l) {
+    var codeMatch = (l.code || '').toLowerCase().indexOf(qLower) !== -1;
+    var phoneMatch = qDigits && (l.phone || '').replace(/\D/g, '').indexOf(qDigits) !== -1;
+    return codeMatch || phoneMatch;
+  });
+  resultsEl.style.display = 'block';
+  if (matches.length === 0) {
+    resultsEl.innerHTML = '<div style="color:#8a7e6a;font-size:0.85rem;padding:8px;">לא נמצאו תוצאות</div>';
+    return;
+  }
+  var statusLabel = { active: 'פעיל', archived: 'ארכיון', trashed: 'פח זבל' };
+  var statusColor = { active: '#00ff88', archived: '#c9a84c', trashed: '#ff4444' };
+  resultsEl.innerHTML =
+    '<div style="color:#8a7e6a;font-size:0.75rem;margin-bottom:6px;">' + matches.length + ' תוצאות</div>' +
+    matches.map(function(l) {
+      var st = l.status || 'active';
+      return '<div style="background:#0a0e14;border:1px solid #2a2e38;border-radius:6px;padding:8px 10px;margin-bottom:6px;display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;">' +
+        '<div style="flex:1;min-width:0;">' +
+          '<div style="color:#e0d5c0;font-family:monospace;font-size:0.9rem;">' + l.code + '</div>' +
+          '<div style="color:#8a7e6a;font-size:0.75rem;direction:ltr;text-align:right;">' + (l.phone || '—') + '</div>' +
+        '</div>' +
+        '<div style="color:' + (statusColor[st] || '#888') + ';font-size:0.75rem;font-weight:700;white-space:nowrap;">' + (statusLabel[st] || st) + '</div>' +
+      '</div>';
+    }).join('');
+}
+
+function clearAdminSearch() {
+  var input = document.getElementById('admin-search-input');
+  var resultsEl = document.getElementById('admin-search-results');
+  if (input) input.value = '';
+  if (resultsEl) { resultsEl.style.display = 'none'; resultsEl.innerHTML = ''; }
+  adminSearchCache = null;
+}
+
+async function deleteLeadPermanently(code) {
+  if (!confirm('האם למחוק לצמיתות את הליד ' + code + '?\nהקוד יוכל לשמש שוב להרשמה חדשה.\nפעולה זו אינה הפיכה.')) return;
+  try {
+    var res = await fetch('/api/admin/leads/delete', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ token: adminToken, code: code })
+    });
+    var data = await res.json();
+    if (data.success) {
+      loadTrashTab();
+    } else {
+      alert(data.message || 'שגיאה במחיקה');
+    }
+  } catch (e) {
+    alert('שגיאת רשת');
+  }
+}
+
+// --- Q&A tab ---
+async function loadQATab() {
+  try {
+    var res = await fetch('/api/admin/qa?token=' + encodeURIComponent(adminToken));
+    var data = await res.json();
+    if (data.error) return;
+    var items = data.items || [];
+
+    document.getElementById('qa-summary').innerHTML =
+      '<div class="stat"><div class="stat-num">' + items.length + '</div><div class="stat-label">שאלות ותשובות</div></div>';
+
+    var list = document.getElementById('qa-list');
+    if (items.length === 0) {
+      list.innerHTML = '<div style="text-align:center;color:#8a7e6a;padding:30px;">אין שאלות עדיין — הוסיפו את השאלה הראשונה!</div>';
+      return;
+    }
+    list.innerHTML = items.map(function(item, i) {
+      return '<div style="background:#0d1117;border:1px solid #2a2e38;border-radius:10px;padding:15px;position:relative;">' +
+        '<div style="position:absolute;top:8px;left:8px;display:flex;gap:4px;">' +
+          '<button class="admin-btn secondary" style="padding:3px 8px;font-size:0.7rem;" onclick="editQA(' + i + ')">✎ ערוך</button>' +
+          '<button class="admin-btn secondary" style="padding:3px 8px;font-size:0.7rem;color:#ff4444;border-color:#ff4444;" onclick="deleteQA(' + i + ')">✕ מחק</button>' +
+        '</div>' +
+        '<div style="margin-bottom:8px;margin-top:4px;">' +
+          '<span style="color:#ff6b35;font-weight:700;font-size:0.75rem;">שאלה:</span>' +
+          '<div style="color:#ff6b35;font-size:0.9rem;line-height:1.6;margin-top:4px;white-space:pre-wrap;">' + escapeHtml(item.question) + '</div>' +
+        '</div>' +
+        '<div>' +
+          '<span style="color:#00ff88;font-weight:700;font-size:0.75rem;">תשובה:</span>' +
+          '<div style="color:#00ff88;font-size:0.9rem;line-height:1.6;margin-top:4px;white-space:pre-wrap;">' + escapeHtml(item.answer) + '</div>' +
+        '</div>' +
+      '</div>';
+    }).join('');
+  } catch (e) { console.error(e); }
+}
+
+function escapeHtml(str) {
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+async function addQA() {
+  var q = document.getElementById('qa-question').value.trim();
+  var a = document.getElementById('qa-answer').value.trim();
+  var statusEl = document.getElementById('qa-status');
+  if (!q || !a) {
+    statusEl.textContent = 'יש למלא שאלה ותשובה';
+    statusEl.style.color = '#ff4444';
+    statusEl.style.display = 'inline';
+    return;
+  }
+  try {
+    var res = await fetch('/api/admin/qa', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ token: adminToken, question: q, answer: a })
+    });
+    var data = await res.json();
+    if (data.success) {
+      document.getElementById('qa-question').value = '';
+      document.getElementById('qa-answer').value = '';
+      statusEl.textContent = 'נוסף בהצלחה!';
+      statusEl.style.color = '#00ff88';
+      statusEl.style.display = 'inline';
+      setTimeout(function() { statusEl.style.display = 'none'; }, 2000);
+      loadQATab();
+    }
+  } catch (e) { console.error(e); }
+}
+
+async function deleteQA(index) {
+  if (!confirm('למחוק שאלה זו?')) return;
+  try {
+    var res = await fetch('/api/admin/qa/delete', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ token: adminToken, index: index })
+    });
+    var data = await res.json();
+    if (data.success) loadQATab();
+  } catch (e) { console.error(e); }
+}
+
+async function editQA(index) {
+  try {
+    var res = await fetch('/api/admin/qa?token=' + encodeURIComponent(adminToken));
+    var data = await res.json();
+    var item = (data.items || [])[index];
+    if (!item) return;
+
+    var newQ = prompt('ערוך שאלה:', item.question);
+    if (newQ === null) return;
+    var newA = prompt('ערוך תשובה:', item.answer);
+    if (newA === null) return;
+
+    var res2 = await fetch('/api/admin/qa/edit', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ token: adminToken, index: index, question: newQ, answer: newA })
+    });
+    var data2 = await res2.json();
+    if (data2.success) loadQATab();
+  } catch (e) { console.error(e); }
+}
 
 // --- Password tab ---
 async function changePassword() {
@@ -3040,6 +4045,206 @@ async function changePassword() {
     msgEl.style.display = 'block';
   }
 }
+
+// ===== LANGUAGE / i18n =====
+var currentLang = localStorage.getItem('lang') || 'he';
+
+var translations = {
+  he: {
+    gate_title: 'הצופן הסודי',
+    gate_subtitle: 'The Secret Code',
+    gate_welcome: 'ברוכים/ות הבאים/ות להרפתקה!<br/>כדי להיכנס, הזינו את קוד הגישה<br/>שקיבלתם עם הספר',
+    gate_code_label: 'קוד גישה אישי',
+    gate_code_hint: 'הקוד מורכב מאות, 8 ספרות ואות',
+    gate_phone_label: 'מספר נייד',
+    gate_phone_hint: 'כדי שסבא חיים יוכל לשלוח לך הודעות',
+    gate_btn: 'כניסה',
+    purchase_badge: 'חדש!',
+    purchase_title: 'עדיין לא רכשתם את הספר?',
+    purchase_sub: 'הצטרפו להרפתקה של הצופן הסודי — חידות, מדע וסודות מסבא חיים',
+    purchase_cta: 'לרכישה מהירה ←',
+    vault_title: 'הצופן הסודי',
+    vault_subtitle: 'הזן/י את המשקלים הסגוליים כדי לפתוח את הכספת',
+    metal_iron: 'ברזל',
+    metal_copper: 'נחושת',
+    metal_silver: 'כסף',
+    metal_gold: 'זהב',
+    vault_btn: 'פתיחת הכספת',
+    vault_error: 'הקוד שגוי! נסו שנית',
+    open_title: 'הכספת נפתחה!',
+    open_urgent: 'יש לך 5 דקות לחלץ את המעטפה מסבא.<br/>תיכף הדלת נסגרת!',
+    open_extract: '📜 חלץ/י את המעטפה!',
+    locked_title: 'הכספת ננעלה!',
+    locked_text: 'נגמר הזמן או שהקוד שגוי.<br/>חזרו לספר, בדקו את התשובות שלכם<br/>ונסו שוב.',
+    locked_retry: '🔄 נסו שוב',
+    letter_title: '📜 המכתב מסבא חיים',
+    letter_dear: 'דרור/ה היקר/ה,',
+    letter_p1: 'אם את/ה קורא/ת את המכתב הזה, סימן שפיצחת את הצופן. אני גאה בך.',
+    letter_p2: 'זכרו — המדע הוא המפתח. המוח האנושי מסוגל לדברים שאנחנו עוד לא יכולים לדמיין.',
+    letter_p3: 'המסע שלכם רק מתחיל...',
+    letter_sign: 'סבא חיים ❤️',
+    letter_print: '🖨️ הדפסת המכתב',
+    letter_print_hint: 'הדפיסו והדביקו בעמוד 52 בספר שלכם',
+    cert_title: '🏆 תעודת הצופן הסודי',
+    cert_print: '🖨️ הדפסת התעודה',
+    cert_print_hint: 'הדפיסו ומלאו את שמכם על התעודה',
+    btn_home: 'חזרה לדף הראשי',
+    gift_badge: '🎁 מתנה',
+    gift_title: 'נהניתם? עברתם חוויה טובה?',
+    gift_sub: 'רכשו את הספר כמתנה עבור חברים או בני משפחה!',
+    gift_sub_home: 'רכשו את הספר כמתנה עבור חברים או בני משפחה ותנו להם להצטרף להרפתקה!',
+    gift_cta: 'לרכישת מארז מתנה ←',
+    home_title: 'כל הכבוד!',
+    home_text: 'סיימתם את ההרפתקה של הצופן הסודי.<br/>סבא חיים גאה בכם!',
+    home_letter: '📜 המכתב',
+    home_cert: '🏆 התעודה',
+    nav_vault: 'כספת',
+    nav_matrix: 'מטריצה',
+    nav_letter: 'מכתב',
+    nav_cert: 'תעודה',
+    // JS dynamic messages
+    err_code_format: 'הקוד חייב להיות: אות, 8 ספרות, אות',
+    err_phone: 'יש להזין מספר נייד תקין (מתחיל ב-0)',
+    err_attempts: 'חרגתם ממספר הניסיונות המותר. נסו מאוחר יותר.',
+    err_invalid_code: 'הקוד אינו תקין',
+    err_network: 'שגיאת תקשורת, נסו שנית',
+    err_vault_wrong: 'הקוד שגוי! נותרו {n} ניסיונות',
+    err_vault_fields: 'יש למלא את כל השדות',
+    err_vault_network: 'שגיאת תקשורת',
+    attempt_label: 'ניסיון {n} מתוך {max}',
+    warning_title: 'הזמן נגמר!',
+    warning_text: 'לפני שהכספת ננעלת לגמרי, בחרו מה לעשות:',
+    warning_opt1: '🔄 ניסיון נוסף — עוד 3 דקות',
+    warning_opt2: '📋 חזרה למטריצה — לבדוק את הרמזים',
+    warning_opt3: '🔒 נעילה — אחזור מאוחר יותר'
+  },
+  en: {
+    gate_title: 'The Secret Code',
+    gate_subtitle: "Grandpa Haim's Adventure",
+    gate_welcome: 'Welcome to the adventure!<br/>To enter, type the access code<br/>you received with the book',
+    gate_code_label: 'Personal Access Code',
+    gate_code_hint: 'Code format: letter, 8 digits, letter',
+    gate_phone_label: 'Mobile Number',
+    gate_phone_hint: 'So Grandpa Haim can send you messages',
+    gate_btn: 'Enter',
+    purchase_badge: 'New!',
+    purchase_title: "Haven't bought the book yet?",
+    purchase_sub: 'Join The Secret Code adventure — puzzles, science and secrets from Grandpa Haim',
+    purchase_cta: 'Buy Now →',
+    vault_title: 'The Secret Code',
+    vault_subtitle: 'Enter the atomic weights to open the vault',
+    metal_iron: 'Iron',
+    metal_copper: 'Copper',
+    metal_silver: 'Silver',
+    metal_gold: 'Gold',
+    vault_btn: 'Open the Vault',
+    vault_error: 'Wrong code! Try again',
+    open_title: 'The Vault is Open!',
+    open_urgent: 'You have 5 minutes to extract the envelope from Grandpa.<br/>The door is about to close!',
+    open_extract: '📜 Extract the Envelope!',
+    locked_title: 'The Vault is Locked!',
+    locked_text: 'Time ran out or the code was wrong.<br/>Go back to the book, check your answers<br/>and try again.',
+    locked_retry: '🔄 Try Again',
+    letter_title: "📜 Letter from Grandpa Haim",
+    letter_dear: 'Dear Reader,',
+    letter_p1: "If you're reading this letter, it means you cracked the code. I'm proud of you.",
+    letter_p2: 'Remember — science is the key. The human mind is capable of things we cannot yet imagine.',
+    letter_p3: 'Your journey is just beginning...',
+    letter_sign: 'Grandpa Haim ❤️',
+    letter_print: '🖨️ Print the Letter',
+    letter_print_hint: 'Print and paste on page 52 of your book',
+    cert_title: '🏆 The Secret Code Certificate',
+    cert_print: '🖨️ Print the Certificate',
+    cert_print_hint: 'Print and fill in your name on the certificate',
+    btn_home: 'Back to Home',
+    gift_badge: '🎁 Gift',
+    gift_title: 'Enjoyed the experience?',
+    gift_sub: 'Buy the book as a gift for friends or family!',
+    gift_sub_home: 'Buy the book as a gift for friends or family and let them join the adventure!',
+    gift_cta: 'Buy Gift Set →',
+    home_title: 'Well Done!',
+    home_text: "You've completed The Secret Code adventure.<br/>Grandpa Haim is proud of you!",
+    home_letter: '📜 The Letter',
+    home_cert: '🏆 The Certificate',
+    nav_vault: 'Vault',
+    nav_matrix: 'Matrix',
+    nav_letter: 'Letter',
+    nav_cert: 'Certificate',
+    // JS dynamic messages
+    err_code_format: 'Code must be: letter, 8 digits, letter',
+    err_phone: 'Please enter a valid mobile number (starts with 0)',
+    err_attempts: 'Too many attempts. Please try again later.',
+    err_invalid_code: 'Invalid code',
+    err_network: 'Connection error, please try again',
+    err_vault_wrong: 'Wrong code! {n} attempts remaining',
+    err_vault_fields: 'Please fill in all fields',
+    err_vault_network: 'Connection error',
+    attempt_label: 'Attempt {n} of {max}',
+    warning_title: "Time's Up!",
+    warning_text: 'Before the vault locks completely, choose what to do:',
+    warning_opt1: '🔄 Try Again — 3 more minutes',
+    warning_opt2: '📋 Back to Matrix — check the clues',
+    warning_opt3: '🔒 Lock — I\'ll come back later'
+  }
+};
+
+function t(key, params) {
+  var str = (translations[currentLang] && translations[currentLang][key]) || (translations['he'] && translations['he'][key]) || key;
+  if (params) {
+    Object.keys(params).forEach(function(k) {
+      str = str.replace('{' + k + '}', params[k]);
+    });
+  }
+  return str;
+}
+
+function setLang(lang) {
+  currentLang = lang;
+  localStorage.setItem('lang', lang);
+
+  // Update direction
+  var isRtl = lang === 'he';
+  document.documentElement.dir = isRtl ? 'rtl' : 'ltr';
+  document.documentElement.lang = lang;
+
+  // Update letter body text alignment
+  var letterBody = document.getElementById('letter-body');
+  if (letterBody) letterBody.style.textAlign = isRtl ? 'right' : 'left';
+
+  // Update all data-i18n elements
+  document.querySelectorAll('[data-i18n]').forEach(function(el) {
+    var key = el.dataset.i18n;
+    var val = translations[lang] && translations[lang][key];
+    if (val) el.innerHTML = val;
+  });
+
+  // Update toggle button
+  var toggleBtn = document.getElementById('lang-toggle');
+  if (toggleBtn) {
+    toggleBtn.innerHTML = lang === 'he' ? '🇺🇸' : '🇮🇱';
+    toggleBtn.title = lang === 'he' ? 'Switch to English' : 'עברית';
+  }
+}
+
+// Create language toggle button
+(function() {
+  var btn = document.createElement('button');
+  btn.id = 'lang-toggle';
+  btn.innerHTML = currentLang === 'he' ? '🇺🇸' : '🇮🇱';
+  btn.title = currentLang === 'he' ? 'Switch to English' : 'עברית';
+  btn.style.cssText = 'position:fixed;top:12px;left:12px;z-index:9999;width:42px;height:42px;border-radius:50%;border:2px solid #3a3228;background:#1a1e28;font-size:1.4rem;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 12px rgba(0,0,0,0.4);transition:transform 0.15s;';
+  btn.onmouseenter = function() { btn.style.transform = 'scale(1.1)'; };
+  btn.onmouseleave = function() { btn.style.transform = 'scale(1)'; };
+  btn.onclick = function() {
+    setLang(currentLang === 'he' ? 'en' : 'he');
+  };
+  document.body.appendChild(btn);
+
+  // Apply saved language on load
+  if (currentLang !== 'he') {
+    setLang(currentLang);
+  }
+})();
 </script>
 
 </body>
