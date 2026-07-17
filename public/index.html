@@ -3688,13 +3688,14 @@ function showBatchDetail(batchNum) {
   // Split into print booklets of 100
   var totalBooklets = Math.ceil(batchCodes.length / 100);
   var printPages = document.getElementById('print-pages');
-  var html = '<button class="admin-btn" style="font-size:0.9rem;background:#c9a84c;color:#1a1410;font-weight:800;padding:10px 18px;" onclick="imposeBatchBookmarks(' + batchNum + ')">🖨️ יצוא לדפוס — כל המנה (סדרה ' + seriesLabel(batchNum) + ')</button>';
+  var html = '';
   for (var i = 0; i < totalBooklets; i++) {
     var from = i * 100 + 1;
     var to = Math.min((i + 1) * 100, batchCodes.length);
     html += '<button class="admin-btn" style="font-size:0.8rem;" onclick="printBooklet(' + batchNum + ',' + i + ')">🖨️ חוברת ' + (i + 1) + '<br><span style="font-size:0.7rem;font-weight:400;">קודים ' + from + '–' + to + '</span></button>';
     html += '<button class="admin-btn secondary" style="font-size:0.8rem;" onclick="printBooklet(' + batchNum + ',' + i + ')">📄 PDF ' + (i + 1) + '<br><span style="font-size:0.7rem;font-weight:400;">קודים ' + from + '–' + to + '</span></button>';
   }
+  html += '<button class="admin-btn" style="font-size:0.9rem;background:#c9a84c;color:#1a1410;font-weight:800;padding:10px 18px;" onclick="imposeBatchBookmarks(' + batchNum + ')">🖨️ יצוא לדפוס — כל המנה (סדרה ' + seriesLabel(batchNum) + ')</button>';
   printPages.innerHTML = html;
 }
 
