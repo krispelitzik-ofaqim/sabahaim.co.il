@@ -1901,7 +1901,11 @@
             <option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option>
             <option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10</option>
           </select>
-          <button class="admin-btn" onclick="generateBatch()">ייצר 1,000 קודים</button>
+          <span style="color:#8a7e6a;font-size:0.8rem;">כמות:</span>
+          <select id="gen-count" style="background:#1a1e28;color:#e0d5c0;border:1px solid #2a2e38;border-radius:6px;padding:6px 10px;font-family:'Assistant',sans-serif;">
+            <option value="100">100</option><option value="500">500</option><option value="1000">1000</option>
+          </select>
+          <button class="admin-btn" onclick="generateBatch()">ייצר קודים</button>
           <button class="admin-btn secondary" onclick="window.open('/demo-codes.html','_blank')">👁️ דמו הדפסה</button>
           <span id="gen-status" style="color:#00ff88;font-size:0.8rem;display:none;"></span>
         </div>
@@ -3512,6 +3516,7 @@ async function loadCodesTab() {
 
 async function generateBatch() {
   var batch = document.getElementById('gen-batch').value;
+  var count = parseInt(document.getElementById('gen-count').value) || 100;
   var statusEl = document.getElementById('gen-status');
   statusEl.textContent = 'מייצר...';
   statusEl.style.display = 'inline';
@@ -3521,7 +3526,7 @@ async function generateBatch() {
     var res = await fetch('/api/admin/codes/generate', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ token: adminToken, batch: batch, count: 1000 })
+      body: JSON.stringify({ token: adminToken, batch: batch, count: count })
     });
     var data = await res.json();
     if (data.success) {
