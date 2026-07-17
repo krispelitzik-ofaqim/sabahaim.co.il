@@ -1878,10 +1878,10 @@
 
     <!-- Tabs -->
     <div class="admin-tabs" id="admin-tabs">
-      <button class="admin-tab active" onclick="showAdminTab('codes')">קודי גישה</button>
+      <button class="admin-tab" onclick="showAdminTab('codes')">קודי גישה</button>
       <button class="admin-tab" onclick="showAdminTab('demo')">מספרי דמו</button>
       <button class="admin-tab" onclick="showAdminTab('master')">מספרי מאסטר</button>
-      <button class="admin-tab" onclick="showAdminTab('leads')">לידים</button>
+      <button class="admin-tab active" onclick="showAdminTab('leads')">לידים</button>
       <button class="admin-tab" onclick="showAdminTab('archive')">ארכיון</button>
       <button class="admin-tab" onclick="showAdminTab('trash')">פח זבל</button>
       <button class="admin-tab" onclick="showAdminTab('matrix')">מטריצה</button>
@@ -3453,7 +3453,7 @@ async function loginAdmin() {
     try { localStorage.setItem('sab_admin', pass); } catch (e) {}
     document.getElementById('admin-login').style.display = 'none';
     document.getElementById('admin-panel').style.display = 'block';
-    showAdminTab('codes');
+    showAdminTab('leads');
   } catch (e) {
     errorEl.textContent = 'שגיאת תקשורת';
     errorEl.style.display = 'block';
