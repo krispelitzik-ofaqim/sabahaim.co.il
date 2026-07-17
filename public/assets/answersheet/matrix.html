@@ -1,0 +1,63 @@
+<!doctype html><html lang="he" dir="rtl"><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+@page{size:A4 portrait;margin:0}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Heebo',Arial,sans-serif;background:#0e1420}
+.page{width:210mm;height:297mm;position:relative;background:linear-gradient(170deg,#12203a,#0a1018);padding:8mm;color:#eef2f8;overflow:hidden;display:flex;flex-direction:column}
+.matrix{flex:1;display:flex;flex-direction:column;gap:2mm;min-height:0}
+.sec{display:flex;gap:2mm;min-height:0}
+.sec .rows{flex:1;display:flex;flex-direction:column;gap:2mm;min-width:0}
+.mrow{flex:1;display:grid;grid-template-columns:repeat(10,1fr);gap:2mm;min-height:0}
+.tab{width:11mm;border-radius:8px;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.tab span{transform:rotate(-90deg);white-space:nowrap;font-weight:900;font-size:17px;letter-spacing:2px}
+.tab.spacer{background:rgba(255,255,255,.96);border:2px dashed #c79a4b;padding:1.2mm}
+.tab.spacer .logo{width:100%;height:100%;object-fit:contain}
+.c{min-height:11mm;border-radius:8px;display:flex;align-items:center;justify-content:center;text-align:center;padding:3px 6px;font-size:11px;line-height:1.2;font-weight:700}
+.c.title{background:linear-gradient(160deg,#ffe08a,#e0b03c);color:#3a2400;font-weight:900;font-size:16px}
+.c.text{background:#f6f1e6;color:#2a2418;font-size:11px}
+.c.label{background:#e9dcc2;color:#7a5320;font-weight:800;font-size:11px}
+.c.word{background:#e7ecf6;color:#28324a;font-weight:800;font-size:12px}
+.c.blank{background:rgba(255,255,255,.96);border:2px dashed #c79a4b}
+.c.blank.code{white-space:nowrap;font-family:'Courier New',monospace;border:2.5px solid #2bff97;
+  box-shadow:0 0 7px #2bff97,0 0 2px #2bff97,inset 0 0 6px rgba(43,255,151,.45);background:#fff}
+.c.blank.letterclue{border-style:solid;border-color:#c79a4b;background:#fff7e6;color:#8a5a1f;font-weight:900;font-size:18px}
+.c.empty{background:rgba(255,255,255,.96);border:2px dashed #c79a4b;padding:1.2mm}
+.c.empty .sph{width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 1px 2px rgba(0,0,0,.25))}
+.foot{display:flex;gap:4mm;height:26mm;margin-top:3mm}
+.foot .box{border-radius:10px;padding:4mm;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+.foot .white{width:52mm;background:rgba(255,255,255,.97);color:#12203a}
+.foot .white .t{font-weight:900;font-size:18px;color:#8a5a1f}
+.foot .white .s{font-size:9px;color:#6b5c46;margin-top:2mm;letter-spacing:1px}
+.foot .green{flex:1;background:linear-gradient(160deg,#1f6f4a,#124d33);color:#eafff2}
+.foot .green .t{font-weight:900;font-size:13px;margin-bottom:3mm}
+.foot .green .wins{display:flex;gap:4mm}
+.foot .green .win{width:20mm;height:11mm;background:#fff;border:2px solid #2bff97;border-radius:6px;box-shadow:0 0 6px #2bff97}
+@media print{body{background:#fff}.page{transform:none!important}}
+</style></head><body>
+<div class="page">
+  <div class="matrix"><div class="sec" style="flex:1"><div class="rows"><div class="mrow"><div class="c title" style="grid-column:span 1">ה</div><div class="c title" style="grid-column:span 1">מ</div><div class="c title" style="grid-column:span 1">ט</div><div class="c title" style="grid-column:span 1">ר</div><div class="c title" style="grid-column:span 1">י</div><div class="c title" style="grid-column:span 1">צ</div><div class="c title" style="grid-column:span 1">ה</div><div class="c title" style="grid-column:span 1">של</div><div class="c title" style="grid-column:span 1">סבא</div><div class="c title" style="grid-column:span 1">חיים</div></div></div><div class="tab spacer"><img class="logo" src="saba.png"></div></div><div class="sec" style="flex:4"><div class="rows"><div class="mrow"><div class="c label" style="grid-column:span 3">סדר את המשפט</div><div class="c word" style="grid-column:span 1">הזיכרון</div><div class="c blank wblank" style="grid-column:span 1"></div><div class="c blank wblank" style="grid-column:span 1"></div><div class="c blank wblank" style="grid-column:span 1"></div><div class="c blank wblank" style="grid-column:span 1"></div><div class="c blank wblank" style="grid-column:span 1"></div><div class="c word" style="grid-column:span 1">ברזל</div></div><div class="mrow"><div class="c blank symbol" style="grid-column:span 1"></div><div class="c blank symbol" style="grid-column:span 1"></div><div class="c empty" style="grid-column:span 2"><img class="sph" src="iron.png"></div><div class="c text" style="grid-column:span 6">הסמל של הברזל במדע בשתי אותיות הוא</div></div><div class="mrow"><div class="c text" style="grid-column:span 4">מספר פרוטונים בגרעין האטום של הברזל</div><div class="c blank number" style="grid-column:span 1"></div><div class="c text" style="grid-column:span 4">מספר אלקטרונים חופשיים מסביב לגרעין אטום הברזל</div><div class="c blank number" style="grid-column:span 1"></div></div><div class="mrow"><div class="c blank code" style="grid-column:span 1"></div><div class="c empty" style="grid-column:span 2"><img class="sph" src="vault.png"></div><div class="c text" style="grid-column:span 7">זהו המשקל הסגולי של הברזל</div></div></div><div class="tab" style="background:#6f7a86;color:#fff"><span>ברזל</span></div></div><div class="sec" style="flex:3"><div class="rows"><div class="mrow"><div class="c blank symbol" style="grid-column:span 1"></div><div class="c blank symbol" style="grid-column:span 1"></div><div class="c empty" style="grid-column:span 2"><img class="sph" src="copper.png"></div><div class="c text" style="grid-column:span 6">סימון הנחושת במדע (ובטבלה המחזורית) — בשתי אותיות</div></div><div class="mrow"><div class="c text" style="grid-column:span 4">כמה פרוטונים יש בגרעין האטום של הנחושת</div><div class="c blank number" style="grid-column:span 1"></div><div class="c text" style="grid-column:span 4">כמה אלקטרונים חופשיים מסביב לגרעין אטום הנחושת</div><div class="c blank number" style="grid-column:span 1"></div></div><div class="mrow"><div class="c blank code" style="grid-column:span 1"></div><div class="c text" style="grid-column:span 2">זהו המשקל הסגולי של הנחושת</div><div class="c label" style="grid-column:span 1">שם קדום לנחושת</div><div class="c blank letter" style="grid-column:span 1"></div><div class="c blank letter" style="grid-column:span 1"></div><div class="c blank letter" style="grid-column:span 1"></div><div class="c blank letter" style="grid-column:span 1"></div><div class="c blank letterclue" style="grid-column:span 1">ז</div><div class="c blank letter" style="grid-column:span 1"></div></div></div><div class="tab" style="background:#a8623a;color:#fff"><span>נחושת</span></div></div><div class="sec" style="flex:3"><div class="rows"><div class="mrow"><div class="c blank symbol" style="grid-column:span 1"></div><div class="c blank symbol" style="grid-column:span 1"></div><div class="c blank symbol" style="grid-column:span 1"></div><div class="c blank symbol" style="grid-column:span 1"></div><div class="c blank symbol" style="grid-column:span 1"></div><div class="c blank letterclue" style="grid-column:span 1">g</div><div class="c blank symbol" style="grid-column:span 1"></div><div class="c blank letterclue" style="grid-column:span 1">A</div><div class="c empty" style="grid-column:span 1"><img class="sph" src="silver.png"></div><div class="c label" style="grid-column:span 1">סוד הכסף</div></div><div class="mrow"><div class="c text" style="grid-column:span 4">מספר הפרוטונים בגרעין האטום של הכסף</div><div class="c blank number" style="grid-column:span 1"></div><div class="c text" style="grid-column:span 4">מספר האלקטרונים חופשיים מסביב לגרעין אטום הכסף</div><div class="c blank number" style="grid-column:span 1"></div></div><div class="mrow"><div class="c blank code" style="grid-column:span 2"></div><div class="c text" style="grid-column:span 8">זהו המשקל הסגולי של מתכת הכסף</div></div></div><div class="tab" style="background:#aeb6bd;color:#2a2f35"><span>כסף</span></div></div><div class="sec" style="flex:4"><div class="rows"><div class="mrow"><div class="c blank symbol" style="grid-column:span 1"></div><div class="c blank symbol" style="grid-column:span 1"></div><div class="c blank symbol" style="grid-column:span 1"></div><div class="c blank symbol" style="grid-column:span 1"></div><div class="c blank letterclue" style="grid-column:span 1">A</div><div class="c empty" style="grid-column:span 1"><img class="sph" src="gold.png"></div><div class="c text" style="grid-column:span 4">מהו השם שהזמן אינו מסתיר</div></div><div class="mrow"><div class="c blank symbol" style="grid-column:span 1"></div><div class="c blank symbol" style="grid-column:span 1"></div><div class="c blank letterclue" style="grid-column:span 1">F</div><div class="c empty" style="grid-column:span 1"><img class="sph" src="gold-lattice.png"></div><div class="c text" style="grid-column:span 6">המבנה שמחזיק הכל</div></div><div class="mrow"><div class="c text" style="grid-column:span 4">מספר הפרוטונים בגרעין האטום של הזהב</div><div class="c blank number" style="grid-column:span 1"></div><div class="c text" style="grid-column:span 4">מספר האלקטרונים החופשיים מסביב לגרעין אטום הזהב</div><div class="c blank number" style="grid-column:span 1"></div></div><div class="mrow"><div class="c blank code" style="grid-column:span 2"></div><div class="c text" style="grid-column:span 8">זהו המשקל הסגולי של מתכת הזהב</div></div></div><div class="tab" style="background:#c99a3c;color:#3a2a00"><span>זהב</span></div></div></div>
+  <div class="foot">
+    <div class="box white"><div class="t">הצופן הסודי</div><div class="s">THE SECRET CODE</div></div>
+    <div class="box green"><div class="t">כתוב כאן את הצופן המלא (4 המשקלים הסגוליים)</div>
+      <div class="wins"><div class="win"></div><div class="win"></div><div class="win"></div><div class="win"></div></div></div>
+  </div>
+</div>
+<script>
+(function(){
+  var pg=document.querySelector('.page');
+  function fit(){
+    pg.style.transform='none';
+    var scale=Math.min(1, window.innerWidth/pg.offsetWidth);
+    pg.style.transformOrigin='top left';
+    pg.style.transform='scale('+scale+')';
+    document.body.style.height=(pg.offsetHeight*scale)+'px';
+    document.body.style.width='100%';
+  }
+  window.addEventListener('resize',fit);
+  window.addEventListener('beforeprint',function(){pg.style.transform='none';document.body.style.height='';});
+  window.addEventListener('afterprint',fit);
+  fit();
+})();
+</script>
+</body></html>
