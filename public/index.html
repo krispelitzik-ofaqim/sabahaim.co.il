@@ -1902,13 +1902,14 @@
         <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
           <span style="color:#8a7e6a;font-size:0.8rem;">מנה:</span>
           <select id="gen-batch" style="background:#1a1e28;color:#e0d5c0;border:1px solid #2a2e38;border-radius:6px;padding:6px 10px;font-family:'Assistant',sans-serif;">
-            <option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option>
-            <option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10</option>
+            <option value="1">A</option><option value="2">B</option><option value="3">C</option><option value="4">D</option><option value="5">E</option><option value="6">F</option><option value="7">G</option><option value="8">H</option><option value="9">J</option><option value="10">K</option><option value="11">L</option><option value="12">M</option><option value="13">N</option><option value="14">P</option><option value="15">Q</option><option value="16">R</option><option value="17">S</option><option value="18">T</option><option value="19">U</option><option value="20">V</option><option value="21">W</option><option value="22">X</option><option value="23">Y</option><option value="24">Z</option>
           </select>
           <span style="color:#8a7e6a;font-size:0.8rem;">כמות:</span>
           <select id="gen-count" style="background:#1a1e28;color:#e0d5c0;border:1px solid #2a2e38;border-radius:6px;padding:6px 10px;font-family:'Assistant',sans-serif;">
             <option value="100">100</option><option value="500">500</option><option value="1000">1000</option>
           </select>
+          <span style="color:#8a7e6a;font-size:0.8rem;">תאריך:</span>
+          <input id="gen-date" type="text" value="17/08/2026" placeholder="dd/mm/yyyy" style="width:110px;background:#1a1e28;color:#e0d5c0;border:1px solid #2a2e38;border-radius:6px;padding:6px 10px;font-family:'Courier New',monospace;direction:ltr;text-align:center;" />
           <button class="admin-btn" onclick="generateBatch()">ייצר קודים</button>
           <button class="admin-btn secondary" onclick="generateBookmarks(['A48213975K','B30824628D','P09139099N','S30166131T','L26018159B','K87574911S','Q97543231U','T19097861L'])">👁️ דמו הדפסה</button>
           <span id="gen-status" style="color:#00ff88;font-size:0.8rem;display:none;"></span>
@@ -3531,11 +3532,30 @@ async function loadCodesTab() {
     var batchList = document.getElementById('batch-list');
     var batchKeys = Object.keys(batches).filter(function(k){return k!=='0';}).sort(function(a,b){return a-b;});
     if (batchKeys.length === 0) {
+      batchList.style.display = 'block';
       batchList.innerHTML = '<span style="color:#5a5040;font-size:0.85rem;">אין מנות עדיין — ייצר מנה ראשונה למעלה</span>';
     } else {
-      batchList.innerHTML = batchKeys.map(function(b) {
-        return '<button class="admin-btn secondary" style="font-size:0.8rem;" onclick="showBatchDetail(' + b + ')">מנה ' + b + ' (' + batches[b] + ')</button>';
+      batchList.style.display = 'block';
+      var rows = batchKeys.map(function(b) {
+        var series = seriesLabel(parseInt(b));
+        var date = '';
+        try { date = localStorage.getItem('batchdate_' + b) || ''; } catch (e) {}
+        if (!date) {
+          var c0 = allCodes.filter(function(x){ return x.batch == b; })[0];
+          if (c0 && c0.createdAt) date = new Date(c0.createdAt).toLocaleDateString('he-IL');
+        }
+        return '<tr onclick="toggleBatchDetail(' + b + ')" style="cursor:pointer;border-bottom:1px solid #1a2a1a;">'
+          + '<td id="chev-' + b + '" style="padding:8px 10px;color:#ff6b35;width:22px;font-weight:800;">▸</td>'
+          + '<td style="padding:8px 10px;font-weight:800;color:#e9c46a;">סדרה ' + series + '</td>'
+          + '<td style="padding:8px 10px;" dir="ltr">' + date + '</td>'
+          + '<td style="padding:8px 10px;">' + batches[b] + ' קודים</td></tr>';
       }).join('');
+      batchList.innerHTML = '<table style="width:100%;border-collapse:collapse;font-size:0.85rem;color:#e0d5c0;">'
+        + '<thead><tr style="color:#8a7e6a;font-size:0.78rem;"><th></th>'
+        + '<th style="text-align:right;padding:6px 10px;border-bottom:1px solid #2a3a2a;">סדרה</th>'
+        + '<th style="text-align:right;padding:6px 10px;border-bottom:1px solid #2a3a2a;">תאריך הנפקה</th>'
+        + '<th style="text-align:right;padding:6px 10px;border-bottom:1px solid #2a3a2a;">כמות</th></tr></thead><tbody>'
+        + rows + '</tbody></table>';
     }
 
     // Hide detail
@@ -3559,8 +3579,13 @@ async function generateBatch() {
     });
     var data = await res.json();
     if (data.success) {
-      statusEl.textContent = 'נוצרו ' + data.generated + ' קודים במנה ' + data.batch;
+      // record the print date for this batch (for the tracking table + bookmarks)
+      try { localStorage.setItem('batchdate_' + data.batch, document.getElementById('gen-date').value.trim()); } catch (e) {}
+      statusEl.textContent = 'נוצרו ' + data.generated + ' קודים בסדרה ' + seriesLabel(data.batch);
       statusEl.style.color = '#00ff88';
+      // advance the batch selector to the next series
+      var sel = document.getElementById('gen-batch');
+      if (sel.selectedIndex < sel.options.length - 1) sel.selectedIndex++;
       loadCodesTab();
     } else {
       statusEl.textContent = 'שגיאה';
@@ -3631,9 +3656,27 @@ function seriesLabel(batchNum) {
 function imposeBatchBookmarks(batchNum) {
   var codes = allCodes.filter(function(c){ return c.batch === batchNum; }).map(function(c){ return c.code; });
   if (!codes.length) { alert('אין קודים במנה זו'); return; }
-  var date = prompt('תאריך להדפסה על הסימנייה (dd/mm/yyyy):', '17/08/2026');
+  var date = '';
+  try { date = localStorage.getItem('batchdate_' + batchNum) || ''; } catch (e) {}
+  if (!date) date = prompt('תאריך להדפסה על הסימנייה (dd/mm/yyyy):', '17/08/2026');
   if (!date) return;
   generateBookmarks(codes, seriesLabel(batchNum) + '-' + date);
+}
+
+// open/close a batch's detail panel (chevron toggle)
+var openBatchDetail = null;
+function toggleBatchDetail(b) {
+  var detail = document.getElementById('batch-detail');
+  var isOpen = (openBatchDetail === b && detail.style.display === 'block');
+  document.querySelectorAll('[id^="chev-"]').forEach(function(c){ c.textContent = '▸'; });
+  if (isOpen) {
+    detail.style.display = 'none';
+    openBatchDetail = null;
+  } else {
+    showBatchDetail(b);
+    var ch = document.getElementById('chev-' + b); if (ch) ch.textContent = '▾';
+    openBatchDetail = b;
+  }
 }
 
 function showBatchDetail(batchNum) {
