@@ -2053,11 +2053,16 @@
         <h3 style="color:#ff6b35;font-size:0.9rem;margin-bottom:10px;">הוספת שאלה ותשובה</h3>
         <div style="margin-bottom:10px;">
           <label style="color:#ff6b35;font-size:0.8rem;font-weight:700;display:block;margin-bottom:4px;">שאלה</label>
-          <textarea id="qa-question" rows="2" style="width:100%;background:#1a1e28;color:#ff6b35;border:2px solid #ff6b35;border-radius:8px;padding:10px;font-family:'Assistant',sans-serif;font-size:0.85rem;resize:vertical;direction:rtl;" placeholder="מה השאלה שהקורא ישאל?"></textarea>
+          <textarea id="qa-question" rows="2" dir="auto" oninput="updateQAPreview()" style="width:100%;background:#1a1e28;color:#ff6b35;border:2px solid #ff6b35;border-radius:8px;padding:10px;font-family:'Assistant',sans-serif;font-size:0.85rem;resize:vertical;unicode-bidi:plaintext;" placeholder="מה השאלה שהקורא ישאל?"></textarea>
         </div>
         <div style="margin-bottom:10px;">
           <label style="color:#00ff88;font-size:0.8rem;font-weight:700;display:block;margin-bottom:4px;">תשובה</label>
-          <textarea id="qa-answer" rows="3" style="width:100%;background:#1a1e28;color:#00ff88;border:2px solid #00ff88;border-radius:8px;padding:10px;font-family:'Assistant',sans-serif;font-size:0.85rem;resize:vertical;direction:rtl;" placeholder="מה סבא חיים יענה?"></textarea>
+          <textarea id="qa-answer" rows="3" dir="auto" oninput="updateQAPreview()" style="width:100%;background:#1a1e28;color:#00ff88;border:2px solid #00ff88;border-radius:8px;padding:10px;font-family:'Assistant',sans-serif;font-size:0.85rem;resize:vertical;unicode-bidi:plaintext;" placeholder="מה סבא חיים יענה?"></textarea>
+        <div id="qa-preview" style="display:none;background:#0d1117;border:1px solid #2a2e38;border-radius:8px;padding:10px;margin-top:8px;">
+          <div style="color:#8a7e6a;font-size:0.72rem;margin-bottom:6px;">👁️ עיון — כך זה ייראה:</div>
+          <div id="qa-preview-q" dir="auto" style="color:#ff6b35;font-size:0.85rem;font-weight:700;margin-bottom:4px;white-space:pre-wrap;"></div>
+          <div id="qa-preview-a" dir="auto" style="color:#00ff88;font-size:0.85rem;white-space:pre-wrap;"></div>
+        </div>
         </div>
         <button class="admin-btn" onclick="addQA()">+ הוסף</button>
         <span id="qa-status" style="color:#00ff88;font-size:0.8rem;margin-right:10px;display:none;"></span>
@@ -3940,6 +3945,19 @@ function escapeHtml(str) {
   return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
+function updateQAPreview() {
+  var q = document.getElementById('qa-question').value;
+  var a = document.getElementById('qa-answer').value;
+  var box = document.getElementById('qa-preview');
+  if (q.trim() || a.trim()) {
+    document.getElementById('qa-preview-q').textContent = q;
+    document.getElementById('qa-preview-a').textContent = a;
+    box.style.display = 'block';
+  } else {
+    box.style.display = 'none';
+  }
+}
+
 async function addQA() {
   var q = document.getElementById('qa-question').value.trim();
   var a = document.getElementById('qa-answer').value.trim();
@@ -3960,6 +3978,7 @@ async function addQA() {
     if (data.success) {
       document.getElementById('qa-question').value = '';
       document.getElementById('qa-answer').value = '';
+      updateQAPreview();
       statusEl.textContent = 'נוסף בהצלחה!';
       statusEl.style.color = '#00ff88';
       statusEl.style.display = 'inline';
