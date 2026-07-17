@@ -3688,7 +3688,7 @@ function showBatchDetail(batchNum) {
   // Split into print booklets of 100
   var totalBooklets = Math.ceil(batchCodes.length / 100);
   var printPages = document.getElementById('print-pages');
-  var html = '<button class="admin-btn" style="font-size:0.85rem;background:#c9a84c;color:#1a1410;font-weight:800;" onclick="imposeBatchBookmarks(' + batchNum + ')">📑 פרוס סימניות לדפוס — כל המנה (סדרה ' + seriesLabel(batchNum) + ')</button>';
+  var html = '<button class="admin-btn" style="font-size:0.9rem;background:#c9a84c;color:#1a1410;font-weight:800;padding:10px 18px;" onclick="imposeBatchBookmarks(' + batchNum + ')">🖨️ יצוא לדפוס — כל המנה (סדרה ' + seriesLabel(batchNum) + ')</button>';
   for (var i = 0; i < totalBooklets; i++) {
     var from = i * 100 + 1;
     var to = Math.min((i + 1) * 100, batchCodes.length);
