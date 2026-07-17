@@ -3557,6 +3557,7 @@ function showBatchDetail(batchNum) {
     var from = i * 100 + 1;
     var to = Math.min((i + 1) * 100, batchCodes.length);
     html += '<button class="admin-btn" style="font-size:0.8rem;" onclick="printBooklet(' + batchNum + ',' + i + ')">🖨️ חוברת ' + (i + 1) + '<br><span style="font-size:0.7rem;font-weight:400;">קודים ' + from + '–' + to + '</span></button>';
+    html += '<button class="admin-btn secondary" style="font-size:0.8rem;" onclick="printBooklet(' + batchNum + ',' + i + ')">📄 PDF ' + (i + 1) + '<br><span style="font-size:0.7rem;font-weight:400;">קודים ' + from + '–' + to + '</span></button>';
   }
   printPages.innerHTML = html;
 }
@@ -3583,6 +3584,8 @@ function printBooklet(batchNum, bookletIndex) {
   html += '<div class="no-print" style="text-align:center;padding:15px;background:#333;color:#fff;font-family:Arial,sans-serif;">';
   html += '<span>מנה ' + batchNum + ' | חוברת ' + (bookletIndex + 1) + ' | ' + codes.length + ' קודים | ' + totalPages + ' דפים</span> ';
   html += '<button onclick="window.print()" style="margin-right:15px;padding:8px 20px;font-size:14px;cursor:pointer;">🖨️ הדפס</button>';
+  html += '<button onclick="window.print()" style="margin-right:8px;padding:8px 20px;font-size:14px;cursor:pointer;">📄 ייצא PDF</button>';
+  html += '<span style="font-size:11px;color:#bbb;margin-right:8px;">(בחלון ההדפסה בחר יעד: "שמור כ-PDF")</span>';
   html += '</div>';
 
   for (var p = 0; p < totalPages; p++) {
