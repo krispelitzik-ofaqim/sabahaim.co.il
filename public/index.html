@@ -3562,7 +3562,7 @@ function bmFrontCard(code) {
   return '<div class="bm"><div class="frame"></div><div class="inr">'
     + '<div><img class="logo" src="' + o + '/assets/bookmark/logo.png"><div class="klabel">הקוד שלך</div></div>'
     + '<div class="vw"><div class="vcode">' + code + '</div></div>'
-    + '<div class="tag">שמור עליי היטב —<br>יבוא יום ותזדקק לי.</div></div></div>';
+    + '</div></div>';
 }
 function bmBackCard() {
   var o = window.location.origin;
@@ -3581,10 +3581,9 @@ body{font-family:'Heebo',Arial,sans-serif}
 .frame{position:absolute;inset:4mm;border:0.5mm solid rgba(233,196,106,.55);border-radius:3mm;z-index:3}
 .frame::after{content:'';position:absolute;inset:1mm;border:0.2mm solid rgba(233,196,106,.28);border-radius:2mm}
 .inr{position:absolute;inset:0;padding:8mm 5mm;display:flex;flex-direction:column;align-items:center;justify-content:space-between;text-align:center;z-index:2}
-.logo{width:26mm}.klabel{font-weight:800;font-size:8.5pt;letter-spacing:4px;color:#e9c46a;margin-top:1.5mm}
+.logo{width:31mm}.klabel{font-weight:800;font-size:10pt;letter-spacing:5px;color:#e9c46a;margin-top:2.5mm}
 .vw{flex:1;display:flex;align-items:center;justify-content:center;width:100%}
-.vcode{transform:rotate(-90deg);white-space:nowrap;font-family:'Courier New',monospace;font-size:31pt;font-weight:800;letter-spacing:7px;color:#fff;text-shadow:0 2px 8px rgba(0,0,0,.6)}
-.tag{font-weight:600;font-size:8pt;color:#e9c46a;line-height:1.5}
+.vcode{transform:rotate(-90deg);white-space:nowrap;font-family:'Courier New',monospace;font-size:38pt;font-weight:800;letter-spacing:8px;color:#fff;text-shadow:0 2px 8px rgba(0,0,0,.6)}
 .art{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:1}
 .artgrad{position:absolute;left:0;right:0;bottom:0;height:22mm;z-index:2;background:linear-gradient(to top,rgba(8,13,24,.92),transparent)}
 .artfoot{position:absolute;left:0;right:0;bottom:6mm;text-align:center;z-index:3;font-weight:800;color:#f0e6cf;font-size:10pt}
