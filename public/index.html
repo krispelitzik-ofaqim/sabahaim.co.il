@@ -3450,6 +3450,7 @@ async function loginAdmin() {
     }
 
     adminToken = pass;
+    try { localStorage.setItem('sab_admin', pass); } catch (e) {}
     document.getElementById('admin-login').style.display = 'none';
     document.getElementById('admin-panel').style.display = 'block';
     showAdminTab('codes');
@@ -3461,10 +3462,24 @@ async function loginAdmin() {
 
 function logoutAdmin() {
   adminToken = null;
+  try { localStorage.removeItem('sab_admin'); } catch (e) {}
   document.getElementById('admin-login').style.display = 'block';
   document.getElementById('admin-panel').style.display = 'none';
   document.getElementById('admin-pass').value = '';
 }
+
+// Remember admin login across refreshes (auto-restore when opening #admin)
+function restoreAdminSession() {
+  if (location.hash.indexOf('admin') === -1) return;
+  var saved = null;
+  try { saved = localStorage.getItem('sab_admin'); } catch (e) {}
+  if (!saved) return;
+  var el = document.getElementById('admin-pass');
+  if (el) el.value = saved;
+  loginAdmin();
+}
+window.addEventListener('load', restoreAdminSession);
+window.addEventListener('hashchange', restoreAdminSession);
 
 function showAdminTab(tab) {
   currentAdminTab = tab;
