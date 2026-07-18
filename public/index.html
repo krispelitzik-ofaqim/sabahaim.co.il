@@ -4515,32 +4515,41 @@ function setLang(lang) {
     if (val) el.innerHTML = val;
   });
 
-  // Update toggle button
-  var toggleBtn = document.getElementById('lang-toggle');
-  if (toggleBtn) {
-    toggleBtn.innerHTML = lang === 'he' ? '🇺🇸' : '🇮🇱';
-    toggleBtn.title = lang === 'he' ? 'Switch to English' : 'עברית';
-  }
+  // Update language selector active state
+  updateLangSelector(lang);
 }
 
-// Create language toggle button
-(function() {
-  var btn = document.createElement('button');
-  btn.id = 'lang-toggle';
-  btn.innerHTML = currentLang === 'he' ? '🇺🇸' : '🇮🇱';
-  btn.title = currentLang === 'he' ? 'Switch to English' : 'עברית';
-  btn.style.cssText = 'position:fixed;top:12px;left:12px;z-index:9999;width:42px;height:42px;border-radius:50%;border:2px solid #3a3228;background:#1a1e28;font-size:1.4rem;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 12px rgba(0,0,0,0.4);transition:transform 0.15s;';
-  btn.onmouseenter = function() { btn.style.transform = 'scale(1.1)'; };
-  btn.onmouseleave = function() { btn.style.transform = 'scale(1)'; };
-  btn.onclick = function() {
-    setLang(currentLang === 'he' ? 'en' : 'he');
-  };
-  document.body.appendChild(btn);
+function updateLangSelector(lang) {
+  ['he','en'].forEach(function(l) {
+    var seg = document.getElementById('lang-seg-' + l);
+    if (!seg) return;
+    var active = (l === lang);
+    seg.style.background = active ? '#c9a84c' : 'transparent';
+    seg.style.color = active ? '#1a1e28' : '#a09480';
+    seg.style.fontWeight = active ? '800' : '600';
+  });
+}
 
-  // Apply saved language on load
-  if (currentLang !== 'he') {
-    setLang(currentLang);
+// Create language selector (two segments: flag + name, active highlighted)
+(function() {
+  var box = document.createElement('div');
+  box.id = 'lang-toggle';
+  box.style.cssText = 'position:fixed;top:12px;left:12px;z-index:9999;display:flex;gap:2px;padding:3px;border-radius:22px;border:1.5px solid #3a3228;background:#1a1e28;box-shadow:0 2px 12px rgba(0,0,0,0.4);font-family:\'Assistant\',sans-serif;';
+  function seg(l, label) {
+    var b = document.createElement('button');
+    b.id = 'lang-seg-' + l;
+    b.innerHTML = label;
+    b.style.cssText = 'border:0;border-radius:18px;padding:6px 12px;font-size:0.8rem;cursor:pointer;white-space:nowrap;transition:all 0.15s;background:transparent;color:#a09480;';
+    b.onclick = function() { if (currentLang !== l) setLang(l); };
+    return b;
   }
+  box.appendChild(seg('he', '🇮🇱 עברית'));
+  box.appendChild(seg('en', '🇺🇸 English'));
+  document.body.appendChild(box);
+
+  updateLangSelector(currentLang);
+  // Apply saved language on load
+  if (currentLang !== 'he') { setLang(currentLang); }
 })();
 </script>
 
