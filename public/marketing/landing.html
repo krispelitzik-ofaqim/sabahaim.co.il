@@ -25,7 +25,7 @@ a.cta:hover{transform:translateY(-2px)}
   background:linear-gradient(to top,#070b16 2%,rgba(7,11,22,.72) 38%,rgba(7,11,22,.25) 62%,rgba(7,11,22,.55) 100%)}
 .top .content{position:relative;z-index:2}
 
-.topbar{text-align:center;padding:26px 20px 0}
+.topbar{position:relative;z-index:2;text-align:center;padding:26px 20px 0}
 .badge{display:inline-block;background:linear-gradient(90deg,#e9c46a,#f4b31f);color:#3a2400;
   font-weight:900;font-size:13px;padding:7px 18px;border-radius:999px;letter-spacing:.5px;
   box-shadow:0 6px 18px rgba(0,0,0,.4)}
@@ -62,6 +62,16 @@ a.cta:hover{transform:translateY(-2px)}
 .trust{display:flex;justify-content:center;gap:26px;flex-wrap:wrap;margin-top:30px;color:#98a6c0;font-size:14px}
 .trust span{display:inline-flex;align-items:center;gap:7px}
 footer{text-align:center;padding:26px;color:#5f6f8c;font-size:13px;background:#070b16}
+
+/* ===== MOBILE: show full uncropped cover ===== */
+@media (max-width:640px){
+  .top{background:#080d1a}
+  .top .bg{position:relative;height:auto}
+  .top .bg img{height:auto}                 /* square shows fully */
+  .top .bg::after{background:linear-gradient(to top,#080d1a 0%,rgba(8,13,26,0) 26%)}
+  .hero{display:none}
+  .value{padding:34px 0 56px}
+}
 </style></head><body>
 
 <section class="top">
