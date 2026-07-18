@@ -3455,8 +3455,8 @@ function goHome() {
 
 // ===== VIEW SITE (leave admin, show reader's entry) =====
 function viewSite() {
-  if (window.location.hash === '#admin') { history.replaceState(null, '', window.location.pathname); }
-  showScreen('screen-gate');
+  // open the real reader site in a SEPARATE tab, without leaving the admin panel
+  window.open(window.location.origin + '/', '_blank');
 }
 
 // ===== VIEW MODES =====
