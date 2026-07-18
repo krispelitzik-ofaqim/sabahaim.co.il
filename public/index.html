@@ -1730,6 +1730,9 @@
 
 <!-- ===== SCREEN 4: MATRIX ===== -->
 <div class="screen" id="screen-matrix">
+  <div style="text-align:center;margin-bottom:12px;">
+    <button onclick="openAnswerSheet()" style="background:linear-gradient(135deg,#c9a84c,#a08030);color:#1a1e28;border:none;border-radius:10px;padding:12px 22px;font-family:'Assistant',sans-serif;font-size:0.95rem;font-weight:800;cursor:pointer;box-shadow:0 2px 10px rgba(0,0,0,.35);" data-i18n="matrix_print">🖨️ הדפס דף תשובות</button>
+  </div>
   <div class="matrix-wrap" id="matrix-root"></div>
 </div>
 
@@ -3603,6 +3606,11 @@ function printAnswerSheet() {
   if (f && f.contentWindow) { f.contentWindow.focus(); f.contentWindow.print(); }
 }
 
+// Reader-facing: open the print-ready answer sheet (matrix side) in a new tab
+function openAnswerSheet() {
+  window.open('/assets/answersheet/matrix.html', '_blank');
+}
+
 function switchLanding(mode) {
   var f = document.getElementById('landing-frame');
   var wrap = document.getElementById('lp-frame-wrap');
@@ -4397,6 +4405,7 @@ var translations = {
     home_cert: '🏆 התעודה',
     nav_vault: 'כספת',
     nav_matrix: 'מטריצה',
+    matrix_print: '🖨️ הדפס דף תשובות',
     nav_letter: 'מכתב',
     nav_cert: 'תעודה',
     // JS dynamic messages
@@ -4465,6 +4474,7 @@ var translations = {
     home_cert: '🏆 The Certificate',
     nav_vault: 'Vault',
     nav_matrix: 'Matrix',
+    matrix_print: '🖨️ Print Answer Sheet',
     nav_letter: 'Letter',
     nav_cert: 'Certificate',
     // JS dynamic messages
