@@ -1603,7 +1603,7 @@
     <div class="gate-spinner" id="gate-spinner"></div>
 
     <!-- Purchase Banner -->
-    <a href="https://mrng.to/sf7xO0EmJw" target="_blank" class="purchase-banner" id="purchase-banner" onclick="trackEvent('click_purchase')">
+    <a href="https://www.paypal.com/ncp/payment/BZ4ZJR6DTMLZC" target="_blank" class="purchase-banner" id="purchase-banner" onclick="trackEvent('click_purchase')">
       <div class="purchase-badge" data-i18n="purchase_badge">חדש!</div>
       <div class="purchase-text">
         <div class="purchase-title" data-i18n="purchase_title">עדיין לא רכשתם את הספר?</div>
@@ -1864,7 +1864,10 @@
   <div id="admin-panel" style="display:none;width:100%;max-width:800px;padding-bottom:80px;direction:rtl;text-align:right;">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:15px;">
       <h1 style="color:#ff6b35;font-size:1.3rem;">⚙️ לוח ניהול</h1>
-      <button onclick="logoutAdmin()" style="background:none;border:1px solid #555;color:#888;padding:6px 14px;border-radius:6px;cursor:pointer;font-family:'Assistant',sans-serif;font-size:0.8rem;">התנתק</button>
+      <div style="display:flex;gap:8px;">
+        <button onclick="viewSite()" style="background:none;border:1px solid #ff6b35;color:#ff6b35;padding:6px 14px;border-radius:6px;cursor:pointer;font-family:'Assistant',sans-serif;font-size:0.8rem;">👁️ צפה באתר</button>
+        <button onclick="logoutAdmin()" style="background:none;border:1px solid #555;color:#888;padding:6px 14px;border-radius:6px;cursor:pointer;font-family:'Assistant',sans-serif;font-size:0.8rem;">התנתק</button>
+      </div>
     </div>
 
     <!-- Global search (across all leads: active + archive + trash) -->
@@ -2149,6 +2152,10 @@
     <span>מחשב</span>
   </button>
   <div class="nav-separator"></div>
+  <button class="nav-btn" onclick="viewSite()">
+    <span class="nav-icon">👁️</span>
+    <span>צפה באתר</span>
+  </button>
   <button class="nav-btn" onclick="showScreen('screen-admin')">
     <span class="nav-icon">⚙️</span>
     <span>ניהול</span>
@@ -3417,6 +3424,12 @@ function extractEnvelope() {
 // ===== HOME =====
 function goHome() {
   showScreen('screen-home');
+}
+
+// ===== VIEW SITE (leave admin, show reader's entry) =====
+function viewSite() {
+  if (window.location.hash === '#admin') { history.replaceState(null, '', window.location.pathname); }
+  showScreen('screen-gate');
 }
 
 // ===== VIEW MODES =====
