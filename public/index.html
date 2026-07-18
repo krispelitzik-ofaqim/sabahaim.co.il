@@ -1665,20 +1665,15 @@
 <div class="screen" id="screen-letter">
   <div style="text-align:center;max-width:500px;width:100%;padding-bottom:80px;">
     <h1 style="color:#c9a84c;font-size:1.5rem;margin-bottom:20px;" data-i18n="letter_title">📜 המכתב מסבא חיים</h1>
-    <div id="letter-body" style="background:#1a1e28;border:2px solid #3a3228;border-radius:16px;padding:25px;text-align:right;line-height:2;font-size:0.95rem;">
-      <img src="/assets/images/letter.png" alt="מכתב מסבא חיים" style="width:100%;border-radius:8px;margin-bottom:15px;" onerror="this.style.display='none'" />
-      <p data-i18n="letter_dear">דרור/ה היקר/ה,</p>
-      <p data-i18n="letter_p1">אם את/ה קורא/ת את המכתב הזה, סימן שפיצחת את הצופן. אני גאה בך.</p>
-      <p data-i18n="letter_p2">זכרו — המדע הוא המפתח. המוח האנושי מסוגל לדברים שאנחנו עוד לא יכולים לדמיין.</p>
-      <p data-i18n="letter_p3">המסע שלכם רק מתחיל...</p>
-      <p style="text-align:left;color:#c9a84c;margin-top:15px;" data-i18n="letter_sign">סבא חיים ❤️</p>
+    <div id="letter-body" style="background:#1a1e28;border:2px solid #3a3228;border-radius:16px;padding:12px;text-align:center;">
+      <img src="/assets/images/letter.png" alt="מכתב מסבא חיים" style="width:100%;border-radius:8px;display:block;" onerror="this.style.display='none'" />
     </div>
     <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:20px;">
-      <button class="btn-print" onclick="trackEvent('print_letter');window.print()" data-i18n="letter_print">🖨️ הדפסה</button>
+      <button class="btn-print" onclick="trackEvent('print_letter');window.open('/assets/letter/print.html','_blank')" data-i18n="letter_print">🖨️ הדפסה</button>
       <button onclick="saveLetter()" style="background:#1a1e28;border:1px solid #c9a84c;color:#c9a84c;padding:10px 20px;border-radius:8px;cursor:pointer;font-family:'Assistant',sans-serif;font-size:0.9rem;font-weight:600;">💾 שמירה</button>
       <button onclick="shareLetter()" style="background:#1a1e28;border:1px solid #c9a84c;color:#c9a84c;padding:10px 20px;border-radius:8px;cursor:pointer;font-family:'Assistant',sans-serif;font-size:0.9rem;font-weight:600;">📤 שיתוף</button>
     </div>
-    <p style="color:#5a5040;font-size:0.8rem;margin-top:15px;" data-i18n="letter_print_hint">הדפיסו והדביקו בעמוד 52 בספר שלכם</p>
+    <p style="color:#5a5040;font-size:0.8rem;margin-top:15px;" data-i18n="letter_print_hint">הדפיסו, גזרו על הקו והדביקו למסגרת בעמוד 47</p>
     <button onclick="goHome()" style="margin-top:20px;background:none;border:1px solid #3a3228;color:#8a7e6a;padding:10px 30px;border-radius:8px;cursor:pointer;font-family:'Assistant',sans-serif;font-size:0.9rem;font-weight:600;" data-i18n="btn_home">חזרה לדף הראשי</button>
 
     <div class="countdown-widget">
@@ -4314,7 +4309,7 @@ var translations = {
     letter_p3: 'המסע שלכם רק מתחיל...',
     letter_sign: 'סבא חיים ❤️',
     letter_print: '🖨️ הדפסת המכתב',
-    letter_print_hint: 'הדפיסו והדביקו בעמוד 52 בספר שלכם',
+    letter_print_hint: 'הדפיסו, גזרו על הקו והדביקו למסגרת בעמוד 47',
     cert_title: '🏆 תעודת הצופן הסודי',
     cert_print: '🖨️ הדפסת התעודה',
     cert_print_hint: 'הדפיסו ומלאו את שמכם על התעודה',
