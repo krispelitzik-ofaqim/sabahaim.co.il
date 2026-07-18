@@ -1968,7 +1968,7 @@
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px;">
         <h2 style="color:#e0d5c0;font-size:1rem;">עריכת מטריצה</h2>
         <div style="display:flex;gap:8px;">
-          <button class="admin-btn" onclick="window.open('/assets/answersheet/matrix.html','_blank')">🖨️ הדפסה (A4)</button>
+          <button class="admin-btn" onclick="window.open('/assets/answersheet/full.html','_blank')">🖨️ הדפסה (A4)</button>
           <button class="admin-btn secondary" onclick="resetMatrix()">↩️ איפוס</button>
         </div>
       </div>
@@ -2852,7 +2852,7 @@ function renderMatrix(targetId, editable) {
     // Print button for reader
     var bar = document.createElement('div');
     bar.className = 'matrix-bar';
-    bar.innerHTML = '<button class="m-bar-btn" onclick="window.open(\'/assets/answersheet/matrix.html\',\'_blank\')">🖨️ הדפס דף תשובות (A4)</button>';
+    bar.innerHTML = '<button class="m-bar-btn" onclick="window.open(\'/assets/answersheet/full.html\',\'_blank\')">🖨️ הדפס דף תשובות (A4)</button>';
     root.appendChild(bar);
   }
 }
@@ -3526,9 +3526,9 @@ function printAnswerSheet() {
   if (f && f.contentWindow) { f.contentWindow.focus(); f.contentWindow.print(); }
 }
 
-// Reader-facing: open the print-ready answer sheet (matrix side) in a new tab
+// Reader-facing: open the print-ready answer sheet (both sides: matrix + periodic table)
 function openAnswerSheet() {
-  window.open('/assets/answersheet/matrix.html', '_blank');
+  window.open('/assets/answersheet/full.html', '_blank');
 }
 
 function switchLanding(mode) {
