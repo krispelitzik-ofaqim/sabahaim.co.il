@@ -1971,7 +1971,7 @@
     <div class="admin-page" id="admin-leads">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px;">
         <h2 style="color:#e0d5c0;font-size:1rem;">טבלת לידים</h2>
-        <button class="admin-btn secondary" onclick="exportLeads()">📥 ייצוא</button>
+        <button class="admin-btn secondary" onclick="exportLeads()">📥 ייצוא לאקסל</button>
       </div>
 
       <!-- Stats Dashboard -->
@@ -3975,7 +3975,29 @@ async function loadLeadsTab() {
     }).join('');
   } catch (e) { console.error(e); }
 }
-function exportLeads() { alert('פיצ׳ר בבנייה — ייצוא לידים'); }
+async function exportLeads() {
+  try {
+    var res = await fetch('/api/admin/leads?token=' + encodeURIComponent(adminToken));
+    var data = await res.json();
+    var leads = (data && data.leads) || [];
+    if (!leads.length) { alert('אין לידים לייצוא'); return; }
+    var headers = ['קוד כניסה','נייד','נכנס לכספת','הדפיס מכתב','קיבל תעודה','הדפיס תעודה','כניסה אחרונה'];
+    function esc(v) { v = (v == null ? '' : String(v)); return '"' + v.replace(/"/g, '""') + '"'; }
+    function yn(v) { return v ? 'כן' : 'לא'; }
+    var rows = leads.map(function(l) {
+      return [ l.code, l.phone || '', yn(l.vaultOpened), yn(l.printedLetter),
+        yn(l.gotCertificate), yn(l.printedCertificate),
+        l.lastEntry ? new Date(l.lastEntry).toLocaleString('he-IL') : '' ].map(esc).join(',');
+    });
+    var csv = '﻿' + [headers.map(esc).join(',')].concat(rows).join('\r\n');
+    var blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    var d = new Date();
+    var fn = 'הצופן-לידים-' + d.getFullYear() + ('0'+(d.getMonth()+1)).slice(-2) + ('0'+d.getDate()).slice(-2) + '.csv';
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(blob); a.download = fn;
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  } catch (e) { alert('שגיאה בייצוא: ' + e.message); }
+}
 
 var currentAdminTab = 'codes';
 
