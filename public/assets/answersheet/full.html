@@ -14,7 +14,7 @@ body{background:#0e1420}
 @page{size:A4 portrait;margin:0}
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Heebo',Arial,sans-serif;background:#0e1420}
-.page{width:210mm;height:297mm;position:relative;background:linear-gradient(170deg,#12203a,#0a1018);padding:8mm;color:#eef2f8;overflow:hidden;display:flex;flex-direction:column}
+.side.a .page{width:210mm;height:297mm;position:relative;background:linear-gradient(170deg,#12203a,#0a1018);padding:8mm;color:#eef2f8;overflow:hidden;display:flex;flex-direction:column}
 .matrix{flex:1;display:flex;flex-direction:column;gap:2mm;min-height:0}
 .sec{display:flex;gap:2mm;min-height:0}
 .sec .rows{flex:1;display:flex;flex-direction:column;gap:2mm;min-width:0}
@@ -51,7 +51,7 @@ body{font-family:'Heebo',Arial,sans-serif;background:#0e1420}
 @import url('https://fonts.googleapis.com/css2?family=Heebo:wght@400;600;700;800;900&display=swap');
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{width:297mm;height:210mm;background:#d9c69b}
-.page{position:relative;width:297mm;height:210mm;overflow:hidden;font-family:'Heebo',sans-serif;
+.side.b .page{position:relative;width:297mm;height:210mm;overflow:hidden;font-family:'Heebo',sans-serif;
   background:
     radial-gradient(120% 80% at 50% 0%,#f8efd6 0%,#efe1bd 60%,#e6d4ab 100%);
   box-shadow:inset 0 0 0 2.4mm #e7d6a8, inset 0 0 0 2.9mm #b89b5e, inset 0 0 26px rgba(120,85,30,.18)}
@@ -83,7 +83,7 @@ html,body{width:297mm;height:210mm;background:#d9c69b}
 .legend .sw{width:13px;height:13px;border-radius:4px;border:1px solid rgba(0,0,0,.18);flex:none}
 .legend .note{margin-top:5px;text-align:center;font-size:7.5px;font-weight:800;color:#8a5a1f}
 .legend .note b{color:#e0a020}
-@media screen{html,body{width:100%!important;height:auto!important;overflow:hidden;background:#d9c69b}}@media print{body{background:#fff}.page{transform:none!important}}
+@media screen{html,body{width:100%!important;height:auto!important;overflow-x:hidden;overflow-y:auto;background:#d9c69b}}@media print{body{background:#fff}.page{transform:none!important}}
 @media screen{ .side{margin:0 auto 18px} }
 </style></head><body>
 <div class="side a">
@@ -95,23 +95,6 @@ html,body{width:297mm;height:210mm;background:#d9c69b}
       <div class="wins"><div class="win"></div><div class="win"></div><div class="win"></div><div class="win"></div></div></div>
   </div>
 </div>
-<script>
-(function(){
-  var pg=document.querySelector('.page');
-  function fit(){
-    pg.style.transform='none';
-    var scale=Math.min(1, window.innerWidth/pg.offsetWidth);
-    pg.style.transformOrigin='top left';
-    pg.style.transform='scale('+scale+')';
-    document.body.style.height=(pg.offsetHeight*scale)+'px';
-    document.body.style.width='100%';
-  }
-  window.addEventListener('resize',fit);
-  window.addEventListener('beforeprint',function(){pg.style.transform='none';document.body.style.height='';});
-  window.addEventListener('afterprint',fit);
-  fit();
-})();
-</script>
 </div>
 <div class="side b">
 <div class="page">
@@ -122,21 +105,47 @@ html,body{width:297mm;height:210mm;background:#d9c69b}
     <div class="grid"><div class="lg"><span class="sw alk"></span>מתכות אלקליות</div><div class="lg"><span class="sw alkE"></span>אלקליות עפרוריות</div><div class="lg"><span class="sw trans"></span>מתכות מעבר</div><div class="lg"><span class="sw post"></span>מתכות מעבר-על</div><div class="lg"><span class="sw metaloid"></span>מטלואידים</div><div class="lg"><span class="sw nonmet"></span>אל-מתכות</div><div class="lg"><span class="sw halogen"></span>הלוגנים</div><div class="lg"><span class="sw noble"></span>גזים אצילים</div><div class="lg"><span class="sw lanth"></span>לנתנידים</div><div class="lg"><span class="sw actin"></span>אקטינידים</div></div>
     <div class="note">⬦ המסגרת הזוהבת מסמנת את ארבע מתכות המסע: <b>ברזל · נחושת · כסף · זהב</b></div>
   </div>
-</div><script>
+</div>
+<script>
 (function(){
-  var pg=document.querySelector('.page');
   function fit(){
-    pg.style.transform='none';
-    var w=document.documentElement.clientWidth||window.innerWidth;
-    var scale=Math.min(1, w/pg.offsetWidth);
-    pg.style.transformOrigin='top right';
-    pg.style.transform='scale('+scale+')';
-    document.body.style.height=(pg.offsetHeight*scale)+'px';
+    var w = document.documentElement.clientWidth || window.innerWidth;
+    document.querySelectorAll('.side').forEach(function(side){
+      var pg = side.querySelector('.page');
+      if(!pg) return;
+      pg.style.transform='none';
+      side.style.position='relative';
+      side.style.overflow='hidden';
+      side.style.margin='0 auto 18px';
+      var pw = pg.offsetWidth, ph = pg.offsetHeight;
+      var rotate = side.classList.contains('b'); // periodic table -> 90deg (portrait)
+      if(rotate){
+        var scale = Math.min(1, w/ph);         // fit rotated width (=orig height) to screen
+        pg.style.transformOrigin='top left';
+        pg.style.transform='translateX('+(ph*scale)+'px) rotate(90deg) scale('+scale+')';
+        side.style.width=(ph*scale)+'px';
+        side.style.height=(pw*scale)+'px';
+      } else {
+        var s = Math.min(1, w/pw);
+        pg.style.transformOrigin='top left';
+        pg.style.transform='scale('+s+')';
+        side.style.width=(pw*s)+'px';
+        side.style.height=(ph*s)+'px';
+      }
+    });
+    document.body.style.height='auto';
+    document.body.style.width='100%';
+  }
+  function reset(){
+    document.querySelectorAll('.page').forEach(function(p){p.style.transform='none';});
+    document.querySelectorAll('.side').forEach(function(s){s.style.height='';s.style.width='';s.style.overflow='';});
+    document.body.style.height='';
   }
   window.addEventListener('resize',fit);
-  window.addEventListener('beforeprint',function(){pg.style.transform='none';document.body.style.height='';});
+  window.addEventListener('load',fit);
+  window.addEventListener('beforeprint',reset);
   window.addEventListener('afterprint',fit);
-  window.addEventListener('load',fit); fit();
+  fit();
 })();
 </script>
 </div>
