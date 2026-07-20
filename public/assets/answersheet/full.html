@@ -114,10 +114,14 @@ html,body{width:297mm;height:210mm;background:#d9c69b}
       var pg = side.querySelector('.page');
       if(!pg) return;
       pg.style.transform='none';
+      pg.style.position='static';
+      var pw = pg.offsetWidth, ph = pg.offsetHeight;
       side.style.position='relative';
       side.style.overflow='hidden';
       side.style.margin='0 auto 18px';
-      var pw = pg.offsetWidth, ph = pg.offsetHeight;
+      // take the page out of flow so its natural (landscape) width can't force overflow
+      pg.style.position='absolute';
+      pg.style.top='0'; pg.style.left='0';
       var rotate = side.classList.contains('b'); // periodic table -> 90deg (portrait)
       if(rotate){
         var scale = Math.min(1, w/ph);         // fit rotated width (=orig height) to screen
@@ -137,8 +141,8 @@ html,body{width:297mm;height:210mm;background:#d9c69b}
     document.body.style.width='100%';
   }
   function reset(){
-    document.querySelectorAll('.page').forEach(function(p){p.style.transform='none';});
-    document.querySelectorAll('.side').forEach(function(s){s.style.height='';s.style.width='';s.style.overflow='';});
+    document.querySelectorAll('.page').forEach(function(p){p.style.transform='none';p.style.position='';p.style.top='';p.style.left='';});
+    document.querySelectorAll('.side').forEach(function(s){s.style.height='';s.style.width='';s.style.overflow='';s.style.position='';});
     document.body.style.height='';
   }
   window.addEventListener('resize',fit);
