@@ -2442,8 +2442,12 @@ function startTimer() {
       try {
         if (timeLeft <= 10) {
           playFlipTick(true);
-        } else {
+        } else if (timeLeft <= 60) {
           playFlipTick(false);
+        } else if (timeLeft <= 300) {
+          if (timeLeft % 10 === 0) playFlipTick(false);
+        } else {
+          if (timeLeft % 60 === 0) playFlipTick(false);
         }
       } catch(e) { console.error('tick sound error:', e); }
     } catch(e) { console.error('vault timer interval error:', e); }
