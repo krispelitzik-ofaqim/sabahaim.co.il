@@ -2459,6 +2459,10 @@ function showScreen(id) {
   var isAdminUser = document.documentElement.classList.contains('direct-admin') || !!adminToken;
   nav.style.display = (isAdminUser && id !== 'screen-gate') ? 'flex' : 'none';
 
+  // Language toggle only on entry/info screens (gate + home); hide inside the vault experience.
+  var langBox = document.getElementById('lang-toggle');
+  if (langBox) langBox.style.display = (id === 'screen-gate' || id === 'screen-home') ? 'flex' : 'none';
+
   // Dead-end auto-redirect: per-screen 60s budget that DOES NOT reset on re-entry.
   // Each of home/letter/certificate has its own 60s budget for the session.
   // This prevents the navigation loop (letter↔home↔cert↔home…) from granting fresh time.
