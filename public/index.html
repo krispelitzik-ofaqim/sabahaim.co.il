@@ -2241,8 +2241,15 @@ function trackEvent(event) {
 var audioCtx = null;
 function getAudioCtx() {
   if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  if (audioCtx.state === 'suspended') { try { audioCtx.resume(); } catch(e) {} }
   return audioCtx;
 }
+// Unlock/keep audio alive on first user gesture (iOS/Safari require this)
+['touchend','click','keydown'].forEach(function(ev){
+  document.addEventListener(ev, function unlockAudio(){
+    try { getAudioCtx(); } catch(e) {}
+  }, { passive: true });
+});
 
 function playTick() {
   var ctx = getAudioCtx();
@@ -3357,7 +3364,7 @@ function startOpenCountdown() {
         playFlipTick(true);
       } else if (openTimeLeft <= 60) {
         playFlipTick(false);
-      } else if (openTimeLeft % 10 === 0) {
+      } else {
         playTickOpen();
       }
 
