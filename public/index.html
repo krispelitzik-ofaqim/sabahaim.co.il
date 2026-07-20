@@ -2654,7 +2654,7 @@ async function tryOpen() {
         setTimeout(function() { playLockdown(); }, 600);
         showScreen('screen-locked');
       } else {
-        document.getElementById('error-msg').textContent = t('err_vault_wrong', { n: maxAttempts - attempts });
+        document.getElementById('error-msg').textContent = t('err_vault_wrong', { n: maxAttempts > 10 ? '∞' : (maxAttempts - attempts) });
         document.getElementById('error-msg').style.display = 'block';
         // Shake animation
         document.querySelector('.vault-image').style.animation = 'none';
