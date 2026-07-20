@@ -2403,13 +2403,13 @@ function playFlipTick(loud) {
     var gain = ctx.createGain();
     osc.connect(gain);
     gain.connect(ctx.destination);
-    osc.frequency.value = loud ? 1400 : 900;
+    osc.frequency.value = loud ? 1600 : 900;
     osc.type = loud ? 'square' : 'sine';
-    var vol = loud ? 0.2 : 0.06;
+    var vol = loud ? 0.5 : 0.06;
     gain.gain.setValueAtTime(vol, ctx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + (loud ? 0.12 : 0.06));
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + (loud ? 0.18 : 0.06));
     osc.start(ctx.currentTime);
-    osc.stop(ctx.currentTime + (loud ? 0.12 : 0.06));
+    osc.stop(ctx.currentTime + (loud ? 0.18 : 0.06));
   } catch(e) {}
 }
 
