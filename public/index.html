@@ -20,7 +20,7 @@
     }
 
     /* ===== SCREENS ===== */
-    .screen { display:none; min-height:100vh; flex-direction:column; align-items:center; justify-content:center; padding:20px; }
+    .screen { display:none; min-height:100vh; flex-direction:column; align-items:center; justify-content:safe center; padding:calc(28px + env(safe-area-inset-top)) 20px calc(48px + env(safe-area-inset-bottom)); }
     .screen.active { display:flex; }
 
     /* ===== GATE SCREEN ===== */
@@ -2451,9 +2451,10 @@ function showScreen(id) {
   document.querySelectorAll('.nav-btn').forEach(function(b) {
     if (b.onclick && b.onclick.toString().indexOf(id) > -1) b.classList.add('active');
   });
-  // Hide nav on gate screen, show on all others
+  // Admin toolbar (nav-bottom) is admin-only: show only for admins, never for regular visitors.
   var nav = document.getElementById('nav-bottom');
-  nav.style.display = (id === 'screen-gate') ? 'none' : 'flex';
+  var isAdminUser = document.documentElement.classList.contains('direct-admin') || !!adminToken;
+  nav.style.display = (isAdminUser && id !== 'screen-gate') ? 'flex' : 'none';
 
   // Dead-end auto-redirect: per-screen 60s budget that DOES NOT reset on re-entry.
   // Each of home/letter/certificate has its own 60s budget for the session.
