@@ -1392,9 +1392,12 @@
     @media (max-width: 480px) {
       .vault-image { width: 200px; height: 200px; }
       .vault-title { font-size: 1.5rem; }
-      .code-inputs { gap: 8px; }
-      .code-input { width: 60px; height: 46px; font-size: 1rem; }
-      .code-input-wide { width: 80px; }
+      .code-inputs { gap: clamp(5px, 1.6vw, 10px); flex-wrap: nowrap; }
+      .code-input { width: clamp(50px, 15vw, 64px); height: 46px; font-size: 1rem; flex: 0 0 auto; }
+      .code-input-wide { width: clamp(64px, 19vw, 84px); }
+      /* Admin toolbar too wide for phones: let it scroll sideways */
+      .nav-bottom { justify-content: flex-start; overflow-x: auto; -webkit-overflow-scrolling: touch; gap: 12px; padding-left: 12px; padding-right: 12px; }
+      .nav-bottom .nav-btn, .nav-bottom .nav-separator { flex: 0 0 auto; }
     }
 
     /* ===== a11y + mobile touch target improvements (additive) ===== */
