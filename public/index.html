@@ -244,6 +244,29 @@
     .info-panel h4 { color: #d8ccb4; font-size: 1rem; margin: 16px 0 6px; }
     .info-panel p { margin: 0 0 12px; }
     .info-panel a { color: #c9a84c; }
+    .cf-input {
+      width: 100%; background: #0d1117; border: 1.5px solid #3a3228; border-radius: 10px;
+      color: #e8e0d0; font-family: 'Assistant', sans-serif; font-size: 0.95rem; padding: 11px 14px;
+      outline: none; direction: rtl;
+    }
+    .cf-input:focus { border-color: #c9a84c; }
+    .cf-input::placeholder { color: #6a6050; }
+    /* Feedback wall */
+    .fb-list { display: flex; flex-direction: column; gap: 12px; }
+    .fb-loading { color: #6a6050; text-align: center; font-size: 0.9rem; }
+    .fb-card {
+      background: #12161f; border: 1px solid #2a2e38; border-radius: 12px; padding: 12px 14px;
+    }
+    .fb-card .fb-head { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+    .fb-avatar {
+      width: 30px; height: 30px; border-radius: 50%; flex: none;
+      background: linear-gradient(135deg,#c9a84c,#a08030); color: #1a1e28;
+      display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 0.9rem;
+    }
+    .fb-name { font-weight: 800; color: #e8dcc4; font-size: 0.92rem; }
+    .fb-date { color: #6a6050; font-size: 0.72rem; margin-right: auto; }
+    .fb-msg { color: #c4b9a6; font-size: 0.92rem; line-height: 1.65; white-space: pre-wrap; word-break: break-word; }
+    .fb-empty { color: #6a6050; text-align: center; font-size: 0.9rem; padding: 10px; }
 
     /* Gift Banner */
     .gift-banner {
@@ -1571,11 +1594,13 @@
 
     <!-- Legal / info footer links (one line) -->
     <div class="legal-links">
+      <a href="#" onclick="showScreen('screen-info');setInfoTab('feedback');return false;" data-i18n="legal_feedback">💬 משוב</a>
+      <span class="legal-sep">·</span>
+      <a href="#" onclick="showScreen('screen-info');setInfoTab('contact');return false;" data-i18n="legal_contact">צור קשר</a>
+      <span class="legal-sep">·</span>
       <a href="#" onclick="showScreen('screen-info');setInfoTab('terms');return false;" data-i18n="legal_terms">תקנון</a>
       <span class="legal-sep">·</span>
       <a href="#" onclick="showScreen('screen-info');setInfoTab('privacy');return false;" data-i18n="legal_privacy">מדיניות פרטיות</a>
-      <span class="legal-sep">·</span>
-      <a href="#" onclick="showScreen('screen-info');setInfoTab('contact');return false;" data-i18n="legal_contact">צור קשר</a>
     </div>
   </div>
 </div>
@@ -1584,9 +1609,22 @@
 <div class="screen" id="screen-info">
   <div class="info-wrap">
     <div class="info-tabs">
+      <button class="info-tab" id="itab-feedback" onclick="setInfoTab('feedback')" data-i18n="legal_feedback">💬 משוב</button>
+      <button class="info-tab" id="itab-contact" onclick="setInfoTab('contact')" data-i18n="legal_contact">צור קשר</button>
       <button class="info-tab" id="itab-terms" onclick="setInfoTab('terms')" data-i18n="legal_terms">תקנון</button>
       <button class="info-tab" id="itab-privacy" onclick="setInfoTab('privacy')" data-i18n="legal_privacy">מדיניות פרטיות</button>
-      <button class="info-tab" id="itab-contact" onclick="setInfoTab('contact')" data-i18n="legal_contact">צור קשר</button>
+    </div>
+
+    <div class="info-panel" id="ipanel-feedback">
+      <h3>💬 ספרו לנו מה חשבתם</h3>
+      <p>אהבתם את החוויה? נשמח לשמוע! כתבו תגובה — היא תופיע כאן לכל המבקרים.</p>
+      <form id="feedback-form" onsubmit="return submitFeedback(event)" style="display:flex;flex-direction:column;gap:10px;margin:6px 0 20px;">
+        <input type="text" id="fb-name" required maxlength="60" placeholder="השם שלך" class="cf-input" />
+        <textarea id="fb-message" required rows="3" maxlength="1000" placeholder="כתבו את התגובה שלכם…" class="cf-input" style="resize:vertical;"></textarea>
+        <button type="submit" class="btn-gate" id="fb-btn" style="align-self:flex-start;">שליחת תגובה</button>
+        <div id="fb-status" style="font-size:0.9rem;font-weight:700;display:none;"></div>
+      </form>
+      <div id="fb-list" class="fb-list"><div class="fb-loading">טוען תגובות…</div></div>
     </div>
 
     <div class="info-panel" id="ipanel-terms">
@@ -1617,13 +1655,14 @@
 
     <div class="info-panel" id="ipanel-contact">
       <h3>צור קשר</h3>
-      <p>נשמח לעמוד לרשותכם בכל שאלה, בקשה או פנייה בנוגע לספר, לאתר או להזמנות.</p>
-      <h4>הוצאת טקטיקה — יצחק קריספל</h4>
-      <p>
-        אימייל: <a href="mailto:krispelitzik@gmail.com">krispelitzik@gmail.com</a><br>
-        וואטסאפ / טלפון: <a href="https://wa.me/972545370088" target="_blank">054-5370088</a>
-      </p>
-      <p>נשתדל להשיב לכל פנייה בהקדם האפשרי.</p>
+      <p>נשמח לעמוד לרשותכם בכל שאלה, בקשה או פנייה. מלאו את הטופס ונחזור אליכם בהקדם.</p>
+      <form id="contact-form" onsubmit="return submitContact(event)" style="display:flex;flex-direction:column;gap:12px;margin-top:8px;">
+        <input type="text" id="cf-name" required placeholder="שם מלא" class="cf-input" />
+        <input type="email" id="cf-email" placeholder="אימייל (לא חובה)" class="cf-input" />
+        <textarea id="cf-message" required rows="4" placeholder="ההודעה שלך" class="cf-input" style="resize:vertical;"></textarea>
+        <button type="submit" class="btn-gate" id="cf-btn" style="align-self:flex-start;">שליחה</button>
+        <div id="cf-status" style="font-size:0.9rem;font-weight:700;display:none;"></div>
+      </form>
     </div>
 
     <button class="btn-gate" style="margin-top:24px;" onclick="showScreen('screen-gate')" data-i18n="legal_back">← חזרה</button>
@@ -3487,14 +3526,125 @@ function viewSite() {
   window.open(window.location.origin + '/', '_blank');
 }
 
+// ===== CONTACT FORM =====
+async function submitContact(e) {
+  e.preventDefault();
+  var btn = document.getElementById('cf-btn');
+  var status = document.getElementById('cf-status');
+  var name = document.getElementById('cf-name').value.trim();
+  var email = document.getElementById('cf-email').value.trim();
+  var message = document.getElementById('cf-message').value.trim();
+  if (!name || !message) return false;
+  btn.disabled = true; btn.textContent = 'שולח…';
+  try {
+    var res = await fetch('/api/contact', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: name, email: email, message: message })
+    });
+    var data = await res.json();
+    status.style.display = 'block';
+    if (data.success) {
+      document.getElementById('contact-form').reset();
+      status.style.color = '#34d399';
+      status.textContent = 'תודה! ההודעה נשלחה, נחזור אליך בהקדם.';
+    } else {
+      status.style.color = '#f87171';
+      status.textContent = 'אירעה שגיאה. נסו שוב.';
+    }
+  } catch (err) {
+    status.style.display = 'block';
+    status.style.color = '#f87171';
+    status.textContent = 'אירעה שגיאה. נסו שוב.';
+  }
+  btn.disabled = false; btn.textContent = 'שליחה';
+  return false;
+}
+
 // ===== INFO (legal) TABS =====
 function setInfoTab(tab) {
-  ['terms','privacy','contact'].forEach(function(t) {
+  ['feedback','contact','terms','privacy'].forEach(function(t) {
     var panel = document.getElementById('ipanel-' + t);
     var btn = document.getElementById('itab-' + t);
     if (panel) panel.classList.toggle('active', t === tab);
     if (btn) btn.classList.toggle('active', t === tab);
   });
+  if (tab === 'feedback') loadFeedback();
+}
+
+// ===== PUBLIC FEEDBACK WALL =====
+function fbEscape(s) {
+  return String(s).replace(/[&<>"']/g, function(c) {
+    return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+  });
+}
+function fbTimeAgo(iso) {
+  try {
+    var d = new Date(iso), diff = (Date.now() - d.getTime()) / 1000;
+    if (diff < 60) return 'הרגע';
+    if (diff < 3600) return Math.floor(diff / 60) + ' דק׳';
+    if (diff < 86400) return Math.floor(diff / 3600) + ' שע׳';
+    if (diff < 604800) return Math.floor(diff / 86400) + ' ימים';
+    return d.toLocaleDateString('he-IL');
+  } catch (e) { return ''; }
+}
+function fbRender(comments) {
+  var list = document.getElementById('fb-list');
+  if (!comments || !comments.length) {
+    list.innerHTML = '<div class="fb-empty">היו הראשונים לכתוב תגובה 🙂</div>';
+    return;
+  }
+  list.innerHTML = comments.map(function(c) {
+    var initial = (c.name || '?').trim().charAt(0);
+    return '<div class="fb-card"><div class="fb-head">' +
+      '<div class="fb-avatar">' + fbEscape(initial) + '</div>' +
+      '<div class="fb-name">' + fbEscape(c.name) + '</div>' +
+      '<div class="fb-date">' + fbTimeAgo(c.at) + '</div>' +
+      '</div><div class="fb-msg">' + fbEscape(c.message) + '</div></div>';
+  }).join('');
+}
+async function loadFeedback() {
+  var list = document.getElementById('fb-list');
+  if (!list) return;
+  try {
+    var res = await fetch('/api/feedback');
+    var data = await res.json();
+    fbRender(data.comments || []);
+  } catch (e) {
+    list.innerHTML = '<div class="fb-empty">לא ניתן לטעון תגובות כרגע.</div>';
+  }
+}
+async function submitFeedback(e) {
+  e.preventDefault();
+  var btn = document.getElementById('fb-btn');
+  var status = document.getElementById('fb-status');
+  var name = document.getElementById('fb-name').value.trim();
+  var message = document.getElementById('fb-message').value.trim();
+  if (!name || !message) return false;
+  btn.disabled = true; btn.textContent = 'שולח…';
+  try {
+    var res = await fetch('/api/feedback', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: name, message: message })
+    });
+    var data = await res.json();
+    status.style.display = 'block';
+    if (data.success) {
+      document.getElementById('feedback-form').reset();
+      status.style.color = '#34d399';
+      status.textContent = 'תודה! התגובה פורסמה.';
+      loadFeedback();
+    } else {
+      status.style.color = '#f87171';
+      status.textContent = 'אירעה שגיאה. נסו שוב.';
+    }
+  } catch (err) {
+    status.style.display = 'block';
+    status.style.color = '#f87171';
+    status.textContent = 'אירעה שגיאה. נסו שוב.';
+  }
+  btn.disabled = false; btn.textContent = 'שליחת תגובה';
+  return false;
 }
 
 // ===== VIEW MODES =====
@@ -4434,6 +4584,7 @@ var translations = {
     gift_sub: 'רכשו את הספר כמתנה עבור חברים או בני משפחה!',
     gift_sub_home: 'רכשו את הספר כמתנה עבור חברים או בני משפחה ותנו להם להצטרף להרפתקה!',
     gift_cta: 'לרכישת מארז מתנה ←',
+    legal_feedback: '💬 משוב',
     legal_terms: 'תקנון',
     legal_privacy: 'מדיניות פרטיות',
     legal_contact: 'צור קשר',
@@ -4507,6 +4658,7 @@ var translations = {
     gift_sub: 'Buy the book as a gift for friends or family!',
     gift_sub_home: 'Buy the book as a gift for friends or family and let them join the adventure!',
     gift_cta: 'Buy Gift Set →',
+    legal_feedback: '💬 Feedback',
     legal_terms: 'Terms',
     legal_privacy: 'Privacy Policy',
     legal_contact: 'Contact',

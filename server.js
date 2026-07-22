@@ -166,6 +166,89 @@ function getOrCreateLead(code, phone) {
   return data.leads[code];
 }
 
+// Send a WhatsApp message to the site admin via Green API (same provider as batumionline-biz).
+async function sendAdminWhatsApp(message) {
+  const url = process.env.GREEN_API_URL;
+  const instance = process.env.GREEN_API_INSTANCE;
+  const token = process.env.GREEN_API_TOKEN;
+  const admin = (process.env.ADMIN_PHONE || '').replace(/\D/g, '');
+  if (!url || !instance || !token || !admin) {
+    console.warn('[contact] WhatsApp not configured — message not sent');
+    return false;
+  }
+  try {
+    const endpoint = `${url}/waInstance${instance}/sendMessage/${token}`;
+    const r = await fetch(endpoint, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ chatId: `${admin}@c.us`, message }),
+    });
+    return r.ok;
+  } catch (e) {
+    console.warn('[contact] WhatsApp send failed:', e.message);
+    return false;
+  }
+}
+
+// API: Contact form -> notify admin on WhatsApp (visitor just sees a normal form)
+app.post('/api/contact', async (req, res) => {
+  const name = (req.body.name || '').toString().trim().slice(0, 120);
+  const email = (req.body.email || '').toString().trim().slice(0, 160);
+  const message = (req.body.message || '').toString().trim().slice(0, 2000);
+  if (!name || !message) return res.json({ success: false, error: 'missing_fields' });
+
+  const when = new Date().toLocaleString('he-IL', { timeZone: 'Asia/Jerusalem' });
+  const text = `📩 פנייה חדשה מאתר הצופן הסודי\n\n👤 שם: ${name}\n✉️ אימייל: ${email || '-'}\n🕒 ${when}\n\n💬 הודעה:\n${message}`;
+
+  // Persist a copy too (so nothing is lost if WhatsApp fails)
+  try {
+    const p = path.join(DATA_DIR, 'contact.json');
+    const arr = fs.existsSync(p) ? JSON.parse(fs.readFileSync(p, 'utf8')) : [];
+    arr.unshift({ name, email, message, at: new Date().toISOString() });
+    fs.writeFileSync(p, JSON.stringify(arr.slice(0, 500), null, 2));
+  } catch (e) { /* non-fatal */ }
+
+  sendAdminWhatsApp(text).catch(() => {});
+  res.json({ success: true });
+});
+
+// ── Public feedback wall (Facebook-style comments) ──────────
+const FEEDBACK_PATH = path.join(DATA_DIR, 'feedback.json');
+function loadFeedback() {
+  if (!fs.existsSync(FEEDBACK_PATH)) return [];
+  try { return JSON.parse(fs.readFileSync(FEEDBACK_PATH, 'utf8')); } catch (e) { return []; }
+}
+function saveFeedback(arr) {
+  fs.writeFileSync(FEEDBACK_PATH, JSON.stringify(arr.slice(0, 1000), null, 2));
+}
+
+// List public comments (newest first)
+app.get('/api/feedback', (req, res) => {
+  const arr = loadFeedback().filter(c => !c.hidden);
+  res.json({ success: true, comments: arr.map(c => ({ id: c.id, name: c.name, message: c.message, at: c.at })) });
+});
+
+// Add a public comment
+app.post('/api/feedback', (req, res) => {
+  const name = (req.body.name || '').toString().trim().slice(0, 60);
+  const message = (req.body.message || '').toString().trim().slice(0, 1000);
+  if (!name || !message) return res.json({ success: false, error: 'missing_fields' });
+  const arr = loadFeedback();
+  const comment = { id: 'c_' + Date.now() + '_' + Math.floor(Math.random() * 1e4), name, message, at: new Date().toISOString() };
+  arr.unshift(comment);
+  saveFeedback(arr);
+  res.json({ success: true, comment: { id: comment.id, name, message, at: comment.at } });
+});
+
+// Admin: hide/delete a comment
+app.post('/api/admin/feedback/delete', (req, res) => {
+  if (!checkAdmin(req)) return res.status(401).json({ success: false });
+  const id = req.body.id;
+  const arr = loadFeedback().filter(c => c.id !== id);
+  saveFeedback(arr);
+  res.json({ success: true });
+});
+
 // API: Track user activity
 app.post('/api/track', (req, res) => {
   const { code, event } = req.body;
