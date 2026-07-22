@@ -216,6 +216,35 @@
       white-space: nowrap;
     }
 
+    /* Legal / info links (one line under the banner) */
+    .legal-links {
+      margin: 14px auto 0;
+      text-align: center;
+      font-family: 'Assistant', sans-serif;
+      font-size: 0.78rem;
+      color: #8a7e6a;
+      line-height: 1.8;
+    }
+    .legal-links a { color: #c9a84c; text-decoration: none; font-weight: 700; }
+    .legal-links a:hover { text-decoration: underline; }
+    .legal-sep { color: #5a5040; margin: 0 8px; }
+
+    /* Info (legal) screen */
+    .info-wrap { width: 100%; max-width: 640px; text-align: right; direction: rtl; }
+    .info-tabs { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-bottom: 20px; }
+    .info-tab {
+      background: transparent; border: 1.5px solid #3a3228; color: #a09480;
+      border-radius: 20px; padding: 8px 18px; font-family: 'Assistant', sans-serif;
+      font-size: 0.9rem; font-weight: 700; cursor: pointer; transition: all 0.15s;
+    }
+    .info-tab.active { background: #c9a84c; border-color: #c9a84c; color: #1a1e28; }
+    .info-panel { display: none; color: #c4b9a6; font-family: 'Assistant', sans-serif; font-size: 0.95rem; line-height: 1.9; }
+    .info-panel.active { display: block; }
+    .info-panel h3 { color: #c9a84c; font-size: 1.2rem; margin: 0 0 14px; }
+    .info-panel h4 { color: #d8ccb4; font-size: 1rem; margin: 16px 0 6px; }
+    .info-panel p { margin: 0 0 12px; }
+    .info-panel a { color: #c9a84c; }
+
     /* Gift Banner */
     .gift-banner {
       display: flex;
@@ -1539,6 +1568,65 @@
       </div>
       <div class="purchase-cta" data-i18n="purchase_cta">לרכישה מהירה ←</div>
     </a>
+
+    <!-- Legal / info footer links (one line) -->
+    <div class="legal-links">
+      <a href="#" onclick="showScreen('screen-info');setInfoTab('terms');return false;" data-i18n="legal_terms">תקנון</a>
+      <span class="legal-sep">·</span>
+      <a href="#" onclick="showScreen('screen-info');setInfoTab('privacy');return false;" data-i18n="legal_privacy">מדיניות פרטיות</a>
+      <span class="legal-sep">·</span>
+      <a href="#" onclick="showScreen('screen-info');setInfoTab('contact');return false;" data-i18n="legal_contact">צור קשר</a>
+    </div>
+  </div>
+</div>
+
+<!-- ===== SCREEN: INFO (terms / privacy / contact) ===== -->
+<div class="screen" id="screen-info">
+  <div class="info-wrap">
+    <div class="info-tabs">
+      <button class="info-tab" id="itab-terms" onclick="setInfoTab('terms')" data-i18n="legal_terms">תקנון</button>
+      <button class="info-tab" id="itab-privacy" onclick="setInfoTab('privacy')" data-i18n="legal_privacy">מדיניות פרטיות</button>
+      <button class="info-tab" id="itab-contact" onclick="setInfoTab('contact')" data-i18n="legal_contact">צור קשר</button>
+    </div>
+
+    <div class="info-panel" id="ipanel-terms">
+      <h3>תקנון ותנאי שימוש</h3>
+      <p>ברוכים הבאים לאתר "הצופן הסודי". השימוש באתר ובחוויה האינטראקטיבית מהווה הסכמה לתנאים שלהלן.</p>
+      <h4>השימוש באתר</h4>
+      <p>האתר מלווה את הספר "הצופן הסודי" ומאפשר גישה לחוויית הכספת באמצעות קוד גישה אישי שמצורף לספר. אין לעשות שימוש מסחרי בתכני האתר או הספר ללא אישור בכתב מהמחבר.</p>
+      <h4>רכישות ומשלוח</h4>
+      <p>רכישת הספר מתבצעת דרך PayPal. לאחר התשלום יישלח הספר לכתובת שנמסרה. זמן האספקה משתנה בהתאם ליעד.</p>
+      <h4>ביטול עסקה והחזרים</h4>
+      <p>ניתן לבטל עסקה ולקבל החזר בהתאם לחוק הגנת הצרכן, כל עוד המוצר לא נעשה בו שימוש ולא נפגם. לפנייה בנושא ביטול — דרך עמוד "צור קשר".</p>
+      <h4>קניין רוחני</h4>
+      <p>כל הזכויות על הספר, האיורים, הצפנים והתכנים שמורות ליצחק קריספל / הוצאת טקטיקה © 2026.</p>
+    </div>
+
+    <div class="info-panel" id="ipanel-privacy">
+      <h3>מדיניות פרטיות</h3>
+      <p>אנו מכבדים את פרטיותכם. מדיניות זו מסבירה איזה מידע נאסף באתר וכיצד נעשה בו שימוש.</p>
+      <h4>איזה מידע נאסף</h4>
+      <p>בעת הכניסה לכספת אתם מזינים <b>קוד גישה אישי</b> ו<b>מספר טלפון</b>. המספר נאסף כדי לאפשר יצירת קשר, שליחת עדכונים על הספר והחוויה, ותמיכה במקרה הצורך.</p>
+      <h4>כיצד נשמר המידע</h4>
+      <p>המידע נשמר באופן מאובטח ואינו נמסר, נמכר או מושכר לצד שלישי כלשהו. השימוש בו נעשה אך ורק על ידי הוצאת טקטיקה ולמטרות שצוינו לעיל.</p>
+      <h4>הסרה ועדכון</h4>
+      <p>בכל עת תוכלו לבקש לצפות במידע שנשמר עליכם, לעדכן אותו או להסירו לחלוטין — בפנייה דרך עמוד "צור קשר".</p>
+      <h4>עוגיות (Cookies)</h4>
+      <p>האתר עשוי לעשות שימוש בעוגיות בסיסיות לצורך תפעול תקין ושמירת העדפות (כגון שפה). אין בהן מידע מזהה רגיש.</p>
+    </div>
+
+    <div class="info-panel" id="ipanel-contact">
+      <h3>צור קשר</h3>
+      <p>נשמח לעמוד לרשותכם בכל שאלה, בקשה או פנייה בנוגע לספר, לאתר או להזמנות.</p>
+      <h4>הוצאת טקטיקה — יצחק קריספל</h4>
+      <p>
+        אימייל: <a href="mailto:krispelitzik@gmail.com">krispelitzik@gmail.com</a><br>
+        וואטסאפ / טלפון: <a href="https://wa.me/972545370088" target="_blank">054-5370088</a>
+      </p>
+      <p>נשתדל להשיב לכל פנייה בהקדם האפשרי.</p>
+    </div>
+
+    <button class="btn-gate" style="margin-top:24px;" onclick="showScreen('screen-gate')" data-i18n="legal_back">← חזרה</button>
   </div>
 </div>
 
@@ -3399,6 +3487,16 @@ function viewSite() {
   window.open(window.location.origin + '/', '_blank');
 }
 
+// ===== INFO (legal) TABS =====
+function setInfoTab(tab) {
+  ['terms','privacy','contact'].forEach(function(t) {
+    var panel = document.getElementById('ipanel-' + t);
+    var btn = document.getElementById('itab-' + t);
+    if (panel) panel.classList.toggle('active', t === tab);
+    if (btn) btn.classList.toggle('active', t === tab);
+  });
+}
+
 // ===== VIEW MODES =====
 function setViewMode(mode) {
   document.body.classList.remove('view-mobile', 'view-tablet', 'view-desktop');
@@ -4336,6 +4434,10 @@ var translations = {
     gift_sub: 'רכשו את הספר כמתנה עבור חברים או בני משפחה!',
     gift_sub_home: 'רכשו את הספר כמתנה עבור חברים או בני משפחה ותנו להם להצטרף להרפתקה!',
     gift_cta: 'לרכישת מארז מתנה ←',
+    legal_terms: 'תקנון',
+    legal_privacy: 'מדיניות פרטיות',
+    legal_contact: 'צור קשר',
+    legal_back: '← חזרה',
     home_title: 'כל הכבוד!',
     home_text: 'סיימתם את ההרפתקה של הצופן הסודי.<br/>סבא חיים גאה בכם!',
     home_letter: '📜 המכתב',
@@ -4405,6 +4507,10 @@ var translations = {
     gift_sub: 'Buy the book as a gift for friends or family!',
     gift_sub_home: 'Buy the book as a gift for friends or family and let them join the adventure!',
     gift_cta: 'Buy Gift Set →',
+    legal_terms: 'Terms',
+    legal_privacy: 'Privacy Policy',
+    legal_contact: 'Contact',
+    legal_back: '← Back',
     home_title: 'Well Done!',
     home_text: "You've completed The Secret Code adventure.<br/>Grandpa Haim is proud of you!",
     home_letter: '📜 The Letter',
