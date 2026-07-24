@@ -217,6 +217,53 @@
     }
 
     /* Legal / info links (one line under the banner) */
+    /* Admin links — beautiful cards */
+    .links-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 14px;
+    }
+    .link-card {
+      background: linear-gradient(160deg, #12161f, #0a0e14);
+      border: 1px solid #2a2e38;
+      border-radius: 16px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.35);
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+    .link-card:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(201,168,76,0.18); }
+    .link-card-img {
+      position: relative;
+      height: 120px;
+      background-size: cover;
+      background-position: center;
+    }
+    .link-card-img::after {
+      content: ''; position: absolute; inset: 0;
+      background: linear-gradient(180deg, rgba(10,14,20,0) 40%, rgba(10,14,20,0.85) 100%);
+    }
+    .link-card-emoji {
+      position: absolute; top: 8px; right: 8px; z-index: 2;
+      width: 34px; height: 34px; border-radius: 50%;
+      background: rgba(13,17,23,0.75); backdrop-filter: blur(4px);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.1rem; border: 1px solid rgba(201,168,76,0.4);
+    }
+    .link-card-body { padding: 12px 14px 14px; display: flex; flex-direction: column; gap: 4px; }
+    .link-card-title { color: #e8dcc4; font-weight: 800; font-size: 0.98rem; }
+    .link-card-sub { color: #8a7e6a; font-size: 0.76rem; margin-bottom: 8px; }
+    .link-card-btn {
+      margin-top: auto;
+      background: linear-gradient(135deg, #c9a84c, #a08030);
+      color: #1a1e28; border: none; border-radius: 10px;
+      padding: 9px 12px; font-family: 'Assistant', sans-serif;
+      font-size: 0.85rem; font-weight: 800; cursor: pointer;
+      transition: filter 0.15s;
+    }
+    .link-card-btn:hover { filter: brightness(1.07); }
+
     .legal-links {
       margin: 14px auto 0;
       text-align: center;
@@ -1803,7 +1850,7 @@
       <button onclick="saveLetter()" style="background:#1a1e28;border:1px solid #c9a84c;color:#c9a84c;padding:10px 20px;border-radius:8px;cursor:pointer;font-family:'Assistant',sans-serif;font-size:0.9rem;font-weight:600;">💾 שמירה</button>
       <button onclick="shareLetter()" style="background:#1a1e28;border:1px solid #c9a84c;color:#c9a84c;padding:10px 20px;border-radius:8px;cursor:pointer;font-family:'Assistant',sans-serif;font-size:0.9rem;font-weight:600;">📤 שיתוף</button>
     </div>
-    <p style="color:#5a5040;font-size:0.8rem;margin-top:15px;" data-i18n="letter_print_hint">הדפיסו, גזרו על הקו והדביקו למסגרת בעמוד 47</p>
+    <p style="color:#5a5040;font-size:0.8rem;margin-top:15px;" data-i18n="letter_print_hint">הדפיסו, גזרו על הקו והדביקו למסגרת בעמוד 49</p>
     <button onclick="goHome()" style="margin-top:20px;background:none;border:1px solid #3a3228;color:#8a7e6a;padding:10px 30px;border-radius:8px;cursor:pointer;font-family:'Assistant',sans-serif;font-size:0.9rem;font-weight:600;" data-i18n="btn_home">חזרה לדף הראשי</button>
 
     <div class="countdown-widget">
@@ -2146,7 +2193,7 @@
     <div class="admin-page" id="admin-links">
       <h2 style="color:#e0d5c0;font-size:1rem;margin-bottom:12px;">כל הלינקים</h2>
       <p style="color:#8a7e6a;font-size:0.8rem;margin-bottom:15px;">לחצו "העתק" ליד כל לינק כדי להדביק בוואטסאפ, פרסום או כל מקום.</p>
-      <div id="links-list" style="display:flex;flex-direction:column;gap:10px;"></div>
+      <div id="links-list" class="links-grid"></div>
     </div>
 
     <!-- Tab: Q&A -->
@@ -3751,22 +3798,26 @@ function showAdminTab(tab) {
 }
 
 var SITE_LINKS = [
-  { title: '📢 דף נחיתה (שיווק)', url: 'https://sabahaim.co.il/marketing/landing.html' },
-  { title: '💳 PayPal — ספר 79 ₪', url: 'https://www.paypal.com/ncp/payment/BZ4ZJR6DTMLZC' },
-  { title: '🚀 PayPal — מהדורת השקה 50 ₪ (אופקים)', url: 'https://www.paypal.com/ncp/payment/A9B68VWRUQWPS' },
-  { title: '🧾 מורנינג — ספר 79 ₪ (חשבונית)', url: 'https://www.paypal.com/ncp/payment/BZ4ZJR6DTMLZC' },
-  { title: '🌐 האתר', url: 'https://sabahaim.co.il' },
-  { title: '📕 ספר עברית — גרסה אחרונה (לעורכת)', url: 'https://sabahaim.co.il/books/he/' },
-  { title: '📗 ספר אנגלית — גרסה אחרונה (לעורכת)', url: 'https://sabahaim.co.il/books/en/' }
+  { title: 'שיר הנושא', sub: 'להאזנה ולשיתוף 🎵', emoji: '🎵', url: 'https://sabahaim.co.il/assets/song/theme-song.mp3', img: '/books/he/assets/illus-53.jpg' },
+  { title: 'האתר', sub: 'הכספת האינטראקטיבית', emoji: '🌐', url: 'https://sabahaim.co.il', img: '/assets/answersheet/vault.png' },
+  { title: 'PayPal — הספר', sub: '79 ₪ · תשלום מאובטח', emoji: '💳', url: 'https://www.paypal.com/ncp/payment/BZ4ZJR6DTMLZC', img: '/books/he/assets/cover-front-v2.png' },
+  { title: 'מהדורת השקה', sub: '50 ₪ · אופקים', emoji: '🚀', url: 'https://www.paypal.com/ncp/payment/A9B68VWRUQWPS', img: '/books/he/assets/illus-31.jpg' },
+  { title: 'דף נחיתה', sub: 'עמוד שיווק', emoji: '📢', url: 'https://sabahaim.co.il/marketing/landing.html', img: '/books/he/assets/illus-39.jpg' },
+  { title: 'מורנינג — חשבונית', sub: 'ספר 79 ₪', emoji: '🧾', url: 'https://www.paypal.com/ncp/payment/BZ4ZJR6DTMLZC', img: '/books/he/assets/illus-13.jpg' },
+  { title: 'ספר עברית', sub: 'גרסה אחרונה · לעורכת', emoji: '📕', url: 'https://sabahaim.co.il/books/he/', img: '/books/he/assets/cover-front-v2.png' },
+  { title: 'ספר אנגלית', sub: 'גרסה אחרונה · לעורכת', emoji: '📗', url: 'https://sabahaim.co.il/books/en/', img: '/books/en/illustrations/branding/cover-front.jpg' }
 ];
 function loadLinksTab() {
   var box = document.getElementById('links-list');
-  box.innerHTML = SITE_LINKS.map(function(l, i) {
-    return '<div style="background:#0d1117;border:1px solid #2a2e38;border-radius:8px;padding:12px;">'
-      + '<div style="color:#ff6b35;font-weight:700;font-size:0.9rem;margin-bottom:6px;">' + l.title + '</div>'
-      + '<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">'
-      + '<input readonly value="' + l.url + '" onclick="this.select()" style="flex:1;min-width:180px;background:#0a0e14;border:1px solid #2a3a2a;border-radius:6px;color:#9fd0ff;padding:8px 10px;font-size:0.8rem;direction:ltr;text-align:left;" />'
-      + '<button class="admin-btn" onclick="copyLink(\'' + l.url + '\', this)">📋 העתק</button>'
+  box.innerHTML = SITE_LINKS.map(function(l) {
+    return '<div class="link-card">'
+      + '<div class="link-card-img" style="background-image:url(\'' + l.img + '\');">'
+      +   '<div class="link-card-emoji">' + l.emoji + '</div>'
+      + '</div>'
+      + '<div class="link-card-body">'
+      +   '<div class="link-card-title">' + l.title + '</div>'
+      +   '<div class="link-card-sub">' + (l.sub || '') + '</div>'
+      +   '<button class="link-card-btn" onclick="copyLink(\'' + l.url + '\', this)">📋 העתק לינק</button>'
       + '</div></div>';
   }).join('');
 }
@@ -4574,7 +4625,7 @@ var translations = {
     letter_p3: 'המסע שלכם רק מתחיל...',
     letter_sign: 'סבא חיים ❤️',
     letter_print: '🖨️ הדפסת המכתב',
-    letter_print_hint: 'הדפיסו, גזרו על הקו והדביקו למסגרת בעמוד 47',
+    letter_print_hint: 'הדפיסו, גזרו על הקו והדביקו למסגרת בעמוד 49',
     cert_title: '🏆 תעודת הצופן הסודי',
     cert_print: '🖨️ הדפסת התעודה',
     cert_print_hint: 'הדפיסו ומלאו את שמכם על התעודה',
