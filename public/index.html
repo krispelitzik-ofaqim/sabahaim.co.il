@@ -1928,6 +1928,7 @@
       <div style="position:relative;width:100%;padding-bottom:56.25%;border-radius:14px;overflow:hidden;border:2px solid #c9a84c;box-shadow:0 6px 24px rgba(201,168,76,0.2);">
         <iframe id="theme-clip" src="https://www.youtube.com/embed/t2KVffVceto?enablejsapi=1" title="שיר הנושא — הצופן הסודי" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen style="position:absolute;top:0;left:0;width:100%;height:100%;"></iframe>
       </div>
+      <button class="btn-gate" onclick="openLyrics()" style="margin-top:14px;font-size:0.92rem;padding:10px 22px;" data-i18n="home_lyrics">🎵 מילות השיר</button>
     </div>
 
     <div class="countdown-widget">
@@ -4679,6 +4680,7 @@ var translations = {
     home_title: 'כל הכבוד!',
     home_text: 'סיימתם את ההרפתקה של הצופן הסודי.<br/>סבא חיים גאה בכם!',
     home_clip: '🎬 שיר הנושא של הצופן הסודי',
+    home_lyrics: '🎵 מילות השיר',
     home_letter: '📜 המכתב',
     home_cert: '🏆 התעודה',
     nav_vault: 'כספת',
@@ -4754,6 +4756,7 @@ var translations = {
     home_title: 'Well Done!',
     home_text: "You've completed The Secret Code adventure.<br/>Grandpa Haim is proud of you!",
     home_clip: '🎬 The Secret Code — Theme Song',
+    home_lyrics: '🎵 Song Lyrics',
     home_letter: '📜 The Letter',
     home_cert: '🏆 The Certificate',
     nav_vault: 'Vault',
@@ -4845,6 +4848,71 @@ function updateLangSelector(lang) {
   // Apply saved language on load
   if (currentLang !== 'he') { setLang(currentLang); }
 })();
+</script>
+
+<!-- ===== LYRICS MODAL ===== -->
+<div id="lyrics-overlay" onclick="if(event.target===this)closeLyrics()">
+  <div class="lyrics-sheet">
+    <button class="lyrics-close" onclick="closeLyrics()" aria-label="סגור">✕</button>
+    <div class="ly-head">
+      <h2>ילד, חזור לסיפור</h2>
+      <div class="ly-sub">שיר הנושא · הצופן הסודי</div>
+    </div>
+    <div class="ly-rule"></div>
+    <div class="ly-verse">
+      <div>ילד, חזור לסיפור,</div><div>אנחנו זקוקים לך</div>
+      <div>בלעדיך נשארנו תקועים,</div><div>לא רואים את הסוף</div>
+      <div>בלעדיך אנחנו</div><div>לא חולמים חלומות</div>
+    </div>
+    <div class="ly-verse">
+      <div>על כנפי הדמיון,</div><div>בין כל הדפים</div>
+      <div>בין חידות ותפילות,</div><div>מחשבות מתחילות</div>
+      <div>הבא את התקווה,</div><div>ובתהילה נזכה גם אנחנו</div>
+    </div>
+    <div class="ly-verse gold">
+      <div>ילד יקר, ילד חזק,</div><div>סקרן שלי</div>
+      <div>ילד חכם,</div><div>רק אתה בדמיונך</div>
+      <div>מביא מרפא,</div><div>נותן תקווה</div>
+    </div>
+    <div class="ly-verse">
+      <div>וכשתקרא — תדע,</div><div>וכשתחלום — תדע</div>
+      <div>הדמיון והתקווה</div><div>יישארו נחלתך</div>
+      <div>ואנו נמשיך בחוויה</div>
+    </div>
+    <div class="ly-verse">
+      <div>איתך זה עולם מעניין,</div><div>אפילו שנייה לא משעמם</div>
+      <div>הצופן הסודי שלך עכשיו,</div><div>לך לבד ואל תפחד</div>
+    </div>
+    <div class="ly-verse gold final">
+      <div>אז בבקשה ילד —</div><div>חזור לסיפור...</div>
+    </div>
+    <div class="ly-elems">Fe · Cu · Ag · Au</div>
+  </div>
+</div>
+<style>
+#lyrics-overlay{display:none;position:fixed;inset:0;z-index:10000;background:rgba(10,14,20,.8);
+  backdrop-filter:blur(3px);overflow-y:auto;-webkit-overflow-scrolling:touch;padding:max(20px,env(safe-area-inset-top)) 12px max(24px,env(safe-area-inset-bottom))}
+#lyrics-overlay.open{display:block}
+.lyrics-sheet{max-width:520px;margin:0 auto;position:relative;border-radius:18px;
+  background:radial-gradient(130% 100% at 50% 0%,#fbf6ea 0%,#f3ead6 60%,#ecdfc4 100%);
+  color:#2f2416;font-family:'Heebo','Assistant',sans-serif;padding:34px 22px 30px;
+  box-shadow:0 20px 60px rgba(0,0,0,.5);border:1px solid #e2d3ac}
+.lyrics-close{position:absolute;top:12px;left:12px;width:36px;height:36px;border-radius:50%;
+  border:1.5px solid #d9c69b;background:#fff;color:#9a6a2f;font-size:16px;font-weight:900;cursor:pointer}
+.ly-head{text-align:center}
+.ly-head h2{color:#9a6a2f;font-size:1.7rem;font-weight:900}
+.ly-head .ly-sub{color:#a08a5e;font-size:.92rem;font-weight:700;margin-top:2px}
+.ly-rule{width:110px;height:2px;margin:14px auto 24px;background:linear-gradient(90deg,transparent,#c79a4b,transparent);position:relative}
+.ly-rule::after{content:"♪";position:absolute;top:-13px;left:50%;transform:translateX(-50%);background:#f3ead6;padding:0 8px;color:#c79a4b;font-size:15px}
+.ly-verse{text-align:center;margin-bottom:22px}
+.ly-verse div{font-size:1.2rem;font-weight:700;line-height:1.5;color:#3a2c18}
+.ly-verse.gold div{color:#9a6a2f;font-weight:900}
+.ly-verse.final div{font-size:1.35rem}
+.ly-elems{text-align:center;margin-top:26px;color:#b89b5e;font-size:.95rem;font-weight:800;letter-spacing:3px}
+</style>
+<script>
+function openLyrics(){ document.getElementById('lyrics-overlay').classList.add('open'); pauseDeadEndTimer(); trackEvent('open_lyrics'); }
+function closeLyrics(){ document.getElementById('lyrics-overlay').classList.remove('open'); resumeDeadEndTimer(); }
 </script>
 
 </body>
