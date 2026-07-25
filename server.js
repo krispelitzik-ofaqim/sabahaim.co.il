@@ -167,13 +167,17 @@ function getOrCreateLead(code, phone) {
 }
 
 // Send a WhatsApp message to the site admin via Green API (same provider as batumionline-biz).
-async function sendAdminWhatsApp(message) {
+// Send a WhatsApp message to any phone number via Green API.
+async function sendWhatsApp(phone, message) {
   const url = process.env.GREEN_API_URL;
   const instance = process.env.GREEN_API_INSTANCE;
   const token = process.env.GREEN_API_TOKEN;
-  const admin = (process.env.ADMIN_PHONE || '').replace(/\D/g, '');
-  if (!url || !instance || !token || !admin) {
-    console.warn('[contact] WhatsApp not configured — message not sent');
+  let digits = (phone || '').replace(/\D/g, '');
+  if (!digits) return false;
+  // Israeli local number 0XXXXXXXXX -> 972XXXXXXXXX
+  if (digits.length === 10 && digits[0] === '0') digits = '972' + digits.slice(1);
+  if (!url || !instance || !token) {
+    console.warn('[wa] Green API not configured — message not sent');
     return false;
   }
   try {
@@ -181,14 +185,56 @@ async function sendAdminWhatsApp(message) {
     const r = await fetch(endpoint, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ chatId: `${admin}@c.us`, message }),
+      body: JSON.stringify({ chatId: `${digits}@c.us`, message }),
     });
     return r.ok;
   } catch (e) {
-    console.warn('[contact] WhatsApp send failed:', e.message);
+    console.warn('[wa] send failed:', e.message);
     return false;
   }
 }
+async function sendAdminWhatsApp(message) {
+  return sendWhatsApp(process.env.ADMIN_PHONE, message);
+}
+
+// ── "Saba Chaim" follow-up: sent a few hours after the reader prints the letter ──
+const SABA_WA_DELAY_MS = 3 * 60 * 60 * 1000; // 3 hours
+function sabaChaimMessage() {
+  return [
+    '🔐 מכתב מסבא חיים',
+    '',
+    'שלום ילד/ה יקר/ה 👋',
+    'כאן סבא חיים. ראיתי שפתחת את הכספת וקראת את מכתבי — ליבי מלא גאווה.',
+    'הזיכרון שלי חי בתוכך עכשיו 🧬',
+    '',
+    '🎵 השיר שכתבנו עליך:',
+    'https://youtu.be/t2KVffVceto',
+    '',
+    '🎁 להעניק את ההרפתקה במתנה:',
+    'https://www.paypal.com/ncp/payment/BZ4ZJR6DTMLZC',
+    '',
+    'תמשיך/י לחלום, ואל תפחד/י.',
+    '— סבא חיים 💛'
+  ].join('\n');
+}
+// Scheduler: every 5 min, send due Saba-Chaim messages (survives restarts via persisted leads)
+setInterval(() => {
+  try {
+    const data = loadLeads();
+    const now = Date.now();
+    let changed = false;
+    Object.values(data.leads || {}).forEach(lead => {
+      if (lead && lead.phone && lead.sabaWaScheduledAt && !lead.sabaWaSent && now >= lead.sabaWaScheduledAt) {
+        lead.sabaWaSent = true;
+        changed = true;
+        sendWhatsApp(lead.phone, sabaChaimMessage())
+          .then(ok => console.log('[saba-wa]', ok ? 'sent to' : 'FAILED for', lead.phone))
+          .catch(() => {});
+      }
+    });
+    if (changed) saveLeads(data);
+  } catch (e) { console.warn('[saba-wa] scheduler error:', e.message); }
+}, 5 * 60 * 1000);
 
 // API: Contact form -> notify admin on WhatsApp (visitor just sees a normal form)
 app.post('/api/contact', async (req, res) => {
@@ -264,6 +310,11 @@ app.post('/api/track', (req, res) => {
   if (event === 'vault_opened') lead.vaultOpened = true;
   if (event === 'print_letter') lead.printedLetter = true;
   if (event === 'envelope_extracted') lead.printedLetter = true;
+  // Schedule the "Saba Chaim" WhatsApp once, a few hours after the letter is printed/extracted
+  if ((event === 'print_letter' || event === 'envelope_extracted') && lead.phone && !lead.sabaWaScheduledAt) {
+    lead.sabaWaScheduledAt = Date.now() + SABA_WA_DELAY_MS;
+    lead.sabaWaSent = false;
+  }
   if (event === 'got_certificate') lead.gotCertificate = true;
   if (event === 'print_certificate') lead.printedCertificate = true;
 
