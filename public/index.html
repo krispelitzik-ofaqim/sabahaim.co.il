@@ -2706,7 +2706,13 @@ function clearDeadEndTimer() {
   deadEndActiveScreen = null;
 }
 function pauseDeadEndTimer() { clearDeadEndTimer(); }
+function lyricsIsOpen() {
+  var o = document.getElementById('lyrics-overlay');
+  return !!(o && o.classList.contains('open'));
+}
 function resumeDeadEndTimer() {
+  // Never run the auto-redirect while the lyrics window is open (don't kick the reader out)
+  if (lyricsIsOpen()) return;
   // Restart the countdown for the current dead-end screen (if any budget left)
   var active = document.querySelector('.screen.active');
   var id = active ? active.id : '';
