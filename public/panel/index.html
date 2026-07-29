@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=1100">
+<meta name="robots" content="noindex">
+<title>נכסים דיגיטליים · הצופן הסודי</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Heebo','Assistant',-apple-system,Arial,sans-serif;
+  background:linear-gradient(160deg,#0f1420,#1a2333 60%,#131a26);color:#e7ecf3;
+  min-height:100vh;padding:34px 26px 60px}
+.wrap{max-width:1180px;margin:0 auto}
+.head{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;flex-wrap:wrap;gap:10px}
+h1{font-size:26px;font-weight:900;letter-spacing:.01em;
+  background:linear-gradient(90deg,#7cc0ff,#9be3a8);-webkit-background-clip:text;background-clip:text;color:transparent}
+.sub{color:#8fa2ba;font-size:13.5px;font-weight:600;margin-bottom:22px}
+.card{background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.08);
+  border-radius:16px;overflow:hidden;box-shadow:0 18px 50px rgba(0,0,0,.35)}
+table{width:100%;border-collapse:collapse;table-layout:fixed}
+thead th{background:rgba(255,255,255,.05);color:#9fb2c9;font-size:12px;font-weight:800;
+  letter-spacing:.03em;text-align:right;padding:12px 16px;border-bottom:1px solid rgba(255,255,255,.08)}
+tbody tr{height:2cm;border-bottom:1px solid rgba(255,255,255,.055);transition:background .15s}
+tbody tr:hover{background:rgba(124,192,255,.06)}
+tbody td{padding:6px 16px;vertical-align:middle;font-size:14px}
+.c-thumb{width:2.4cm}
+.thumb{width:2cm;height:1.55cm;border-radius:9px;object-fit:cover;display:block;
+  border:1px solid rgba(255,255,255,.14);background:#0c111a}
+.tile{width:2cm;height:1.55cm;border-radius:9px;display:flex;align-items:center;justify-content:center;
+  font-size:30px;border:1px solid rgba(255,255,255,.12)}
+.c-name{width:30%}
+.name{font-weight:800;font-size:15px;color:#f2f6fb}
+.desc{color:#8698ae;font-size:12px;font-weight:600;margin-top:2px}
+.badge{display:inline-block;padding:3px 11px;border-radius:999px;font-size:11.5px;font-weight:800}
+.b-web{background:rgba(124,192,255,.15);color:#8fcaff}
+.b-book{background:rgba(155,227,168,.15);color:#9be3a8}
+.b-file{background:rgba(240,196,90,.15);color:#f0c45a}
+.b-pay{background:rgba(226,140,255,.15);color:#e28cff}
+.b-admin{background:rgba(255,150,120,.15);color:#ff9678}
+.c-date{width:8.5%;color:#9fb2c9;font-size:13px;font-weight:700;white-space:nowrap}
+.c-act{width:12.5%;white-space:nowrap}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 13px;border-radius:10px;
+  font-size:12.5px;font-weight:800;cursor:pointer;border:1px solid transparent;text-decoration:none}
+.copy{background:rgba(255,255,255,.08);color:#dfe8f2;border-color:rgba(255,255,255,.14)}
+.copy:hover{background:rgba(255,255,255,.15)}
+.copy.done{background:rgba(155,227,168,.2);color:#9be3a8;border-color:rgba(155,227,168,.4)}
+.open{background:linear-gradient(90deg,#3a7bd5,#2fa36b);color:#fff}
+.open:hover{filter:brightness(1.1)}
+.open.disabled{opacity:.4;pointer-events:none;background:#39465a}
+.foot{color:#6f8098;font-size:12px;font-weight:600;margin-top:16px;text-align:center}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="head">
+    <h1>נכסים דיגיטליים · הצופן הסודי</h1>
+  </div>
+  <div class="sub">כל הקבצים והלינקים במקום אחד · לחיצה על «העתק» מעתיקה את הכתובת</div>
+  <div class="card">
+    <table>
+      <colgroup><col class="c-thumb"><col class="c-name"><col style="width:12%"><col class="c-date"><col class="c-act" span="2"></colgroup>
+      <thead><tr><th>תמונה</th><th>שם הנכס</th><th>סוג</th><th>עודכן</th><th>העתק</th><th>פתח</th></tr></thead>
+      <tbody id="rows"></tbody>
+    </table>
+  </div>
+  <div class="foot">מתעדכן ידנית בכל שינוי · גישה פרטית (noindex)</div>
+</div>
+<script>
+const ORIGIN=location.origin;
+const A=[
+ {t:'tile',ic:'🌐',cls:'b-web',name:'אתר ראשי',desc:'הצופן הסודי — הבית',type:'אתר',date:'29/07/26',url:'https://sabahaim.co.il'},
+ {t:'img',img:'cover.png',cls:'b-book',name:'ספר עברית — מקורי',desc:'/books/he',type:'ספר',date:'27/07/26',url:'https://sabahaim.co.il/books/he/'},
+ {t:'img',img:'cover.png',cls:'b-book',name:'ספר עברית — מתוקן ומנוקד',desc:'/books/he-mtukan',type:'ספר',date:'29/07/26',url:'https://sabahaim.co.il/books/he-mtukan/'},
+ {t:'tile',ic:'🇬🇧',cls:'b-book',name:'ספר אנגלית',desc:'/books/en',type:'ספר',date:'—',url:'https://sabahaim.co.il/books/en/'},
+ {t:'tile',ic:'📄',cls:'b-file',name:'הספר — PDF לדפוס',desc:'24×24 · 64 עמ׳ · טיוטה לפריטיב',type:'קובץ',date:'29/07/26',url:ORIGIN+'/panel/files/secret-code-final.pdf'},
+ {t:'tile',ic:'📝',cls:'b-file',name:'הספר — Word סופי',desc:'יתעדכן אחרי ההגהה המדעית',type:'קובץ',date:'ממתין',url:''},
+ {t:'tile',ic:'📣',cls:'b-web',name:'דף נחיתה שיווקי',desc:'/marketing/landing.html',type:'שיווק',date:'—',url:'https://sabahaim.co.il/marketing/landing.html'},
+ {t:'tile',ic:'⚙️',cls:'b-admin',name:'לוח ניהול',desc:'ניהול תוכן · דורש סיסמה',type:'ניהול',date:'—',url:'https://sabahaim.co.il/#admin'},
+ {t:'tile',ic:'💳',cls:'b-pay',name:'PayPal — ספר 79 ₪',desc:'Apple/Google Pay + כרטיס',type:'תשלום',date:'—',url:'https://www.paypal.com/ncp/payment/BZ4ZJR6DTMLZC'},
+ {t:'tile',ic:'🧾',cls:'b-pay',name:'מורנינג — ספר 79 ₪',desc:'כרטיס + חשבונית מס',type:'תשלום',date:'—',url:'https://mrng.to/sf7xO0EmJw'},
+ {t:'tile',ic:'💳',cls:'b-pay',name:'PayPal — השקה 50 ₪',desc:'אופקים · משלוח חינם',type:'תשלום',date:'—',url:'https://www.paypal.com/ncp/payment/A9B68VWRUQWPS'},
+];
+const badge={אתר:'b-web',ספר:'b-book',קובץ:'b-file',שיווק:'b-web',ניהול:'b-admin',תשלום:'b-pay'};
+const rows=document.getElementById('rows');
+A.forEach(a=>{
+  const tr=document.createElement('tr');
+  const thumb=a.t==='img'?`<img class="thumb" src="${a.img}" alt="">`
+    :`<div class="tile ${a.cls}">${a.ic}</div>`;
+  const has=!!a.url;
+  tr.innerHTML=`
+    <td class="c-thumb">${thumb}</td>
+    <td class="c-name"><div class="name">${a.name}</div><div class="desc">${a.desc}</div></td>
+    <td><span class="badge ${badge[a.type]||'b-web'}">${a.type}</span></td>
+    <td class="c-date">${a.date}</td>
+    <td class="c-act">${has?`<button class="btn copy" data-url="${a.url}">📋 העתק</button>`:'<span class="desc">—</span>'}</td>
+    <td class="c-act">${has?`<a class="btn open" href="${a.url}" target="_blank" rel="noopener">↗ פתח</a>`:'<span class="btn open disabled">—</span>'}</td>`;
+  rows.appendChild(tr);
+});
+document.querySelectorAll('.copy').forEach(b=>b.addEventListener('click',()=>{
+  navigator.clipboard.writeText(b.dataset.url).then(()=>{
+    const o=b.innerHTML;b.classList.add('done');b.innerHTML='✓ הועתק';
+    setTimeout(()=>{b.classList.remove('done');b.innerHTML=o;},1400);
+  });
+}));
+</script>
+</body>
+</html>
