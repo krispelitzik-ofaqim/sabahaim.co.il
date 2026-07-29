@@ -72,7 +72,7 @@ const A=[
  {t:'img',img:'cover.png',cls:'b-book',name:'ספר עברית — מקורי',desc:'/books/he',type:'ספר',date:'27/07/26',url:'https://sabahaim.co.il/books/he/'},
  {t:'img',img:'cover.png',cls:'b-book',name:'ספר עברית — מתוקן ומנוקד',desc:'/books/he-mtukan',type:'ספר',date:'29/07/26',url:'https://sabahaim.co.il/books/he-mtukan/'},
  {t:'tile',ic:'🇬🇧',cls:'b-book',name:'ספר אנגלית',desc:'/books/en',type:'ספר',date:'—',url:'https://sabahaim.co.il/books/en/'},
- {t:'tile',ic:'📄',cls:'b-file',name:'הספר — PDF לדפוס',desc:'24×24 · 64 עמ׳ · טיוטה לפריטיב',type:'קובץ',date:'29/07/26',url:ORIGIN+'/panel/files/secret-code-final.pdf'},
+ {t:'tile',ic:'📄',cls:'b-file',name:'הספר — PDF לדפוס',desc:'קובץ מקומי בשולחן העבודה · 24×24 · 64 עמ׳',type:'קובץ',date:'29/07/26',path:'/Users/itzikk/Desktop/הצופן-מתוקן/הצופן-הסודי-הגהה.pdf'},
  {t:'tile',ic:'📝',cls:'b-file',name:'הספר — Word סופי',desc:'יתעדכן אחרי ההגהה המדעית',type:'קובץ',date:'ממתין',url:''},
  {t:'tile',ic:'📣',cls:'b-web',name:'דף נחיתה שיווקי',desc:'/marketing/landing.html',type:'שיווק',date:'—',url:'https://sabahaim.co.il/marketing/landing.html'},
  {t:'tile',ic:'⚙️',cls:'b-admin',name:'לוח ניהול',desc:'ניהול תוכן · דורש סיסמה',type:'ניהול',date:'—',url:'https://sabahaim.co.il/#admin'},
@@ -86,14 +86,16 @@ A.forEach(a=>{
   const tr=document.createElement('tr');
   const thumb=a.t==='img'?`<img class="thumb" src="${a.img}" alt="">`
     :`<div class="tile ${a.cls}">${a.ic}</div>`;
-  const has=!!a.url;
+  const link=a.path?('file://'+encodeURI(a.path)):a.url;
+  const copyVal=a.path||a.url;
+  const has=!!link;
   tr.innerHTML=`
     <td class="c-thumb">${thumb}</td>
     <td class="c-name"><div class="name">${a.name}</div><div class="desc">${a.desc}</div></td>
     <td><span class="badge ${badge[a.type]||'b-web'}">${a.type}</span></td>
     <td class="c-date">${a.date}</td>
-    <td class="c-act">${has?`<button class="btn copy" data-url="${a.url}">📋 העתק</button>`:'<span class="desc">—</span>'}</td>
-    <td class="c-act">${has?`<a class="btn open" href="${a.url}" target="_blank" rel="noopener">↗ פתח</a>`:'<span class="btn open disabled">—</span>'}</td>`;
+    <td class="c-act">${has?`<button class="btn copy" data-url="${copyVal}">📋 העתק</button>`:'<span class="desc">—</span>'}</td>
+    <td class="c-act">${has?`<a class="btn open" href="${link}" target="_blank" rel="noopener">↗ פתח</a>`:'<span class="btn open disabled">—</span>'}</td>`;
   rows.appendChild(tr);
 });
 document.querySelectorAll('.copy').forEach(b=>b.addEventListener('click',()=>{
