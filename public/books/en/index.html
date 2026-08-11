@@ -13,7 +13,7 @@ body{margin:0;background:#2a2622;font-family:"Iowan Old Style",Palatino,Georgia,
 .text h2{font-size:18px;color:var(--acc);margin:0 0 14px;line-height:1.15}
 .text .chap{text-align:center;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--acc);margin:0 0 12px;opacity:.9}
 .text .chap::after{content:"";display:block;width:40px;height:2px;margin:9px auto 2px;background:var(--acc);opacity:.5}
-.text .verse{position:absolute;top:82px;left:42px;right:42px;bottom:38px;overflow:auto;font-size:13px;line-height:1.5;color:#241d15;display:flex;flex-direction:column;justify-content:center}
+.text .verse{position:absolute;top:82px;left:42px;right:42px;bottom:38px;overflow:auto;font-size:13px;line-height:1.5;color:#241d15;display:flex;flex-direction:column;justify-content:flex-start}
 .text .verse p{margin:0 0 9px}
 .folio{position:absolute;bottom:12px;left:0;right:0;text-align:center;font-size:11px;color:#9a8f7c}
 .folio.light{color:#f6f1e6cc} .lab{position:absolute;bottom:10px;left:0;right:0;text-align:center;color:#b3a892;font-size:11px;letter-spacing:.16em;text-transform:uppercase}
@@ -129,16 +129,18 @@ body{margin:0;background:#2a2622;font-family:"Iowan Old Style",Palatino,Georgia,
           <div class="verse"><h2>The Sublime Moment: The Nobel Prize and "Solife"</h2><p>Years passed. Robin stood upon the stage of the Nobel Prize ceremony, held each year in Stockholm, Sweden. Before a cheering, wondering crowd he held the gold medal, brighter than anything in the world.</p><p><em>"This prize," he said, his voice atremble, "belongs to one alone—</em><br><em>to Papa Sol, who never gave up, who strove to mend the world he'd known:</em><br><em>his own world, and the world around him, too.</em><br><em>He was the scientist who taught me that chemistry and technology</em><br><em>are a language of creation and of love.</em></p><p><em>Through his riddles and his Matrix, I built the chip that drives the hope for brighter days to come;</em><br><em>I named it</em> <strong>Solife</strong> <em>— it holds his name and his life inside,</em><br><em>for it binds the mind back to the heart, and gives a person back the life that had been lost."</em></p><p>Robin looked to the front row, where Papa Sol sat — frail, but his eyes were shining. Thanks to the chip placed within him, he had lived to see his grandson reap the fruit and rise to greatness.</p><p>Gold, silver, copper, and iron — these are the elements on which the hope was built: to bring healing to people, through boundary-breaking technology and care that turn matter into new <strong>life.</strong></p><p>The moved crowd cheered; Papa Sol knew… the circle had closed.</p></div>
           <div class="folio">58</div></div><div class="pg art"><img src="illustrations/scenes/ch5/p54.jpg"><div class="folio light">59</div></div><div class="pg text" style="--acc:#9a6a2f"><div class="run"><span>The Secret Code</span><span>Specific Weight</span></div><div class="verse sci"><h2>What Is Specific Weight?</h2><p>Imagine a tiny cube — one centimeter on every side, exactly the size of a sugar cube. Each time, we fill it with a different material: once iron, once copper, once gold. The cube is always the same size — but its weight changes! A cube of gold is far heavier than a cube of iron, because the atoms of gold are packed denser and heavier.</p><p>How much a cube like this weighs is the material’s "specific weight." It works like a fingerprint: every material has its own, and you can recognize it by that number alone — exactly as Robin did.</p><div class="sci-art"><img src="illustrations/branding/cubes-sg.jpg"><div class="sci-cap">Same size — different weight</div></div></div><div class="folio">60</div></div><div class="pg text" style="--acc:#8A6BA0">
           <div class="run"><span>The Secret Code</span><span>Chapter 5 · The Vault</span></div>
-          <div class="verse"><h2>The Elements of the "Solife" Chip</h2><table class="eltbl"><thead><tr><th>Element</th><th>Symbol</th><th>Atomic no.</th><th>Specific weight</th><th>Structure</th></tr></thead><tbody><tr class="iron"><td>Iron</td><td>Fe</td><td>26</td><td>7.87</td><td>Body-centered · BCC</td></tr><tr class="copper"><td>Copper</td><td>Cu</td><td>29</td><td>8.96</td><td>Face-centered · FCC</td></tr><tr class="silver"><td>Silver</td><td>Ag</td><td>47</td><td>10.49</td><td>Face-centered · FCC</td></tr><tr class="gold"><td>Gold</td><td>Au</td><td>79</td><td>19.32</td><td>Face-centered · FCC</td></tr></tbody></table><p><strong>The vault code:  7.87 · 8.96 · 10.49 · 19.32</strong></p><div class="theend">— The End —</div></div>
+          <div class="verse"><h2>The Identity of the Elements</h2><table class="eltbl"><thead><tr><th>Element</th><th>Symbol</th><th>Atomic no.</th><th>Specific weight</th><th>Structure</th></tr></thead><tbody><tr class="iron"><td>Iron</td><td>Fe</td><td>26</td><td>7.87</td><td>Body-centered · BCC</td></tr><tr class="copper"><td>Copper</td><td>Cu</td><td>29</td><td>8.96</td><td>Face-centered · FCC</td></tr><tr class="silver"><td>Silver</td><td>Ag</td><td>47</td><td>10.49</td><td>Face-centered · FCC</td></tr><tr class="gold"><td>Gold</td><td>Au</td><td>79</td><td>19.32</td><td>Face-centered · FCC</td></tr></tbody></table><p><strong>The vault code:  7.87 · 8.96 · 10.49 · 19.32</strong></p><div class="theend">— The End —</div></div>
           <div class="folio">61</div></div><div class="pg art"><img src="illustrations/branding/end-en.jpg"><div class="folio light">62</div></div><div class="pg fit" style="background:#0d1117"><img src="illustrations/branding/matrix-he.png"></div><div class="pg fit" style="background:#f5ede0"><img src="illustrations/branding/periodic-en.png"></div><div class="pg cover"><img src="illustrations/branding/cover-back.jpg"><div class="lab">Back cover</div></div></div>
 <script>
 // shrink each page's verse until it fits its square page (mirrors real print typesetting)
-document.querySelectorAll('.pg.text .verse').forEach(function(v){
-  var size=15;                           // start big and shrink → each page maximizes its font (cap 15px; short/sparse pages like 40/42 looked oversized at 18)
-  v.style.justifyContent='flex-start';   // measure top-aligned so overflow is reported correctly
-  v.style.fontSize=size+'px';
-  var guard=0;
-  while(v.scrollHeight>v.clientHeight+1 && size>7 && guard<200){ size-=0.3; v.style.fontSize=size+'px'; guard++; }
-  v.style.justifyContent='';             // restore centering from CSS
-});
+function fitPages(){
+  document.querySelectorAll('.pg.text .verse').forEach(function(v){
+    var size=15;                         // cap 15px; each page shrinks to fit (short/sparse pages looked oversized higher)
+    v.style.fontSize=size+'px';
+    var guard=0;
+    while(v.scrollHeight>v.clientHeight+1 && size>7 && guard<200){ size-=0.3; v.style.fontSize=size+'px'; guard++; }
+  });
+}
+fitPages();                              // first pass (text)
+window.addEventListener('load', fitPages); // re-run once images are loaded so image pages (e.g. p60) size correctly
 </script></body></html>
