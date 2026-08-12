@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Papa Sol</title>
+<style>
+  :root{ --bg:#0e1116; --ink:#eef2f7; --mut:#9aa7b6; --gold:#e0b64a; --green:#3fae74; --line:rgba(255,255,255,.10); }
+  *{ box-sizing:border-box; margin:0; padding:0; }
+  html,body{ height:100%; }
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:radial-gradient(1200px 700px at 50% -10%, #16202b 0%, var(--bg) 60%);
+    color:var(--ink); min-height:100dvh; display:grid; place-items:center; padding:32px; overflow:hidden;
+  }
+  .wrap{ text-align:center; max-width:620px; position:relative; z-index:2; }
+  .badge{ display:inline-block; font-size:12px; letter-spacing:.22em; text-transform:uppercase; color:var(--gold);
+    border:1px solid var(--line); border-radius:999px; padding:7px 15px; margin-bottom:26px; }
+  h1{ font-size:clamp(44px,10vw,84px); font-weight:800; letter-spacing:-.02em; line-height:.98;
+    background:linear-gradient(180deg,#fff,#c7d0db); -webkit-background-clip:text; background-clip:text; color:transparent; }
+  h1 b{ color:var(--gold); -webkit-text-fill-color:var(--gold); }
+  .sub{ color:var(--mut); font-size:clamp(15px,2.5vw,19px); margin:20px auto 0; max-width:44ch; line-height:1.6; }
+  .dot{ display:inline-block; width:7px; height:7px; border-radius:50%; background:var(--green); margin-inline-end:8px;
+    box-shadow:0 0 0 0 rgba(63,174,116,.6); animation:pulse 2s infinite; vertical-align:middle; }
+  @keyframes pulse{ 70%{ box-shadow:0 0 0 10px rgba(63,174,116,0); } 100%{ box-shadow:0 0 0 0 rgba(63,174,116,0); } }
+  .status{ margin-top:34px; font-size:14px; color:var(--mut); }
+  /* faint falling code backdrop */
+  canvas#rain{ position:fixed; inset:0; z-index:1; opacity:.10; }
+  @media (prefers-color-scheme: light){
+    :root{ --bg:#f6f4ee; --ink:#1c2431; --mut:#5c6a7a; --line:rgba(0,0,0,.10); }
+    body{ background:radial-gradient(1200px 700px at 50% -10%, #fff 0%, var(--bg) 60%); }
+    h1{ background:linear-gradient(180deg,#1c2431,#465468); -webkit-background-clip:text; background-clip:text; }
+    canvas#rain{ opacity:.06; }
+  }
+</style>
+</head>
+<body>
+  <canvas id="rain"></canvas>
+  <div class="wrap">
+    <span class="badge">papasol.org</span>
+    <h1>Papa <b>Sol</b></h1>
+    <p class="sub">Something is being decoded here. The secret is almost ready.</p>
+    <div class="status"><span class="dot"></span>Site under construction</div>
+  </div>
+<script>
+  // subtle matrix-style code rain, honoring reduced-motion
+  (function(){
+    if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    var c = document.getElementById('rain'), x = c.getContext('2d');
+    var chars = '01<>{}[]#$%&*+=/\\ABCDEF'.split(''), cols, drops, size = 15;
+    function resize(){
+      c.width = innerWidth; c.height = innerHeight;
+      cols = Math.floor(c.width / size);
+      drops = new Array(cols).fill(0).map(function(){ return Math.floor(Math.random()*-40); });
+    }
+    resize(); addEventListener('resize', resize);
+    var accent = getComputedStyle(document.documentElement).getPropertyValue('--gold').trim() || '#e0b64a';
+    function draw(){
+      x.fillStyle = 'rgba(0,0,0,0.06)'; x.fillRect(0,0,c.width,c.height);
+      x.fillStyle = accent; x.font = size + 'px monospace';
+      for (var i=0;i<cols;i++){
+        x.fillText(chars[Math.floor(Math.random()*chars.length)], i*size, drops[i]*size);
+        if (drops[i]*size > c.height && Math.random() > 0.975) drops[i] = 0;
+        drops[i]++;
+      }
+    }
+    setInterval(draw, 70);
+  })();
+</script>
+</body>
+</html>

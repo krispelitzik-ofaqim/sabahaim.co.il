@@ -120,6 +120,19 @@ app.use(function(req, res, next) {
   next();
 });
 
+// --- papasol.org: a separate site on the same server, routed by hostname ---
+var PAPASOL_DIR = path.join(__dirname, 'public-papasol');
+var papasolStatic = express.static(PAPASOL_DIR, { maxAge: 0, etag: false });
+function isPapasol(req) {
+  var h = (req.headers['x-forwarded-host'] || req.headers.host || req.hostname || '');
+  h = h.split(',')[0].trim().replace(/^www\./, '').split(':')[0].toLowerCase();
+  return h === 'papasol.org';
+}
+app.use(function(req, res, next) {
+  if (isPapasol(req)) return papasolStatic(req, res, next);
+  next();
+});
+
 app.use(express.static(path.join(__dirname, 'public'), { maxAge: 0, etag: false }));
 
 // The correct code - atomic weights
@@ -689,9 +702,10 @@ app.use('/api', (req, res) => {
   res.status(404).json({ success: false, error: 'Not Found', path: req.path });
 });
 
-// SPA fallback
+// SPA fallback (per-site)
 app.use((req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+  var dir = isPapasol(req) ? PAPASOL_DIR : path.join(__dirname, 'public');
+  res.sendFile(path.join(dir, 'index.html'));
 });
 
 app.listen(PORT, () => {
