@@ -144,6 +144,33 @@ app.use(function(req, res, next) {
   next();
 });
 
+// Block "trashed" site files from the public; admin (valid token via query/header/cookie) still sees them
+app.use(function(req, res, next) {
+  var reqPath;
+  try { reqPath = decodeURIComponent(req.path); } catch (e) { reqPath = req.path; }
+  var files = [];
+  try { files = (loadBlocked().files || []); } catch (e) {}
+  var hit = files.find(function(f) {
+    return f.blocked && (reqPath === f.path || reqPath.indexOf(f.path + '/') === 0);
+  });
+  if (!hit) return next();
+  var tok = req.query.token || req.headers['x-admin-token'] || null;
+  if (!tok && req.headers.cookie) {
+    var m = req.headers.cookie.match(/(?:^|;\s*)sab_admin_view=([^;]+)/);
+    if (m) { try { tok = decodeURIComponent(m[1]); } catch (e) { tok = m[1]; } }
+  }
+  var ok = false;
+  if (tok) {
+    if (tok === getAdminPass()) ok = true;
+    else { try { ok = (loadIssuedPw().items || []).some(function(p) { return p.active && p.pw === tok; }); } catch (e) {} }
+  }
+  if (ok) {
+    if (req.query.token) res.setHeader('Set-Cookie', 'sab_admin_view=' + encodeURIComponent(req.query.token) + '; Path=/; HttpOnly; SameSite=Lax');
+    return next();
+  }
+  return res.status(404).send('<!doctype html><meta charset="utf-8"><title>לא נמצא</title><body style="font-family:sans-serif;text-align:center;padding:60px;color:#555"><h1>404</h1><p>הדף אינו זמין.</p></body>');
+});
+
 app.use(express.static(path.join(__dirname, 'public'), { maxAge: 0, etag: false }));
 
 // The correct code - atomic weights
@@ -165,6 +192,24 @@ function loadLeads() {
 
 function saveLeads(data) {
   fs.writeFileSync(LEADS_PATH, JSON.stringify(data, null, 2), 'utf8');
+}
+
+// Recycle Bin for site files — blocked files return 404 to public, admin can still view
+const BLOCKED_PATH = path.join(DATA_DIR, 'blocked_files.json');
+function loadBlocked() {
+  if (!fs.existsSync(BLOCKED_PATH)) {
+    const seed = { files: [
+      { path: '/books/he', title: 'ספר עברית', blocked: true, blockedAt: new Date().toISOString() },
+      { path: '/books/he-mtukan', title: 'ספר עברית — מתוקן ומנוקד', blocked: true, blockedAt: new Date().toISOString() }
+    ] };
+    try { fs.writeFileSync(BLOCKED_PATH, JSON.stringify(seed, null, 2), 'utf8'); } catch (e) {}
+    return seed;
+  }
+  try { return JSON.parse(fs.readFileSync(BLOCKED_PATH, 'utf8')); }
+  catch (e) { return { files: [] }; }
+}
+function saveBlocked(data) {
+  fs.writeFileSync(BLOCKED_PATH, JSON.stringify(data, null, 2), 'utf8');
 }
 
 function getOrCreateLead(code, phone) {
@@ -670,6 +715,26 @@ app.post('/api/admin/leads/flag', (req, res) => {
   lead[field] = !!value;
   saveLeads(data);
   res.json({ success: true, field, value: !!value });
+});
+
+// API: Admin - list trashed site files
+app.get('/api/admin/blocked-files', (req, res) => {
+  if (!checkAdmin(req)) return res.status(401).json({ error: 'Unauthorized' });
+  res.json({ success: true, files: loadBlocked().files || [] });
+});
+
+// API: Admin - toggle block on a site file (חסום/פתוח)
+app.post('/api/admin/blocked-files/toggle', (req, res) => {
+  const { token, path: filePath, blocked } = req.body;
+  if (token !== getAdminPass()) return res.status(401).json({ error: 'Unauthorized' });
+  if (!filePath) return res.json({ success: false, message: 'נתיב חסר' });
+  const data = loadBlocked();
+  const f = (data.files || []).find(x => x.path === filePath);
+  if (!f) return res.json({ success: false, message: 'קובץ לא נמצא' });
+  f.blocked = !!blocked;
+  f.blockedAt = blocked ? new Date().toISOString() : null;
+  saveBlocked(data);
+  res.json({ success: true, path: filePath, blocked: !!blocked });
 });
 
 // API: Admin - permanently delete a lead (only allowed if it's in trash)

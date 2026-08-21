@@ -2165,15 +2165,15 @@
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px;">
         <h2 style="color:#e0d5c0;font-size:1rem;">פח זבל</h2>
       </div>
+      <p style="color:#8a7e6a;font-size:0.8rem;margin-bottom:10px;">קבצים חסומים — הציבור מקבל 404, אתה עדיין יכול לפתוח דרך "צפה".</p>
       <div class="admin-summary" id="trash-summary"></div>
       <div class="admin-table-wrap">
         <table class="admin-table" id="trash-table">
           <thead><tr>
-            <th>קוד כניסה</th>
-            <th>נייד</th>
-            <th>נכנס לכספת</th>
-            <th>הדפיס מכתב</th>
-            <th>כניסה אחרונה</th>
+            <th>קובץ</th>
+            <th>נתיב</th>
+            <th>סטטוס</th>
+            <th>תאריך זריקה</th>
             <th>פעולות</th>
           </tr></thead>
           <tbody id="trash-tbody"></tbody>
@@ -4626,36 +4626,51 @@ async function toggleLeadFlag(code, field, value) {
 
 async function loadTrashTab() {
   try {
-    var res = await fetch('/api/admin/leads?token=' + encodeURIComponent(adminToken) + '&status=trashed');
+    var res = await fetch('/api/admin/blocked-files?token=' + encodeURIComponent(adminToken));
     var data = await res.json();
     if (data.error) return;
-    var leads = data.leads || [];
+    var files = data.files || [];
 
+    var blockedCount = files.filter(function(f) { return f.blocked; }).length;
     document.getElementById('trash-summary').innerHTML =
-      '<div class="stat"><div class="stat-num">' + leads.length + '</div><div class="stat-label">בפח זבל</div></div>';
+      '<div class="stat"><div class="stat-num">' + blockedCount + '</div><div class="stat-label">חסומים</div></div>';
 
     var tbody = document.getElementById('trash-tbody');
-    if (leads.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="6" class="admin-empty">פח הזבל ריק</td></tr>';
+    if (files.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="5" class="admin-empty">פח הזבל ריק</td></tr>';
       return;
     }
-    tbody.innerHTML = leads.map(function(l) {
-      function badge(val) {
-        return '<span class="admin-badge ' + (val ? 'active' : 'inactive') + '">' + (val ? '✓' : '✗') + '</span>';
-      }
+    tbody.innerHTML = files.map(function(f) {
+      var status = f.blocked
+        ? '<span class="admin-badge inactive">🔒 חסום</span>'
+        : '<span class="admin-badge active">גלוי</span>';
+      var thrown = f.blocked && f.blockedAt ? new Date(f.blockedAt).toLocaleString('he-IL') : '—';
+      var viewUrl = f.path + '/?token=' + encodeURIComponent(adminToken);
+      var p = f.path.replace(/'/g, "\\'");
       return '<tr>' +
-        '<td class="code-cell">' + l.code + '</td>' +
-        '<td style="direction:ltr;text-align:left;">' + (l.phone || '—') + '</td>' +
-        '<td style="text-align:center;">' + badge(l.vaultOpened) + '</td>' +
-        '<td style="text-align:center;">' + badge(l.printedLetter) + '</td>' +
-        '<td style="font-size:0.7rem;color:#8a7e6a;">' + new Date(l.lastEntry).toLocaleString('he-IL') + '</td>' +
+        '<td>' + (f.title || '') + '</td>' +
+        '<td style="direction:ltr;text-align:left;font-size:0.75rem;color:#8a7e6a;">' + f.path + '</td>' +
+        '<td style="text-align:center;">' + status + '</td>' +
+        '<td style="font-size:0.7rem;color:#8a7e6a;">' + thrown + '</td>' +
         '<td style="white-space:nowrap;">' +
-          '<button class="admin-btn secondary" style="padding:4px 8px;font-size:0.7rem;margin:0 2px;" onclick="changeLeadStatus(\'' + l.code + '\',\'active\')">שחזר</button>' +
-          '<button class="admin-btn secondary" style="padding:4px 8px;font-size:0.7rem;margin:0 2px;" onclick="changeLeadStatus(\'' + l.code + '\',\'archived\')">ארכיון</button>' +
-          '<button class="admin-btn secondary" style="padding:4px 8px;font-size:0.7rem;margin:0 2px;color:#ff4444;border-color:#ff4444;" onclick="deleteLeadPermanently(\'' + l.code + '\')">מחק סופית</button>' +
+          '<a class="admin-btn secondary" style="padding:4px 8px;font-size:0.7rem;margin:0 2px;text-decoration:none;" href="' + viewUrl + '" target="_blank" rel="noopener">👁️ צפה</a>' +
+          '<button class="admin-btn" style="padding:4px 8px;font-size:0.7rem;margin:0 2px;' + (f.blocked ? 'background:#ff4444;color:#fff;border-color:#ff4444;' : 'background:none;color:#ff4444;border:1px solid #ff4444;') + '" onclick="toggleBlockedFile(\'' + p + '\',' + (f.blocked ? 'false' : 'true') + ')">' + (f.blocked ? 'בטל חסימה' : 'חסום') + '</button>' +
         '</td>' +
         '</tr>';
     }).join('');
+  } catch (e) { console.error(e); }
+}
+
+async function toggleBlockedFile(filePath, blocked) {
+  try {
+    var res = await fetch('/api/admin/blocked-files/toggle', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ token: adminToken, path: filePath, blocked: blocked })
+    });
+    var data = await res.json();
+    if (data.success) { showAdminTab('trash'); }
+    else { alert(data.message || 'שגיאה'); }
   } catch (e) { console.error(e); }
 }
 
