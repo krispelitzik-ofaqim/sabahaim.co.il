@@ -223,6 +223,21 @@
       grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
       gap: 14px;
     }
+    #links-list { display: block; }
+    .link-folder-head {
+      color: #c9a84c; font-weight: 800; font-size: 0.95rem;
+      margin: 22px 0 12px; padding-bottom: 8px;
+      border-bottom: 1px solid rgba(201,168,76,.35);
+    }
+    .link-folder-head:first-child { margin-top: 0; }
+    .link-folder { border: 1px solid #2a2e38; border-radius: 8px; margin-bottom: 10px; overflow: hidden; background: #0d1117; }
+    .lf-head { width: 100%; display: flex; align-items: center; justify-content: space-between; background: #161b26; color: #e0d5c0; border: 0; padding: 13px 16px; font-family: 'Assistant',sans-serif; font-size: 0.92rem; font-weight: 700; cursor: pointer; }
+    .lf-head:hover { background: #1b2130; }
+    .lf-count { color: #c9a84c; font-size: 0.8rem; margin-inline-start: 6px; }
+    .lf-chev { color: #c9a84c; font-size: 0.9rem; }
+    .lf-body { max-height: 0; overflow: hidden; transition: max-height .3s ease; }
+    .lf-body .links-grid { padding: 14px; }
+    .lf-empty { color: #5a5348; font-size: 0.82rem; padding: 6px 2px; }
     .link-card {
       background: linear-gradient(160deg, #12161f, #0a0e14);
       border: 1px solid #2a2e38;
@@ -2017,7 +2032,7 @@
       <button class="admin-tab" onclick="showAdminTab('matrix')">מטריצה</button>
       <button class="admin-tab" onclick="showAdminTab('answersheet')">דף תשובות</button>
       <button class="admin-tab" onclick="showAdminTab('landing')">דף נחיתה</button>
-      <button class="admin-tab" onclick="showAdminTab('links')">לינקים</button>
+      <button class="admin-tab" onclick="showAdminTab('links')">תיקיות</button>
       <button class="admin-tab" onclick="showAdminTab('qa')">שאלה ותשובה</button>
       <button class="admin-tab" onclick="showAdminTab('password')">סיסמה</button>
     </div>
@@ -2218,7 +2233,7 @@
 
     <!-- Tab: Links (all sales / site URLs, copy buttons) -->
     <div class="admin-page" id="admin-links">
-      <h2 style="color:#e0d5c0;font-size:1rem;margin-bottom:12px;">כל הלינקים</h2>
+      <h2 style="color:#e0d5c0;font-size:1rem;margin-bottom:12px;">תיקיות</h2>
       <p style="color:#8a7e6a;font-size:0.8rem;margin-bottom:15px;">לחצו "העתק" ליד כל לינק כדי להדביק בוואטסאפ, פרסום או כל מקום.</p>
       <div id="links-list" class="links-grid"></div>
     </div>
@@ -3863,33 +3878,59 @@ function showAdminTab(tab) {
   else if (tab === 'links') loadLinksTab();
 }
 
+var LINK_FOLDERS = ['חומרי עזר','מהדורת ניסיון - אוגוסט 26','מהדורה ראשונה - אוקטובר 26','מהדורת ניסיון - אנגלית אוקטובר 26'];
 var SITE_LINKS = [
-  { title: 'שיר הנושא', sub: 'להאזנה ולשיתוף 🎵', emoji: '🎵', url: 'https://sabahaim.co.il/assets/song/theme-song.mp3', img: '/books/he/assets/illus-53.jpg' },
-  { title: 'האתר', sub: 'הכספת האינטראקטיבית', emoji: '🌐', url: 'https://sabahaim.co.il', img: '/assets/answersheet/vault.png' },
-  { title: 'PayPal — הספר', sub: '79 ₪ · תשלום מאובטח', emoji: '💳', url: 'https://www.paypal.com/ncp/payment/BZ4ZJR6DTMLZC', img: '/books/he/assets/cover-front-v2.png' },
-  { title: 'מהדורת השקה', sub: '50 ₪ · אופקים', emoji: '🚀', url: 'https://www.paypal.com/ncp/payment/A9B68VWRUQWPS', img: '/books/he/assets/illus-31.jpg' },
-  { title: 'דף נחיתה', sub: 'עמוד שיווק', emoji: '📢', url: 'https://sabahaim.co.il/marketing/landing.html', img: '/books/he/assets/illus-39.jpg' },
-  { title: 'מורנינג — חשבונית', sub: 'ספר 79 ₪', emoji: '🧾', url: 'https://www.paypal.com/ncp/payment/BZ4ZJR6DTMLZC', img: '/books/he/assets/illus-13.jpg' },
-  { title: 'ספר עברית', sub: 'גרסה אחרונה · לעורכת', emoji: '📕', url: 'https://sabahaim.co.il/books/he/', img: '/books/he/assets/cover-front-v2.png' },
-  { title: 'ספר עברית — מתוקן ומנוקד', sub: 'אחרי הגהה · להשוואת עימודים', emoji: '📘', url: 'https://sabahaim.co.il/books/he-mtukan/', img: '/books/he/assets/cover-front-v2.png' },
-  { title: 'ספר אנגלית', sub: 'גרסה אחרונה · לעורכת', emoji: '📗', url: 'https://sabahaim.co.il/books/en/', img: '/books/en/illustrations/branding/cover-front.jpg' },
-  { title: 'המכתב מהכספת', sub: 'טקסט נקי · למגיהה', emoji: '✉️', url: 'https://sabahaim.co.il/assets/proof/letter.html', img: '/books/he/assets/illus-47.jpg' },
-  { title: 'מילות השיר', sub: 'טקסט נקי · למגיהה', emoji: '🎵', url: 'https://sabahaim.co.il/assets/proof/lyrics.html', img: '/books/he/assets/illus-53.jpg' },
-  { title: 'קליפ שיר הנושא', sub: 'יוטיוב', emoji: '🎬', url: 'https://youtu.be/t2KVffVceto', img: '/books/he/assets/cover-front-v2.png' }
+  { title: 'שיר הנושא', sub: 'להאזנה ולשיתוף 🎵', emoji: '🎵', url: 'https://sabahaim.co.il/assets/song/theme-song.mp3', img: '/books/he/assets/illus-53.jpg', cat: '' },
+  { title: 'האתר', sub: 'הכספת האינטראקטיבית', emoji: '🌐', url: 'https://sabahaim.co.il', img: '/assets/answersheet/vault.png', cat: '' },
+  { title: 'המכתב מהכספת', sub: 'טקסט נקי · למגיהה', emoji: '✉️', url: 'https://sabahaim.co.il/assets/proof/letter.html', img: '/books/he/assets/illus-47.jpg', cat: '' },
+  { title: 'מילות השיר', sub: 'טקסט נקי · למגיהה', emoji: '🎵', url: 'https://sabahaim.co.il/assets/proof/lyrics.html', img: '/books/he/assets/illus-53.jpg', cat: '' },
+  { title: 'קליפ שיר הנושא', sub: 'יוטיוב', emoji: '🎬', url: 'https://youtu.be/t2KVffVceto', img: '/books/he/assets/cover-front-v2.png', cat: '' },
+  { title: 'דף נחיתה', sub: 'עמוד שיווק', emoji: '📢', url: 'https://sabahaim.co.il/marketing/landing.html', img: '/books/he/assets/illus-39.jpg', cat: '' },
+  { title: 'ספר עברית', sub: 'גרסה אחרונה · לעורכת', emoji: '📕', url: 'https://sabahaim.co.il/books/he/', img: '/books/he/assets/cover-front-v2.png', cat: '' },
+  { title: 'ספר עברית — מתוקן ומנוקד', sub: 'אחרי הגהה · להשוואת עימודים', emoji: '📘', url: 'https://sabahaim.co.il/books/he-mtukan/', img: '/books/he/assets/cover-front-v2.png', cat: '' },
+  { title: 'PayPal — הספר', sub: '79 ₪ · תשלום מאובטח', emoji: '💳', url: 'https://www.paypal.com/ncp/payment/BZ4ZJR6DTMLZC', img: '/books/he/assets/cover-front-v2.png', cat: '' },
+  { title: 'מהדורת השקה', sub: '50 ₪ · אופקים', emoji: '🚀', url: 'https://www.paypal.com/ncp/payment/A9B68VWRUQWPS', img: '/books/he/assets/illus-31.jpg', cat: '' },
+  { title: 'מורנינג — חשבונית', sub: 'ספר 79 ₪', emoji: '🧾', url: 'https://www.paypal.com/ncp/payment/BZ4ZJR6DTMLZC', img: '/books/he/assets/illus-13.jpg', cat: '' },
+  { title: 'ספר אנגלית', sub: 'גרסה אחרונה · לעורכת', emoji: '📗', url: 'https://sabahaim.co.il/books/en/', img: '/books/en/illustrations/branding/cover-front.jpg', cat: '' }
 ];
+function _linkCard(l){
+  return '<div class="link-card">'
+    + '<div class="link-card-img" style="background-image:url(\'' + l.img + '\');">'
+    +   '<div class="link-card-emoji">' + l.emoji + '</div>'
+    + '</div>'
+    + '<div class="link-card-body">'
+    +   '<div class="link-card-title">' + l.title + '</div>'
+    +   '<div class="link-card-sub">' + (l.sub || '') + '</div>'
+    +   '<button class="link-card-btn" onclick="copyLink(\'' + l.url + '\', this)">📋 העתק לינק</button>'
+    + '</div></div>';
+}
+function toggleLinkFolder(i){
+  var b=document.getElementById('lf-body-'+i), h=document.getElementById('lf-head-'+i);
+  var open=b.style.maxHeight && b.style.maxHeight!=='0px';
+  b.style.maxHeight = open ? '0px' : (b.scrollHeight+40)+'px';
+  h.querySelector('.lf-chev').textContent = open ? '▸' : '▾';
+}
 function loadLinksTab() {
   var box = document.getElementById('links-list');
-  box.innerHTML = SITE_LINKS.map(function(l) {
-    return '<div class="link-card">'
-      + '<div class="link-card-img" style="background-image:url(\'' + l.img + '\');">'
-      +   '<div class="link-card-emoji">' + l.emoji + '</div>'
-      + '</div>'
-      + '<div class="link-card-body">'
-      +   '<div class="link-card-title">' + l.title + '</div>'
-      +   '<div class="link-card-sub">' + (l.sub || '') + '</div>'
-      +   '<button class="link-card-btn" onclick="copyLink(\'' + l.url + '\', this)">📋 העתק לינק</button>'
+  var html = '';
+  LINK_FOLDERS.forEach(function(folder,i){
+    var items = SITE_LINKS.filter(function(l){ return l.cat === folder; });
+    html += '<div class="link-folder">'
+      + '<button class="lf-head" id="lf-head-'+i+'" onclick="toggleLinkFolder('+i+')">'
+      +   '<span>📁 ' + folder + ' <span class="lf-count">' + items.length + '</span></span>'
+      +   '<span class="lf-chev">▸</span>'
+      + '</button>'
+      + '<div class="lf-body" id="lf-body-'+i+'" style="max-height:0px">'
+      +   '<div class="links-grid">' + (items.length ? items.map(_linkCard).join('') : '<div class="lf-empty">— ריק —</div>') + '</div>'
       + '</div></div>';
-  }).join('');
+  });
+  // unsorted pool
+  var unsorted = SITE_LINKS.filter(function(l){ return LINK_FOLDERS.indexOf(l.cat)<0; });
+  if(unsorted.length){
+    html += '<div class="link-folder-head" style="color:#8a7e6a">🗂️ לא ממוין (' + unsorted.length + ')</div>';
+    html += '<div class="links-grid">' + unsorted.map(_linkCard).join('') + '</div>';
+  }
+  box.innerHTML = html;
 }
 function copyLink(url, btn) {
   navigator.clipboard.writeText(url).then(function() {
