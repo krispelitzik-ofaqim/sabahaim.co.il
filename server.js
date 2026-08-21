@@ -356,10 +356,10 @@ app.post('/api/gate/verify', (req, res) => {
 
   const upperCode = code.toUpperCase();
 
-  // Block trashed leads from re-entering (Recycle Bin semantics)
+  // Block archived (used+blocked) and trashed leads from re-entering
   const leadsCheck = loadLeads();
   const existingLead = leadsCheck.leads[upperCode];
-  if (existingLead && existingLead.status === 'trashed') {
+  if (existingLead && (existingLead.status === 'archived' || existingLead.status === 'trashed')) {
     return res.json({ success: false, message: 'קוד זה אינו זמין, פנה למנהל' });
   }
 
