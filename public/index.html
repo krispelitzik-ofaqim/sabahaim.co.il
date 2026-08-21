@@ -4602,11 +4602,24 @@ async function loadArchiveTab() {
         '<td style="text-align:center;">' + badge(l.printedLetter) + '</td>' +
         '<td style="font-size:0.7rem;color:#8a7e6a;">' + new Date(l.lastEntry).toLocaleString('he-IL') + '</td>' +
         '<td style="white-space:nowrap;">' +
-          '<button class="admin-btn secondary" style="padding:4px 8px;font-size:0.7rem;margin:0 2px;" onclick="changeLeadStatus(\'' + l.code + '\',\'active\')">שחזר</button>' +
-          '<button class="admin-btn secondary" style="padding:4px 8px;font-size:0.7rem;margin:0 2px;color:#ff4444;border-color:#ff4444;" onclick="changeLeadStatus(\'' + l.code + '\',\'trashed\')">מחק</button>' +
+          '<button class="admin-btn ' + (l.used ? '' : 'secondary') + '" style="padding:4px 8px;font-size:0.7rem;margin:0 2px;" onclick="toggleLeadFlag(\'' + l.code + '\',\'used\',' + (l.used ? 'false' : 'true') + ')">השתמש</button>' +
+          '<button class="admin-btn" style="padding:4px 8px;font-size:0.7rem;margin:0 2px;' + (l.blocked ? 'background:#ff4444;color:#fff;border-color:#ff4444;' : 'background:none;color:#ff4444;border:1px solid #ff4444;') + '" onclick="toggleLeadFlag(\'' + l.code + '\',\'blocked\',' + (l.blocked ? 'false' : 'true') + ')">חסום</button>' +
         '</td>' +
         '</tr>';
     }).join('');
+  } catch (e) { console.error(e); }
+}
+
+async function toggleLeadFlag(code, field, value) {
+  try {
+    var res = await fetch('/api/admin/leads/flag', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ token: adminToken, code: code, field: field, value: value })
+    });
+    var data = await res.json();
+    if (data.success) { showAdminTab('archive'); }
+    else { alert(data.message || 'שגיאה'); }
   } catch (e) { console.error(e); }
 }
 

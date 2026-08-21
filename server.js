@@ -356,10 +356,10 @@ app.post('/api/gate/verify', (req, res) => {
 
   const upperCode = code.toUpperCase();
 
-  // Block archived (used+blocked) and trashed leads from re-entering
+  // Block explicitly-blocked leads (חסום button) and trashed leads from re-entering
   const leadsCheck = loadLeads();
   const existingLead = leadsCheck.leads[upperCode];
-  if (existingLead && (existingLead.status === 'archived' || existingLead.status === 'trashed')) {
+  if (existingLead && (existingLead.blocked || existingLead.status === 'trashed')) {
     return res.json({ success: false, message: 'קוד זה אינו זמין, פנה למנהל' });
   }
 
@@ -655,6 +655,21 @@ app.post('/api/admin/leads/status', (req, res) => {
   lead.status = status;
   saveLeads(data);
   res.json({ success: true, status });
+});
+
+// API: Admin - toggle a lead flag (used / blocked) - used by archive tab
+app.post('/api/admin/leads/flag', (req, res) => {
+  const { token, code, field, value } = req.body;
+  if (token !== getAdminPass()) return res.status(401).json({ error: 'Unauthorized' });
+  if (!code || !['used', 'blocked'].includes(field)) {
+    return res.json({ success: false, message: 'פרמטרים לא תקינים' });
+  }
+  const data = loadLeads();
+  const lead = data.leads[code];
+  if (!lead) return res.json({ success: false, message: 'ליד לא נמצא' });
+  lead[field] = !!value;
+  saveLeads(data);
+  res.json({ success: true, field, value: !!value });
 });
 
 // API: Admin - permanently delete a lead (only allowed if it's in trash)
