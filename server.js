@@ -486,6 +486,18 @@ app.get('/api/admin/demo', (req, res) => {
   res.json({ success: true, codes: data.codes });
 });
 
+// API: Admin - toggle a demo code active/disabled
+app.post('/api/admin/demo/toggle', (req, res) => {
+  if (!checkAdmin(req)) return res.status(401).json({ error: 'Unauthorized' });
+  const code = String((req.body && req.body.code) || '').trim().toUpperCase();
+  const data = loadDemo();
+  const c = (data.codes || []).find(x => (x.code || '').toUpperCase() === code);
+  if (!c) return res.status(404).json({ error: 'not found' });
+  c.active = !c.active;
+  saveDemo(data);
+  res.json({ success: true, codes: data.codes });
+});
+
 // API: Admin - get master codes
 app.get('/api/admin/master', (req, res) => {
   if (!checkAdmin(req)) return res.status(401).json({ error: 'Unauthorized' });

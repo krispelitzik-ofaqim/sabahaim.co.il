@@ -2283,7 +2283,7 @@
 
       <!-- protected content -->
       <div id="pwvault" style="display:none;">
-      <h2 style="color:#e0d5c0;font-size:1rem;margin-bottom:15px;">שינוי סיסמת ניהול</h2>
+      <h2 style="color:#e0d5c0;font-size:1rem;margin-bottom:15px;">שינוי סיסמת ניהול - כניסה ללוח ניהול</h2>
       <div style="max-width:350px;">
         <label style="color:#8a7e6a;font-size:0.85rem;display:block;margin-bottom:4px;">סיסמה נוכחית</label>
         <input type="password" id="pw-current" class="admin-input" />
@@ -2318,6 +2318,18 @@
         <table class="admin-table" id="master-table-pw">
           <thead><tr><th>קוד</th><th>שם</th><th>סטטוס</th><th>שימושים</th><th>פעולות</th></tr></thead>
           <tbody id="master-tbody-pw"></tbody>
+        </table>
+      </div>
+
+      <!-- Demo codes block (protected) -->
+      <div style="margin:26px 0 12px;border-top:1px solid #2a2e38;padding-top:20px;">
+        <h2 style="color:#e0d5c0;font-size:1rem;">מספרי דמו — מדענים</h2>
+      </div>
+      <p style="color:#8a7e6a;font-size:0.8rem;margin-bottom:12px;">קודים רב-פעמיים לחילוץ קוראים שנתקעו.</p>
+      <div class="admin-table-wrap">
+        <table class="admin-table" id="demo-table-pw">
+          <thead><tr><th>מדען</th><th>קוד</th><th>סטטוס</th><th>פעולות</th></tr></thead>
+          <tbody id="demo-tbody-pw"></tbody>
         </table>
       </div>
       </div><!-- /pwvault -->
@@ -4314,7 +4326,23 @@ async function unlockPwVault(){
   else if(saved!==h){ msg.style.display='block'; msg.style.color='#ff6b6b'; msg.textContent='מספר שגוי.'; return; }
   document.getElementById('pwgate').style.display='none';
   document.getElementById('pwvault').style.display='block';
-  loadIssuedPwTab(); loadMasterVault();
+  loadIssuedPwTab(); loadMasterVault(); loadDemoVault();
+}
+async function loadDemoVault(){
+  try{
+    var res=await fetch('/api/admin/demo?token='+encodeURIComponent(adminToken));
+    var data=await res.json(); var codes=data.codes||[];
+    var tb=document.getElementById('demo-tbody-pw');
+    if(!codes.length){ tb.innerHTML='<tr><td colspan="4" class="admin-empty">אין קודי דמו</td></tr>'; return; }
+    tb.innerHTML=codes.map(function(c){
+      return '<tr><td>'+(c.name||'—')+'</td><td class="code-cell">'+(c.code||'')+'</td>'
+        +'<td><span class="admin-badge '+(c.active?'active':'inactive')+'">'+(c.active?'פעיל':'מושבת')+'</span></td>'
+        +'<td><button class="admin-btn secondary" style="padding:4px 10px;font-size:0.75rem" onclick="toggleDemoCode(\''+(c.code||'')+'\')">'+(c.active?'השבת':'הפעל')+'</button></td></tr>';
+    }).join('');
+  }catch(e){ console.error(e); }
+}
+async function toggleDemoCode(code){
+  try{ await fetch('/api/admin/demo/toggle?token='+encodeURIComponent(adminToken),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({code:code})}); loadDemoVault(); }catch(e){}
 }
 async function loadIssuedPwTab(){
   try{
