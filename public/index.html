@@ -2273,7 +2273,10 @@
       <div id="pwgate" style="max-width:350px;">
         <h2 style="color:#e0d5c0;font-size:1rem;margin-bottom:8px;">אזור מוגן</h2>
         <label style="color:#8a7e6a;font-size:0.85rem;display:block;margin-bottom:4px;">Your ID</label>
-        <input type="password" inputmode="numeric" maxlength="9" id="pwgate-id" class="admin-input" onkeydown="if(event.key==='Enter')unlockPwVault()" />
+        <div style="position:relative;">
+          <input type="password" inputmode="numeric" maxlength="9" id="pwgate-id" class="admin-input" style="padding-left:38px;" onkeydown="if(event.key==='Enter')unlockPwVault()" />
+          <button type="button" onclick="toggleField('pwgate-id',this)" title="הצג/הסתר" style="position:absolute;left:6px;top:50%;transform:translateY(-50%);background:none;border:0;color:#8a7e6a;cursor:pointer;font-size:1.1rem;padding:2px 6px;">👁️</button>
+        </div>
         <button class="admin-btn" onclick="unlockPwVault()" style="width:100%;margin-top:12px;padding:12px;">🔓 פתח</button>
         <div id="pwgate-msg" style="margin-top:10px;font-weight:600;display:none;"></div>
       </div>
@@ -2284,11 +2287,20 @@
       <p style="color:#8a7e6a;font-size:0.78rem;margin-bottom:15px;">משנה רק את סיסמת הכניסה הראשית. סיסמאות נוספות — משנים דרך ✏️ בשורה שלהן.</p>
       <div style="max-width:350px;">
         <label style="color:#8a7e6a;font-size:0.85rem;display:block;margin-bottom:4px;">סיסמה נוכחית</label>
-        <input type="password" id="pw-current" class="admin-input" />
+        <div style="position:relative;">
+          <input type="password" id="pw-current" class="admin-input" style="padding-left:38px;" />
+          <button type="button" onclick="toggleField('pw-current',this)" title="הצג/הסתר" style="position:absolute;left:6px;top:50%;transform:translateY(-50%);background:none;border:0;color:#8a7e6a;cursor:pointer;font-size:1.1rem;padding:2px 6px;">👁️</button>
+        </div>
         <label style="color:#8a7e6a;font-size:0.85rem;display:block;margin-bottom:4px;margin-top:12px;">סיסמה חדשה</label>
-        <input type="password" id="pw-new" class="admin-input" />
+        <div style="position:relative;">
+          <input type="password" id="pw-new" class="admin-input" style="padding-left:38px;" />
+          <button type="button" onclick="toggleField('pw-new',this)" title="הצג/הסתר" style="position:absolute;left:6px;top:50%;transform:translateY(-50%);background:none;border:0;color:#8a7e6a;cursor:pointer;font-size:1.1rem;padding:2px 6px;">👁️</button>
+        </div>
         <label style="color:#8a7e6a;font-size:0.85rem;display:block;margin-bottom:4px;margin-top:12px;">אימות סיסמה חדשה</label>
-        <input type="password" id="pw-confirm" class="admin-input" />
+        <div style="position:relative;">
+          <input type="password" id="pw-confirm" class="admin-input" style="padding-left:38px;" />
+          <button type="button" onclick="toggleField('pw-confirm',this)" title="הצג/הסתר" style="position:absolute;left:6px;top:50%;transform:translateY(-50%);background:none;border:0;color:#8a7e6a;cursor:pointer;font-size:1.1rem;padding:2px 6px;">👁️</button>
+        </div>
         <button class="admin-btn" onclick="changePassword()" style="width:100%;margin-top:15px;padding:12px;">שנה סיסמה</button>
         <div id="pw-msg" style="margin-top:10px;font-weight:600;display:none;"></div>
       </div>
@@ -3851,6 +3863,13 @@ document.getElementById('admin-pass').addEventListener('keydown', function(e) {
 function togglePass() {
   var f = document.getElementById('admin-pass');
   f.type = (f.type === 'password') ? 'text' : 'password';
+}
+
+function toggleField(id, btn) {
+  var f = document.getElementById(id);
+  if (!f) return;
+  f.type = (f.type === 'password') ? 'text' : 'password';
+  if (btn) btn.textContent = (f.type === 'password') ? '👁️' : '🙈';
 }
 
 async function loginAdmin() {
