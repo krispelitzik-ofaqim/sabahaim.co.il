@@ -268,14 +268,16 @@
     }
     .link-card-body { padding: 12px 14px 14px; display: flex; flex-direction: column; gap: 4px; }
     .link-card-title { color: #e8dcc4; font-weight: 800; font-size: 0.98rem; }
-    .link-card-sub { color: #8a7e6a; font-size: 0.76rem; margin-bottom: 8px; }
+    .link-card-sub { color: #8a7e6a; font-size: 0.76rem; margin-bottom: 4px; }
+    .link-card-date { color: #c9a84c; font-size: 0.74rem; font-weight: 700; margin-bottom: 8px; }
+    .link-card-actions { margin-top: auto; display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
     .link-card-btn {
-      margin-top: auto;
       background: linear-gradient(135deg, #c9a84c, #a08030);
       color: #1a1e28; border: none; border-radius: 10px;
-      padding: 9px 12px; font-family: 'Assistant', sans-serif;
-      font-size: 0.85rem; font-weight: 800; cursor: pointer;
-      transition: filter 0.15s;
+      padding: 8px 6px; font-family: 'Assistant', sans-serif;
+      font-size: 0.8rem; font-weight: 800; cursor: pointer;
+      transition: filter 0.15s; text-align: center; text-decoration: none;
+      display: inline-block;
     }
     .link-card-btn:hover { filter: brightness(1.07); }
 
@@ -3949,15 +3951,15 @@ function showAdminTab(tab) {
 
 var LINK_FOLDERS = ['חומרי עזר','מהדורת ניסיון - אוגוסט 26','מהדורה ראשונה - אוקטובר 26','מהדורת ניסיון - אנגלית אוקטובר 26','השקות ורשתות חברתיות'];
 var SITE_LINKS = [
-  { title: 'ספר עברית — גרסת וורד', sub: 'גרסה 2 · פנימי · ללא תמונות', emoji: '📄', url: 'https://sabahaim.co.il/print/secret-code-v2-internal.docx', img: '/books/he/assets/cover-front-v2.png', cat: 'חומרי עזר' },
+  { title: 'ספר עברית — גרסת וורד', sub: 'גרסה 2 · פנימי · ללא תמונות', emoji: '📄', url: 'https://sabahaim.co.il/print/secret-code-v2-internal.docx', img: '/books/he/assets/cover-front-v2.png', cat: 'חומרי עזר', date: '10.08.2026' },
   { title: 'שיר הנושא', sub: 'להאזנה ולשיתוף 🎵', emoji: '🎵', url: 'https://sabahaim.co.il/assets/song/theme-song.mp3', img: '/books/he/assets/illus-53.jpg', cat: 'חומרי עזר' },
   { title: 'האתר', sub: 'הכספת האינטראקטיבית', emoji: '🌐', url: 'https://sabahaim.co.il', img: '/assets/answersheet/vault.png', cat: 'חומרי עזר' },
   { title: 'המכתב מהכספת', sub: 'טקסט נקי · למגיהה', emoji: '✉️', url: 'https://sabahaim.co.il/assets/proof/letter.html', img: '/books/he/assets/illus-47.jpg', cat: 'מהדורת ניסיון - אוגוסט 26' },
-  { title: 'דף המטריצה', sub: 'A4 · בליד+חיתוך · לדפוס', emoji: '🔢', url: 'https://sabahaim.co.il/print/matrix-a4.pdf', img: '/books/he/assets/cover-front-v2.png', cat: 'מהדורת ניסיון - אוגוסט 26' },
-  { title: 'דף הטבלה המחזורית', sub: 'A4 · בליד+חיתוך · לדפוס', emoji: '🧪', url: 'https://sabahaim.co.il/print/periodic-a4.pdf', img: '/books/he/assets/cover-front-v2.png', cat: 'מהדורת ניסיון - אוגוסט 26' },
-  { title: 'סימניות לספר', sub: '15×5 · בליד+חיתוך · לדפוס', emoji: '🔖', url: 'https://sabahaim.co.il/print/bookmarks.pdf', img: '/books/he/assets/cover-front-v2.png', cat: 'מהדורת ניסיון - אוגוסט 26' },
-  { title: 'כריכה סופית לדפוס', sub: 'לדפוס', emoji: '📕', url: 'https://sabahaim.co.il/print/cover-final.pdf', img: '/books/he/assets/cover-front-v2.png', cat: 'מהדורת ניסיון - אוגוסט 26' },
-  { title: 'כריכה עם חיתוך אחרי הגלישה', sub: 'לדפוס', emoji: '✂️', url: 'https://sabahaim.co.il/print/cover-cut.pdf', img: '/books/he/assets/cover-front-v2.png', cat: 'מהדורת ניסיון - אוגוסט 26' },
+  { title: 'דף המטריצה', sub: 'A4 · בליד+חיתוך · לדפוס', emoji: '🔢', url: 'https://sabahaim.co.il/print/matrix-a4.pdf', img: '/books/he/assets/cover-front-v2.png', cat: 'מהדורת ניסיון - אוגוסט 26', date: '17.08.2026' },
+  { title: 'דף הטבלה המחזורית', sub: 'A4 · בליד+חיתוך · לדפוס', emoji: '🧪', url: 'https://sabahaim.co.il/print/periodic-a4.pdf', img: '/books/he/assets/cover-front-v2.png', cat: 'מהדורת ניסיון - אוגוסט 26', date: '17.08.2026' },
+  { title: 'סימניות לספר', sub: '15×5 · בליד+חיתוך · לדפוס', emoji: '🔖', url: 'https://sabahaim.co.il/print/bookmarks.pdf', img: '/books/he/assets/cover-front-v2.png', cat: 'מהדורת ניסיון - אוגוסט 26', date: '17.08.2026' },
+  { title: 'כריכה סופית לדפוס', sub: 'לדפוס', emoji: '📕', url: 'https://sabahaim.co.il/print/cover-final.pdf', img: '/books/he/assets/cover-front-v2.png', cat: 'מהדורת ניסיון - אוגוסט 26', date: '10.08.2026' },
+  { title: 'כריכה עם חיתוך אחרי הגלישה', sub: 'לדפוס', emoji: '✂️', url: 'https://sabahaim.co.il/print/cover-cut.pdf', img: '/books/he/assets/cover-front-v2.png', cat: 'מהדורת ניסיון - אוגוסט 26', date: '10.08.2026' },
   { title: 'מילות השיר', sub: 'טקסט נקי · למגיהה', emoji: '🎵', url: 'https://sabahaim.co.il/assets/proof/lyrics.html', img: '/books/he/assets/illus-53.jpg', cat: 'חומרי עזר' },
   { title: 'קליפ שיר הנושא', sub: 'יוטיוב', emoji: '🎬', url: 'https://youtu.be/t2KVffVceto', img: '/books/he/assets/cover-front-v2.png', cat: 'חומרי עזר' },
   { title: 'דף נחיתה', sub: 'עמוד שיווק', emoji: '📢', url: 'https://sabahaim.co.il/marketing/landing.html', img: '/books/he/assets/illus-39.jpg', cat: 'חומרי עזר' },
@@ -3967,11 +3969,13 @@ var SITE_LINKS = [
   { title: 'מהדורת השקה', sub: '50 ₪ · אופקים', emoji: '🚀', url: 'https://www.paypal.com/ncp/payment/A9B68VWRUQWPS', img: '/books/he/assets/illus-31.jpg', cat: 'חומרי עזר' },
   { title: 'מורנינג — חשבונית', sub: 'ספר 79 ₪', emoji: '🧾', url: 'https://www.paypal.com/ncp/payment/BZ4ZJR6DTMLZC', img: '/books/he/assets/illus-13.jpg', cat: 'חומרי עזר' },
   { title: 'ספר אנגלית', sub: 'גרסה אחרונה · לעורכת', emoji: '📗', url: 'https://sabahaim.co.il/books/en/', img: '/books/en/illustrations/branding/cover-front.jpg', cat: 'מהדורת ניסיון - אנגלית אוקטובר 26' },
-  { title: 'באנר פייסבוק', sub: 'תמונת נושא להשקה', emoji: '🖼️', url: 'https://sabahaim.co.il/marketing/launch-fb-cover.jpg', img: '/marketing/launch-fb-cover.jpg', cat: 'השקות ורשתות חברתיות' },
-  { title: 'תמונת הפוסט', sub: 'כריכה לפיד', emoji: '📸', url: 'https://sabahaim.co.il/marketing/launch-post-image.jpg', img: '/marketing/launch-post-image.jpg', cat: 'השקות ורשתות חברתיות' },
-  { title: 'טקסט הפוסט', sub: 'להעתקה לפייסבוק', emoji: '📝', url: 'https://sabahaim.co.il/marketing/launch-post-text.txt', img: '/books/he/assets/cover-front-v2.png', cat: 'השקות ורשתות חברתיות' }
+  { title: 'באנר פייסבוק', sub: 'תמונת נושא להשקה', emoji: '🖼️', url: 'https://sabahaim.co.il/marketing/launch-fb-cover.jpg', img: '/marketing/launch-fb-cover.jpg', cat: 'השקות ורשתות חברתיות', date: '21.08.2026' },
+  { title: 'תמונת הפוסט', sub: 'כריכה לפיד', emoji: '📸', url: 'https://sabahaim.co.il/marketing/launch-post-image.jpg', img: '/marketing/launch-post-image.jpg', cat: 'השקות ורשתות חברתיות', date: '21.08.2026' },
+  { title: 'טקסט הפוסט', sub: 'להעתקה לפייסבוק', emoji: '📝', url: 'https://sabahaim.co.il/marketing/launch-post-text.txt', img: '/books/he/assets/cover-front-v2.png', cat: 'השקות ורשתות חברתיות', date: '21.08.2026' }
 ];
 function _linkCard(l){
+  var u = l.url.replace(/'/g, "\\'");
+  var dateBadge = l.date ? '<div class="link-card-date">📅 ' + l.date + '</div>' : '';
   return '<div class="link-card">'
     + '<div class="link-card-img" style="background-image:url(\'' + l.img + '\');">'
     +   '<div class="link-card-emoji">' + l.emoji + '</div>'
@@ -3979,8 +3983,29 @@ function _linkCard(l){
     + '<div class="link-card-body">'
     +   '<div class="link-card-title">' + l.title + '</div>'
     +   '<div class="link-card-sub">' + (l.sub || '') + '</div>'
-    +   '<button class="link-card-btn" onclick="copyLink(\'' + l.url + '\', this)">📋 העתק לינק</button>'
+    +   dateBadge
+    +   '<div class="link-card-actions">'
+    +     '<button class="link-card-btn" onclick="copyLink(\'' + u + '\', this)">📋 העתק</button>'
+    +     '<a class="link-card-btn" href="' + l.url + '" target="_blank" rel="noopener">👁️ צפייה</a>'
+    +     '<button class="link-card-btn" onclick="downloadLink(\'' + u + '\', this)">⬇️ הורדה</button>'
+    +     '<button class="link-card-btn" onclick="shareLink(\'' + u + '\', \'' + l.title.replace(/'/g, "\\'") + '\', this)">🔗 שיתוף</button>'
+    +   '</div>'
     + '</div></div>';
+}
+function downloadLink(url, btn){
+  var a = document.createElement('a');
+  a.href = url;
+  a.download = url.split('/').pop().split('?')[0] || '';
+  a.target = '_blank';
+  document.body.appendChild(a); a.click(); a.remove();
+  if(btn){ var t=btn.textContent; btn.textContent='⬇️ מוריד…'; setTimeout(function(){btn.textContent=t;},1500); }
+}
+function shareLink(url, title, btn){
+  if(navigator.share){
+    navigator.share({ title: title, url: url }).catch(function(){});
+  } else {
+    copyLink(url, btn);
+  }
 }
 function toggleLinkFolder(i){
   var b=document.getElementById('lf-body-'+i), h=document.getElementById('lf-head-'+i);
