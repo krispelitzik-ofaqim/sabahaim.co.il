@@ -2729,7 +2729,7 @@ function showScreen(id) {
   });
   // Admin toolbar (nav-bottom) is admin-only: show only for admins, never for regular visitors.
   var nav = document.getElementById('nav-bottom');
-  var isAdminUser = document.documentElement.classList.contains('direct-admin') || !!adminToken;
+  var isAdminUser = !!adminToken;
   nav.style.display = (isAdminUser && id !== 'screen-gate') ? 'flex' : 'none';
 
   // Language toggle only on entry/info screens (gate + home); hide inside the vault experience.
@@ -3878,6 +3878,7 @@ async function loginAdmin() {
     try { localStorage.setItem('sab_admin', pass); } catch (e) {}
     document.getElementById('admin-login').style.display = 'none';
     document.getElementById('admin-panel').style.display = 'block';
+    document.getElementById('nav-bottom').style.display = 'flex';
     showAdminTab('leads');
   } catch (e) {
     errorEl.textContent = 'שגיאת תקשורת';
@@ -3890,6 +3891,7 @@ function logoutAdmin() {
   try { localStorage.removeItem('sab_admin'); } catch (e) {}
   document.getElementById('admin-login').style.display = 'block';
   document.getElementById('admin-panel').style.display = 'none';
+  document.getElementById('nav-bottom').style.display = 'none';
   document.getElementById('admin-pass').value = '';
 }
 
