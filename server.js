@@ -482,6 +482,32 @@ app.get('/api/admin/master', (req, res) => {
   res.json({ success: true, codes: data.codes });
 });
 
+// API: Admin - add a master code
+app.post('/api/admin/master/add', (req, res) => {
+  if (!checkAdmin(req)) return res.status(401).json({ error: 'Unauthorized' });
+  const code = String((req.body && req.body.code) || '').trim().toUpperCase();
+  const name = String((req.body && req.body.name) || '').trim();
+  if (!code) return res.status(400).json({ error: 'missing code' });
+  const data = loadMaster();
+  data.codes = data.codes || [];
+  if (data.codes.some(c => c.code === code)) return res.status(409).json({ error: 'exists' });
+  data.codes.push({ code, name, active: true, uses: 0, createdAt: new Date().toISOString() });
+  saveMaster(data);
+  res.json({ success: true, codes: data.codes });
+});
+
+// API: Admin - toggle a master code active/disabled
+app.post('/api/admin/master/toggle', (req, res) => {
+  if (!checkAdmin(req)) return res.status(401).json({ error: 'Unauthorized' });
+  const code = String((req.body && req.body.code) || '').trim().toUpperCase();
+  const data = loadMaster();
+  const c = (data.codes || []).find(x => x.code === code);
+  if (!c) return res.status(404).json({ error: 'not found' });
+  c.active = !c.active;
+  saveMaster(data);
+  res.json({ success: true, codes: data.codes });
+});
+
 // API: Admin - get stats
 app.get('/api/admin/stats', (req, res) => {
   if (!checkAdmin(req)) return res.status(401).json({ error: 'Unauthorized' });

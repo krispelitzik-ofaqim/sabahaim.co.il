@@ -2271,6 +2271,18 @@
 
     <!-- Tab: Password -->
     <div class="admin-page" id="admin-password">
+      <!-- ID gate -->
+      <div id="pwgate" style="max-width:350px;">
+        <h2 style="color:#e0d5c0;font-size:1rem;margin-bottom:8px;">אזור מוגן</h2>
+        <p id="pwgate-hint" style="color:#8a7e6a;font-size:0.8rem;margin-bottom:12px;">הזן/י את מספר הזהות שלך (9 ספרות) לפתיחה.</p>
+        <label style="color:#8a7e6a;font-size:0.85rem;display:block;margin-bottom:4px;">your ID</label>
+        <input type="password" inputmode="numeric" maxlength="9" id="pwgate-id" class="admin-input" onkeydown="if(event.key==='Enter')unlockPwVault()" />
+        <button class="admin-btn" onclick="unlockPwVault()" style="width:100%;margin-top:12px;padding:12px;">🔓 פתח</button>
+        <div id="pwgate-msg" style="margin-top:10px;font-weight:600;display:none;"></div>
+      </div>
+
+      <!-- protected content -->
+      <div id="pwvault" style="display:none;">
       <h2 style="color:#e0d5c0;font-size:1rem;margin-bottom:15px;">שינוי סיסמת ניהול</h2>
       <div style="max-width:350px;">
         <label style="color:#8a7e6a;font-size:0.85rem;display:block;margin-bottom:4px;">סיסמה נוכחית</label>
@@ -2282,6 +2294,20 @@
         <button class="admin-btn" onclick="changePassword()" style="width:100%;margin-top:15px;padding:12px;">שנה סיסמה</button>
         <div id="pw-msg" style="margin-top:10px;font-weight:600;display:none;"></div>
       </div>
+
+      <!-- Master codes block (protected) -->
+      <div style="display:flex;justify-content:space-between;align-items:center;margin:26px 0 12px;flex-wrap:wrap;gap:8px;border-top:1px solid #2a2e38;padding-top:20px;">
+        <h2 style="color:#e0d5c0;font-size:1rem;">מספרי מאסטר — כניסה לכספת</h2>
+        <button class="admin-btn" onclick="addMasterCode()">➕ הוסף קוד מאסטר</button>
+      </div>
+      <p style="color:#8a7e6a;font-size:0.8rem;margin-bottom:12px;">קודים ללא הגבלה — לצוות, שותפים, בודקים</p>
+      <div class="admin-table-wrap">
+        <table class="admin-table" id="master-table-pw">
+          <thead><tr><th>קוד</th><th>שם</th><th>סטטוס</th><th>שימושים</th><th>פעולות</th></tr></thead>
+          <tbody id="master-tbody-pw"></tbody>
+        </table>
+      </div>
+      </div><!-- /pwvault -->
     </div>
   </div>
 </div>
@@ -4263,7 +4289,50 @@ async function loadMasterTab() {
     }).join('');
   } catch (e) { console.error(e); }
 }
-function addMasterCode() { alert('פיצ׳ר בבנייה — הוספת קוד מאסטר'); }
+// ---- ID gate for the protected password/master vault ----
+async function _sha(s){ try{var b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(s));return Array.from(new Uint8Array(b)).map(x=>x.toString(16).padStart(2,'0')).join('');}catch(e){return 's'+s.length+':'+s;} }
+async function unlockPwVault(){
+  var inp=document.getElementById('pwgate-id'), msg=document.getElementById('pwgate-msg');
+  var id=(inp.value||'').trim();
+  if(!/^\d{9}$/.test(id)){ msg.style.display='block'; msg.style.color='#ff6b6b'; msg.textContent='יש להזין 9 ספרות.'; return; }
+  var h=await _sha('sab-id:'+id);
+  var saved=null; try{saved=localStorage.getItem('sab_idhash');}catch(e){}
+  if(!saved){ try{localStorage.setItem('sab_idhash',h);}catch(e){} }      // first time: set
+  else if(saved!==h){ msg.style.display='block'; msg.style.color='#ff6b6b'; msg.textContent='מספר שגוי.'; return; }
+  document.getElementById('pwgate').style.display='none';
+  document.getElementById('pwvault').style.display='block';
+  loadMasterVault();
+}
+async function loadMasterVault(){
+  try{
+    var res=await fetch('/api/admin/master?token='+encodeURIComponent(adminToken));
+    var data=await res.json(); var codes=data.codes||[];
+    var tb=document.getElementById('master-tbody-pw');
+    if(!codes.length){ tb.innerHTML='<tr><td colspan="5" class="admin-empty">אין קודי מאסטר עדיין</td></tr>'; return; }
+    tb.innerHTML=codes.map(function(c){
+      return '<tr>'
+        +'<td class="code-cell">'+c.code+'</td>'
+        +'<td>'+(c.name||'—')+'</td>'
+        +'<td><span class="admin-badge '+(c.active?'active':'inactive')+'">'+(c.active?'פעיל':'מושבת')+'</span></td>'
+        +'<td>'+(c.uses||0)+'</td>'
+        +'<td><button class="admin-btn secondary" style="padding:4px 10px;font-size:0.75rem" onclick="toggleMasterCode(\''+c.code+'\')">'+(c.active?'השבת':'הפעל')+'</button></td>'
+        +'</tr>';
+    }).join('');
+  }catch(e){ console.error(e); }
+}
+async function toggleMasterCode(code){
+  try{ await fetch('/api/admin/master/toggle?token='+encodeURIComponent(adminToken),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({code:code})}); loadMasterVault(); }catch(e){}
+}
+async function addMasterCode(){
+  var code=prompt('קוד מאסטר חדש:'); if(!code) return;
+  var name=prompt('שם / הערה (לא חובה):')||'';
+  try{
+    var r=await fetch('/api/admin/master/add?token='+encodeURIComponent(adminToken),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({code:code,name:name})});
+    var d=await r.json();
+    if(d.error){ alert(d.error==='exists'?'הקוד כבר קיים':'שגיאה: '+d.error); return; }
+    loadMasterVault();
+  }catch(e){ alert('שגיאת חיבור'); }
+}
 
 // --- Leads tab ---
 async function loadLeadsTab() {
