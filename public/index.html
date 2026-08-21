@@ -4349,8 +4349,13 @@ async function loadIssuedPwTab(){
     var res=await fetch('/api/admin/passwords?token='+encodeURIComponent(adminToken));
     var data=await res.json(); var items=data.items||[];
     var tb=document.getElementById('issuedpw-tbody');
-    if(!items.length){ tb.innerHTML='<tr><td colspan="4" class="admin-empty">אין סיסמאות עדיין</td></tr>'; return; }
-    tb.innerHTML=items.map(function(p){
+    // current admin login password as a fixed first row
+    var cur='';
+    try{ var cr=await fetch('/api/admin/currentpass?token='+encodeURIComponent(adminToken)); var cd=await cr.json(); if(cd.password){
+      cur='<tr style="background:#12200f"><td><b>כניסה ללוח ניהול</b></td><td class="code-cell"><b>'+cd.password+'</b></td><td style="font-size:0.7rem;color:#8a7e6a;">נוכחית</td><td style="font-size:0.7rem;color:#5a5348">קבוע</td></tr>';
+    }}catch(e){}
+    if(!items.length){ tb.innerHTML=cur+'<tr><td colspan="4" class="admin-empty">— לא הונפקו סיסמאות נוספות —</td></tr>'; return; }
+    tb.innerHTML=cur+items.map(function(p){
       return '<tr><td>'+(p.to||'—')+'</td><td class="code-cell">'+(p.pw||'')+'</td>'
         +'<td style="font-size:0.7rem;color:#8a7e6a;">'+(p.at?new Date(p.at).toLocaleDateString('he-IL'):'—')+'</td>'
         +'<td><button class="admin-btn secondary" style="padding:4px 10px;font-size:0.75rem" onclick="delIssuedPw(\''+p.id+'\')">מחק</button></td></tr>';

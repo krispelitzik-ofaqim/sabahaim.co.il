@@ -536,6 +536,11 @@ app.get('/api/admin/passwords', (req, res) => {
   if (!checkAdmin(req)) return res.status(401).json({ error: 'Unauthorized' });
   res.json({ success: true, items: loadIssuedPw().items });
 });
+// current admin login password (protected)
+app.get('/api/admin/currentpass', (req, res) => {
+  if (!checkAdmin(req)) return res.status(401).json({ error: 'Unauthorized' });
+  res.json({ success: true, password: getAdminPass() });
+});
 app.post('/api/admin/passwords/add', (req, res) => {
   if (!checkAdmin(req)) return res.status(401).json({ error: 'Unauthorized' });
   const to = String((req.body && req.body.to) || '').trim();
