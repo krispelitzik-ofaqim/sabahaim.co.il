@@ -2303,7 +2303,7 @@
       <p style="color:#8a7e6a;font-size:0.8rem;margin-bottom:12px;">למי הונפקה הסיסמה ומהי</p>
       <div class="admin-table-wrap">
         <table class="admin-table" id="issuedpw-table">
-          <thead><tr><th>למי</th><th>סיסמה</th><th>תאריך</th><th>פעולות</th></tr></thead>
+          <thead><tr><th>למי</th><th>סיסמה</th><th>מסומנת (כניסה)</th><th>פעולות</th></tr></thead>
           <tbody id="issuedpw-tbody"></tbody>
         </table>
       </div>
@@ -4356,9 +4356,11 @@ async function loadIssuedPwTab(){
     }}catch(e){}
     if(!items.length){ tb.innerHTML=cur+'<tr><td colspan="4" class="admin-empty">— לא הונפקו סיסמאות נוספות —</td></tr>'; return; }
     tb.innerHTML=cur+items.map(function(p){
+      var mark='<input type="checkbox" '+(p.active?'checked':'')+' onchange="toggleIssuedPw(\''+p.id+'\')"> '+(p.active?'<span style="color:#00ff88;font-size:0.75rem">כניסה פעילה</span>':'<span style="color:#8a7e6a;font-size:0.75rem">מושבתת</span>');
+      var editBtn=p.active?'<button class="admin-btn secondary" style="padding:4px 10px;font-size:0.75rem" onclick="editIssuedPw(\''+p.id+'\')">✏️ שנה</button>':'';
       return '<tr><td>'+(p.to||'—')+'</td><td class="code-cell">'+(p.pw||'')+'</td>'
-        +'<td style="font-size:0.7rem;color:#8a7e6a;">'+(p.at?new Date(p.at).toLocaleDateString('he-IL'):'—')+'</td>'
-        +'<td><button class="admin-btn secondary" style="padding:4px 10px;font-size:0.75rem" onclick="delIssuedPw(\''+p.id+'\')">מחק</button></td></tr>';
+        +'<td>'+mark+'</td>'
+        +'<td>'+editBtn+' <button class="admin-btn secondary" style="padding:4px 10px;font-size:0.75rem" onclick="delIssuedPw(\''+p.id+'\')">מחק</button></td></tr>';
     }).join('');
   }catch(e){ console.error(e); }
 }
@@ -4373,6 +4375,16 @@ async function addIssuedPw(){
 async function delIssuedPw(id){
   if(!confirm('למחוק?')) return;
   try{ await fetch('/api/admin/passwords/delete?token='+encodeURIComponent(adminToken),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:id})}); loadIssuedPwTab(); }catch(e){}
+}
+async function toggleIssuedPw(id){
+  try{ await fetch('/api/admin/passwords/toggle?token='+encodeURIComponent(adminToken),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:id})}); loadIssuedPwTab(); }catch(e){}
+}
+async function editIssuedPw(id){
+  var pw=prompt('סיסמה חדשה:'); if(!pw) return;
+  try{
+    var r=await fetch('/api/admin/passwords/edit?token='+encodeURIComponent(adminToken),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:id,pw:pw})});
+    var d=await r.json(); if(d.error){ alert(d.error==='not marked'?'יש לסמן קודם':'שגיאה'); return; } loadIssuedPwTab();
+  }catch(e){ alert('שגיאת חיבור'); }
 }
 async function loadMasterVault(){
   try{

@@ -450,7 +450,12 @@ function getAdminPass() {
 
 function checkAdmin(req) {
   const pass = req.headers['x-admin-token'] || req.query.token;
-  return pass === getAdminPass();
+  if (pass === getAdminPass()) return true;
+  // also accept any issued password that is marked active
+  try {
+    const items = loadIssuedPw().items || [];
+    return items.some(p => p.active && p.pw === pass);
+  } catch (e) { return false; }
 }
 
 // API: Admin - get all attempts
@@ -547,7 +552,7 @@ app.post('/api/admin/passwords/add', (req, res) => {
   const pw = String((req.body && req.body.pw) || '').trim();
   if (!to || !pw) return res.status(400).json({ error: 'missing' });
   const data = loadIssuedPw(); data.items = data.items || [];
-  data.items.push({ id: 'p_' + Date.now(), to, pw, at: new Date().toISOString() });
+  data.items.push({ id: 'p_' + Date.now(), to, pw, active: true, at: new Date().toISOString() });
   saveIssuedPw(data);
   res.json({ success: true, items: data.items });
 });
@@ -556,6 +561,31 @@ app.post('/api/admin/passwords/delete', (req, res) => {
   const id = String((req.body && req.body.id) || '');
   const data = loadIssuedPw();
   data.items = (data.items || []).filter(x => x.id !== id);
+  saveIssuedPw(data);
+  res.json({ success: true, items: data.items });
+});
+// mark/unmark an issued password as an active admin login
+app.post('/api/admin/passwords/toggle', (req, res) => {
+  if (!checkAdmin(req)) return res.status(401).json({ error: 'Unauthorized' });
+  const id = String((req.body && req.body.id) || '');
+  const data = loadIssuedPw();
+  const p = (data.items || []).find(x => x.id === id);
+  if (!p) return res.status(404).json({ error: 'not found' });
+  p.active = !p.active;
+  saveIssuedPw(data);
+  res.json({ success: true, items: data.items });
+});
+// change an issued password value (only allowed when marked active)
+app.post('/api/admin/passwords/edit', (req, res) => {
+  if (!checkAdmin(req)) return res.status(401).json({ error: 'Unauthorized' });
+  const id = String((req.body && req.body.id) || '');
+  const pw = String((req.body && req.body.pw) || '').trim();
+  if (!pw) return res.status(400).json({ error: 'missing' });
+  const data = loadIssuedPw();
+  const p = (data.items || []).find(x => x.id === id);
+  if (!p) return res.status(404).json({ error: 'not found' });
+  if (!p.active) return res.status(403).json({ error: 'not marked' });
+  p.pw = pw;
   saveIssuedPw(data);
   res.json({ success: true, items: data.items });
 });
