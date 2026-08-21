@@ -1,2 +1,6 @@
 panel/files/
 *.pdf
+
+# allow print-ready book files
+!print/
+!print/*.pdf
