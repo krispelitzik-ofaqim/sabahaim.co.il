@@ -2295,6 +2295,19 @@
         <div id="pw-msg" style="margin-top:10px;font-weight:600;display:none;"></div>
       </div>
 
+      <!-- Issued passwords block (protected) -->
+      <div style="display:flex;justify-content:space-between;align-items:center;margin:26px 0 12px;flex-wrap:wrap;gap:8px;border-top:1px solid #2a2e38;padding-top:20px;">
+        <h2 style="color:#e0d5c0;font-size:1rem;">סיסמאות שהונפקו</h2>
+        <button class="admin-btn" onclick="addIssuedPw()">➕ הוסף סיסמה</button>
+      </div>
+      <p style="color:#8a7e6a;font-size:0.8rem;margin-bottom:12px;">למי הונפקה הסיסמה ומהי</p>
+      <div class="admin-table-wrap">
+        <table class="admin-table" id="issuedpw-table">
+          <thead><tr><th>למי</th><th>סיסמה</th><th>תאריך</th><th>פעולות</th></tr></thead>
+          <tbody id="issuedpw-tbody"></tbody>
+        </table>
+      </div>
+
       <!-- Master codes block (protected) -->
       <div style="display:flex;justify-content:space-between;align-items:center;margin:26px 0 12px;flex-wrap:wrap;gap:8px;border-top:1px solid #2a2e38;padding-top:20px;">
         <h2 style="color:#e0d5c0;font-size:1rem;">מספרי מאסטר — כניסה לכספת</h2>
@@ -4301,7 +4314,32 @@ async function unlockPwVault(){
   else if(saved!==h){ msg.style.display='block'; msg.style.color='#ff6b6b'; msg.textContent='מספר שגוי.'; return; }
   document.getElementById('pwgate').style.display='none';
   document.getElementById('pwvault').style.display='block';
-  loadMasterVault();
+  loadIssuedPwTab(); loadMasterVault();
+}
+async function loadIssuedPwTab(){
+  try{
+    var res=await fetch('/api/admin/passwords?token='+encodeURIComponent(adminToken));
+    var data=await res.json(); var items=data.items||[];
+    var tb=document.getElementById('issuedpw-tbody');
+    if(!items.length){ tb.innerHTML='<tr><td colspan="4" class="admin-empty">אין סיסמאות עדיין</td></tr>'; return; }
+    tb.innerHTML=items.map(function(p){
+      return '<tr><td>'+(p.to||'—')+'</td><td class="code-cell">'+(p.pw||'')+'</td>'
+        +'<td style="font-size:0.7rem;color:#8a7e6a;">'+(p.at?new Date(p.at).toLocaleDateString('he-IL'):'—')+'</td>'
+        +'<td><button class="admin-btn secondary" style="padding:4px 10px;font-size:0.75rem" onclick="delIssuedPw(\''+p.id+'\')">מחק</button></td></tr>';
+    }).join('');
+  }catch(e){ console.error(e); }
+}
+async function addIssuedPw(){
+  var to=prompt('למי הונפקה הסיסמה?'); if(!to) return;
+  var pw=prompt('מה הסיסמה?'); if(!pw) return;
+  try{
+    var r=await fetch('/api/admin/passwords/add?token='+encodeURIComponent(adminToken),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({to:to,pw:pw})});
+    var d=await r.json(); if(d.error){ alert('שגיאה'); return; } loadIssuedPwTab();
+  }catch(e){ alert('שגיאת חיבור'); }
+}
+async function delIssuedPw(id){
+  if(!confirm('למחוק?')) return;
+  try{ await fetch('/api/admin/passwords/delete?token='+encodeURIComponent(adminToken),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:id})}); loadIssuedPwTab(); }catch(e){}
 }
 async function loadMasterVault(){
   try{

@@ -76,6 +76,17 @@ function saveMaster(data) {
   fs.writeFileSync(MASTER_PATH, JSON.stringify(data, null, 2), 'utf8');
 }
 
+// Issued passwords registry (to whom + the password)
+const PW_PATH = path.join(VAULT_DIR, 'issued_passwords.json');
+function loadIssuedPw() {
+  if (!fs.existsSync(PW_PATH)) return { items: [] };
+  try { return JSON.parse(fs.readFileSync(PW_PATH, 'utf8')); }
+  catch (e) { return { items: [] }; }
+}
+function saveIssuedPw(data) {
+  fs.writeFileSync(PW_PATH, JSON.stringify(data, null, 2), 'utf8');
+}
+
 // Demo codes
 const DEMO_PATH = path.join(VAULT_DIR, 'demo_codes.json');
 
@@ -506,6 +517,30 @@ app.post('/api/admin/master/toggle', (req, res) => {
   c.active = !c.active;
   saveMaster(data);
   res.json({ success: true, codes: data.codes });
+});
+
+// API: Admin - issued passwords (to whom + password)
+app.get('/api/admin/passwords', (req, res) => {
+  if (!checkAdmin(req)) return res.status(401).json({ error: 'Unauthorized' });
+  res.json({ success: true, items: loadIssuedPw().items });
+});
+app.post('/api/admin/passwords/add', (req, res) => {
+  if (!checkAdmin(req)) return res.status(401).json({ error: 'Unauthorized' });
+  const to = String((req.body && req.body.to) || '').trim();
+  const pw = String((req.body && req.body.pw) || '').trim();
+  if (!to || !pw) return res.status(400).json({ error: 'missing' });
+  const data = loadIssuedPw(); data.items = data.items || [];
+  data.items.push({ id: 'p_' + Date.now(), to, pw, at: new Date().toISOString() });
+  saveIssuedPw(data);
+  res.json({ success: true, items: data.items });
+});
+app.post('/api/admin/passwords/delete', (req, res) => {
+  if (!checkAdmin(req)) return res.status(401).json({ error: 'Unauthorized' });
+  const id = String((req.body && req.body.id) || '');
+  const data = loadIssuedPw();
+  data.items = (data.items || []).filter(x => x.id !== id);
+  saveIssuedPw(data);
+  res.json({ success: true, items: data.items });
 });
 
 // API: Admin - get stats
