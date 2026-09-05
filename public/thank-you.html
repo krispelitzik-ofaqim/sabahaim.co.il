@@ -5,7 +5,8 @@
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
   gtag('js', new Date());
-  gtag('config', 'G-DQY4HX9WDJ');
+  gtag('config', 'G-DQY4HX9WDJ');   // Analytics
+  gtag('config', 'AW-18239819893');  // Google Ads
 </script>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -50,8 +51,12 @@
   </div>
 
 <script>
-  // Reports the purchase to Google Ads. The conversion label is filled in once
-  // the conversion action is created in the Ads account.
-  // gtag('event','conversion',{send_to:'AW-XXXXXXXXX/XXXXXXXX', value:79.0, currency:'ILS'});
+  // Reports the purchase to Google Ads. PayPal lands the buyer here only after a
+  // completed payment, so reaching this page is the conversion.
+  gtag('event', 'conversion', {
+    'send_to': 'AW-18239819893/eiaoCNzr9-4cEPWgtvlD',
+    'value': 79.0,
+    'currency': 'ILS'
+  });
 </script>
 </body></html>
