@@ -63,6 +63,15 @@ function saveCodes(data) {
   fs.writeFileSync(CODES_PATH, JSON.stringify(data, null, 2), 'utf8');
 }
 
+// Site settings — currently just the pilot WhatsApp alerts switch.
+const SETTINGS_PATH = path.join(VAULT_DIR, 'settings.json');
+function loadSettings() {
+  if (!fs.existsSync(SETTINGS_PATH)) return { notifyEntries: true };
+  try { return { notifyEntries: true, ...JSON.parse(fs.readFileSync(SETTINGS_PATH, 'utf8')) }; }
+  catch (e) { return { notifyEntries: true }; }
+}
+function saveSettings(d) { fs.writeFileSync(SETTINGS_PATH, JSON.stringify(d, null, 2), 'utf8'); }
+
 // Master codes
 const MASTER_PATH = path.join(VAULT_DIR, 'master_codes.json');
 
@@ -450,6 +459,17 @@ app.post('/api/gate/verify', (req, res) => {
   // Create/update lead
   getOrCreateLead(upperCode, phone);
 
+  // During the pilot Itzik wants to know the moment a real reader gets in.
+  // Fire-and-forget: a WhatsApp failure must never block the child at the gate.
+  const first = entry.uses === 1;
+  if (loadSettings().notifyEntries) sendAdminWhatsApp(
+    `🔓 כניסה לכספת\n\n` +
+    `קוד: ${upperCode}\n` +
+    `${first ? 'כניסה ראשונה עם הקוד הזה' : 'כניסה מספר ' + entry.uses}\n` +
+    (phone ? `טלפון: ${phone}\n` : '') +
+    `\n${new Date().toLocaleString('he-IL')}\n\n— הצופן הסודי`
+  ).catch(() => {});
+
   return res.json({ success: true, master: false, message: 'ברוכים הבאים!' });
 });
 
@@ -511,6 +531,19 @@ app.get('/api/admin/attempts', (req, res) => {
 });
 
 // API: Admin - get codes
+app.get('/api/admin/settings', (req, res) => {
+  if (!checkAdmin(req)) return res.status(401).json({ error: 'Unauthorized' });
+  res.json({ success: true, settings: loadSettings() });
+});
+
+app.post('/api/admin/settings', (req, res) => {
+  if (!checkAdmin(req)) return res.status(401).json({ error: 'Unauthorized' });
+  const cur = loadSettings();
+  if (typeof req.body.notifyEntries === 'boolean') cur.notifyEntries = req.body.notifyEntries;
+  saveSettings(cur);
+  res.json({ success: true, settings: cur });
+});
+
 app.get('/api/admin/codes', (req, res) => {
   if (!checkAdmin(req)) return res.status(401).json({ error: 'Unauthorized' });
   const data = loadCodes();

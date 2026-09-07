@@ -2052,6 +2052,18 @@
       </div>
       <div class="admin-summary" id="codes-summary"></div>
 
+      <!-- Pilot alerts: Itzik wants to feel every real entry, and to be able to
+           switch that off the moment it stops being useful. -->
+      <div id="notifyBox" style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;
+           background:rgba(255,107,53,.08);border:1px solid rgba(255,107,53,.35);border-radius:10px;padding:12px 14px;margin:12px 0;">
+        <div>
+          <div style="color:#e0d5c0;font-weight:700;font-size:.95rem;">התראת וואטסאפ על כל כניסה לכספת</div>
+          <div style="color:#a89a80;font-size:.8rem;margin-top:2px;">נשלחת אליך מיד כשמישהו נכנס עם קוד</div>
+        </div>
+        <button id="notifyBtn" onclick="toggleNotify()"
+          style="border:0;border-radius:8px;padding:9px 20px;font-family:inherit;font-weight:800;font-size:.9rem;cursor:pointer;">…</button>
+      </div>
+
       <!-- Batch generation -->
       <div style="background:#0d1117;border:1px solid #2a2e38;border-radius:8px;padding:15px;margin-bottom:15px;">
         <h3 style="color:#ff6b35;font-size:0.9rem;margin-bottom:10px;">ייצור מנות</h3>
@@ -3938,6 +3950,33 @@ function restoreAdminSession() {
 window.addEventListener('load', restoreAdminSession);
 window.addEventListener('hashchange', restoreAdminSession);
 
+let NOTIFY_ON = null;
+function paintNotify() {
+  const b = document.getElementById('notifyBtn');
+  if (!b) return;
+  if (NOTIFY_ON === null) { b.textContent = '…'; return; }
+  b.textContent = NOTIFY_ON ? 'פעיל · לחץ לכיבוי' : 'כבוי · לחץ להפעלה';
+  b.style.background = NOTIFY_ON ? '#2e9e63' : '#5a5348';
+  b.style.color = '#fff';
+}
+async function loadNotify() {
+  try {
+    const r = await fetch('/api/admin/settings?token=' + encodeURIComponent(adminToken));
+    const d = await r.json();
+    if (d.success) { NOTIFY_ON = !!d.settings.notifyEntries; paintNotify(); }
+  } catch (e) {}
+}
+async function toggleNotify() {
+  try {
+    const r = await fetch('/api/admin/settings?token=' + encodeURIComponent(adminToken), {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ notifyEntries: !NOTIFY_ON })
+    });
+    const d = await r.json();
+    if (d.success) { NOTIFY_ON = !!d.settings.notifyEntries; paintNotify(); }
+  } catch (e) {}
+}
+
 function showAdminTab(tab) {
   currentAdminTab = tab;
   document.querySelectorAll('.admin-tab').forEach(function(t) { t.classList.remove('active'); });
@@ -4084,6 +4123,7 @@ function switchLanding(mode) {
 var allCodes = [];
 
 async function loadCodesTab() {
+  loadNotify();
   try {
     var res = await fetch('/api/admin/codes?token=' + encodeURIComponent(adminToken));
     var data = await res.json();
