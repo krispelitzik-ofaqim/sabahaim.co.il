@@ -2054,16 +2054,20 @@
 
       <!-- Pilot alerts: Itzik wants to feel every real entry, and to be able to
            switch that off the moment it stops being useful. -->
-      <!-- Who holds which code: Itzik hands books out personally, so tracking by
-           name beats tracking by a random string. -->
+      <!-- Attach a name to a code before the book is handed over. Two fields,
+           no list: most of the 100 are never tracked. -->
       <div style="background:rgba(0,0,0,.18);border:1px solid #2a3a2a;border-radius:10px;padding:12px 14px;margin:12px 0;">
-        <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:9px;">
-          <div style="color:#e0d5c0;font-weight:700;font-size:.95rem;">שמות הקוראים</div>
-          <input id="readerSearch" oninput="renderReaders()" placeholder="חפש קוד או שם…"
-            style="flex:1;min-width:180px;background:#12180f;border:1px solid #2a3a2a;border-radius:8px;padding:8px 11px;color:#e0d5c0;font-family:inherit;font-size:.85rem;">
+        <div style="color:#e0d5c0;font-weight:700;font-size:.95rem;margin-bottom:3px;">שיוך קוד לקורא</div>
+        <div style="color:#8a7e6a;font-size:.78rem;margin-bottom:10px;">הקלד את הקוד שבספר ואת שם המקבל — השם יופיע בהתראה ובלידים</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+          <input id="readerCode" placeholder="קוד גישה" dir="ltr"
+            style="flex:1;min-width:150px;background:#12180f;border:1px solid #2a3a2a;border-radius:8px;padding:9px 11px;color:#e9c46a;font-family:monospace;font-size:.9rem;text-align:left;">
+          <input id="readerName" placeholder="שם הקורא" onkeydown="if(event.key==='Enter')saveReaderForm()"
+            style="flex:1;min-width:150px;background:#12180f;border:1px solid #2a3a2a;border-radius:8px;padding:9px 11px;color:#e0d5c0;font-family:inherit;font-size:.9rem;">
+          <button class="admin-btn" onclick="saveReaderForm()">שמירה</button>
         </div>
-        <div style="color:#8a7e6a;font-size:.78rem;margin-bottom:8px;">כתוב שם ולחץ Enter — השם יופיע בהתראת הוואטסאפ</div>
-        <div id="readerList" style="max-height:340px;overflow:auto;"></div>
+        <div id="readerMsg" style="font-size:.82rem;margin-top:9px;min-height:18px;"></div>
+        <div id="readerList" style="margin-top:10px;"></div>
       </div>
 
       <div id="notifyBox" style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;
@@ -3990,43 +3994,55 @@ async function toggleNotify() {
 }
 
 function renderReaders() {
+  // Only the codes that were actually assigned — the rest are noise.
   var el = document.getElementById('readerList');
   if (!el || !window.allCodes) return;
-  var q = (document.getElementById('readerSearch') || {}).value || '';
-  q = q.trim().toUpperCase();
-  var list = allCodes.filter(function (c) {
-    if (!q) return true;
-    return c.code.indexOf(q) >= 0 || String(c.reader || '').toUpperCase().indexOf(q) >= 0;
-  });
-  var named = allCodes.filter(function (c) { return c.reader; }).length;
-  el.innerHTML =
-    '<div style="color:#8a7e6a;font-size:.78rem;margin-bottom:6px;">' + named + ' מתוך ' + allCodes.length + ' קודים משויכים לשם</div>' +
+  var named = allCodes.filter(function (c) { return c.reader; });
+  if (!named.length) { el.innerHTML = '<div style="color:#5a5040;font-size:.8rem;">עדיין לא שויכו קודים לשמות</div>'; return; }
+  el.innerHTML = '<div style="color:#8a7e6a;font-size:.78rem;margin-bottom:6px;">' + named.length + ' קודים משויכים</div>' +
     '<table style="width:100%;border-collapse:collapse;font-size:.85rem;color:#e0d5c0;"><tbody>' +
-    list.slice(0, 200).map(function (c) {
+    named.map(function (c) {
       return '<tr style="border-bottom:1px solid #1a2a1a;">' +
-        '<td style="padding:7px 8px;font-family:monospace;color:#e9c46a;" dir="ltr">' + c.code + '</td>' +
-        '<td style="padding:7px 8px;"><input value="' + String(c.reader || '').replace(/"/g, '&quot;') + '" ' +
-          'onkeydown="if(event.key===\'Enter\')saveReader(\'' + c.code + '\',this.value,this)" ' +
-          'onblur="saveReader(\'' + c.code + '\',this.value,this)" placeholder="שם הקורא" ' +
-          'style="width:100%;background:#12180f;border:1px solid #2a3a2a;border-radius:6px;padding:6px 9px;color:#e0d5c0;font-family:inherit;font-size:.85rem;"></td>' +
-        '<td style="padding:7px 8px;color:#8a7e6a;white-space:nowrap;">' + (c.uses ? c.uses + ' כניסות' : '—') + '</td>' +
+        '<td style="padding:6px 8px;font-family:monospace;color:#e9c46a;" dir="ltr">' + c.code + '</td>' +
+        '<td style="padding:6px 8px;font-weight:700;">' + c.reader + '</td>' +
+        '<td style="padding:6px 8px;color:#8a7e6a;white-space:nowrap;">' + (c.uses ? c.uses + ' כניסות' : 'טרם נכנס') + '</td>' +
+        '<td style="padding:6px 8px;"><button onclick="clearReader(\'' + c.code + '\')" ' +
+          'style="background:none;border:0;color:#8a7e6a;cursor:pointer;font-family:inherit;font-size:.8rem;">הסר</button></td>' +
       '</tr>';
-    }).join('') + '</tbody></table>' +
-    (list.length > 200 ? '<div style="color:#5a5040;font-size:.75rem;padding-top:6px;">מוצגים 200 הראשונים — חפש כדי לצמצם</div>' : '');
+    }).join('') + '</tbody></table>';
 }
-async function saveReader(code, reader, inputEl) {
-  var item = (window.allCodes || []).find(function (c) { return c.code === code; });
-  if (item && (item.reader || '') === reader) return;
+function readerMsg(text, ok) {
+  var m = document.getElementById('readerMsg');
+  if (m) { m.textContent = text; m.style.color = ok ? '#2e9e63' : '#ff6b35'; }
+}
+async function setReader(code, reader) {
+  var r = await fetch('/api/admin/codes/reader?token=' + encodeURIComponent(adminToken), {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ code: code, reader: reader })
+  });
+  return r.json();
+}
+async function saveReaderForm() {
+  var codeEl = document.getElementById('readerCode'), nameEl = document.getElementById('readerName');
+  var code = (codeEl.value || '').trim().toUpperCase(), name = (nameEl.value || '').trim();
+  if (!code) return readerMsg('חסר קוד', false);
+  if (!name) return readerMsg('חסר שם', false);
   try {
-    var r = await fetch('/api/admin/codes/reader?token=' + encodeURIComponent(adminToken), {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ code: code, reader: reader })
-    });
-    var d = await r.json();
-    if (d.success) {
-      if (item) item.reader = d.reader;
-      if (inputEl) { inputEl.style.borderColor = '#2e9e63'; setTimeout(function () { inputEl.style.borderColor = '#2a3a2a'; }, 1200); }
-    }
+    var d = await setReader(code, name);
+    if (!d.success) return readerMsg('הקוד לא נמצא במערכת', false);
+    var item = (window.allCodes || []).find(function (c) { return c.code === code; });
+    if (item) item.reader = d.reader;
+    readerMsg('נשמר — ' + code + ' משויך ל' + name, true);
+    codeEl.value = ''; nameEl.value = '';
+    renderReaders();
+  } catch (e) { readerMsg('שגיאה בשמירה', false); }
+}
+async function clearReader(code) {
+  try {
+    await setReader(code, '');
+    var item = (window.allCodes || []).find(function (c) { return c.code === code; });
+    if (item) item.reader = '';
+    renderReaders();
   } catch (e) {}
 }
 
