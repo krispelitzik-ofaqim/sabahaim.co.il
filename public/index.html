@@ -2067,7 +2067,6 @@
           <button class="admin-btn" onclick="saveReaderForm()">שמירה</button>
         </div>
         <div id="readerMsg" style="font-size:.82rem;margin-top:9px;min-height:18px;"></div>
-        <div id="readerList" style="margin-top:10px;"></div>
       </div>
 
       <div id="notifyBox" style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;
@@ -3993,24 +3992,6 @@ async function toggleNotify() {
   } catch (e) {}
 }
 
-function renderReaders() {
-  // Only the codes that were actually assigned — the rest are noise.
-  var el = document.getElementById('readerList');
-  if (!el || !window.allCodes) return;
-  var named = allCodes.filter(function (c) { return c.reader; });
-  if (!named.length) { el.innerHTML = '<div style="color:#5a5040;font-size:.8rem;">עדיין לא שויכו קודים לשמות</div>'; return; }
-  el.innerHTML = '<div style="color:#8a7e6a;font-size:.78rem;margin-bottom:6px;">' + named.length + ' קודים משויכים</div>' +
-    '<table style="width:100%;border-collapse:collapse;font-size:.85rem;color:#e0d5c0;"><tbody>' +
-    named.map(function (c) {
-      return '<tr style="border-bottom:1px solid #1a2a1a;">' +
-        '<td style="padding:6px 8px;font-family:monospace;color:#e9c46a;" dir="ltr">' + c.code + '</td>' +
-        '<td style="padding:6px 8px;font-weight:700;">' + c.reader + '</td>' +
-        '<td style="padding:6px 8px;color:#8a7e6a;white-space:nowrap;">' + (c.uses ? c.uses + ' כניסות' : 'טרם נכנס') + '</td>' +
-        '<td style="padding:6px 8px;"><button onclick="clearReader(\'' + c.code + '\')" ' +
-          'style="background:none;border:0;color:#8a7e6a;cursor:pointer;font-family:inherit;font-size:.8rem;">הסר</button></td>' +
-      '</tr>';
-    }).join('') + '</tbody></table>';
-}
 function readerMsg(text, ok) {
   var m = document.getElementById('readerMsg');
   if (m) { m.textContent = text; m.style.color = ok ? '#2e9e63' : '#ff6b35'; }
@@ -4034,18 +4015,8 @@ async function saveReaderForm() {
     if (item) item.reader = d.reader;
     readerMsg('נשמר — ' + code + ' משויך ל' + name, true);
     codeEl.value = ''; nameEl.value = '';
-    renderReaders();
   } catch (e) { readerMsg('שגיאה בשמירה', false); }
 }
-async function clearReader(code) {
-  try {
-    await setReader(code, '');
-    var item = (window.allCodes || []).find(function (c) { return c.code === code; });
-    if (item) item.reader = '';
-    renderReaders();
-  } catch (e) {}
-}
-
 function showAdminTab(tab) {
   currentAdminTab = tab;
   document.querySelectorAll('.admin-tab').forEach(function(t) { t.classList.remove('active'); });
@@ -4246,7 +4217,6 @@ async function loadCodesTab() {
         + rows + '</tbody></table>';
     }
 
-    renderReaders();
 
     // Hide detail
     document.getElementById('batch-detail').style.display = 'none';
