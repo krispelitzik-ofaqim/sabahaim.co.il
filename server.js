@@ -464,6 +464,7 @@ app.post('/api/gate/verify', (req, res) => {
   const first = entry.uses === 1;
   if (loadSettings().notifyEntries) sendAdminWhatsApp(
     `🔓 כניסה לכספת\n\n` +
+    (entry.reader ? `👤 ${entry.reader}\n` : '') +
     `קוד: ${upperCode}\n` +
     `${first ? 'כניסה ראשונה עם הקוד הזה' : 'כניסה מספר ' + entry.uses}\n` +
     (phone ? `טלפון: ${phone}\n` : '') +
@@ -531,6 +532,17 @@ app.get('/api/admin/attempts', (req, res) => {
 });
 
 // API: Admin - get codes
+app.post('/api/admin/codes/reader', (req, res) => {
+  if (!checkAdmin(req)) return res.status(401).json({ error: 'Unauthorized' });
+  const code = String(req.body.code || '').toUpperCase();
+  const data = loadCodes();
+  const entry = data.codes.find(c => c.code === code);
+  if (!entry) return res.status(404).json({ error: 'code not found' });
+  entry.reader = String(req.body.reader || '').slice(0, 60);
+  saveCodes(data);
+  res.json({ success: true, code, reader: entry.reader });
+});
+
 app.get('/api/admin/settings', (req, res) => {
   if (!checkAdmin(req)) return res.status(401).json({ error: 'Unauthorized' });
   res.json({ success: true, settings: loadSettings() });

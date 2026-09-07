@@ -2054,6 +2054,18 @@
 
       <!-- Pilot alerts: Itzik wants to feel every real entry, and to be able to
            switch that off the moment it stops being useful. -->
+      <!-- Who holds which code: Itzik hands books out personally, so tracking by
+           name beats tracking by a random string. -->
+      <div style="background:rgba(0,0,0,.18);border:1px solid #2a3a2a;border-radius:10px;padding:12px 14px;margin:12px 0;">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:9px;">
+          <div style="color:#e0d5c0;font-weight:700;font-size:.95rem;">שמות הקוראים</div>
+          <input id="readerSearch" oninput="renderReaders()" placeholder="חפש קוד או שם…"
+            style="flex:1;min-width:180px;background:#12180f;border:1px solid #2a3a2a;border-radius:8px;padding:8px 11px;color:#e0d5c0;font-family:inherit;font-size:.85rem;">
+        </div>
+        <div style="color:#8a7e6a;font-size:.78rem;margin-bottom:8px;">כתוב שם ולחץ Enter — השם יופיע בהתראת הוואטסאפ</div>
+        <div id="readerList" style="max-height:340px;overflow:auto;"></div>
+      </div>
+
       <div id="notifyBox" style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;
            background:rgba(255,107,53,.08);border:1px solid rgba(255,107,53,.35);border-radius:10px;padding:12px 14px;margin:12px 0;">
         <div>
@@ -3977,6 +3989,47 @@ async function toggleNotify() {
   } catch (e) {}
 }
 
+function renderReaders() {
+  var el = document.getElementById('readerList');
+  if (!el || !window.allCodes) return;
+  var q = (document.getElementById('readerSearch') || {}).value || '';
+  q = q.trim().toUpperCase();
+  var list = allCodes.filter(function (c) {
+    if (!q) return true;
+    return c.code.indexOf(q) >= 0 || String(c.reader || '').toUpperCase().indexOf(q) >= 0;
+  });
+  var named = allCodes.filter(function (c) { return c.reader; }).length;
+  el.innerHTML =
+    '<div style="color:#8a7e6a;font-size:.78rem;margin-bottom:6px;">' + named + ' מתוך ' + allCodes.length + ' קודים משויכים לשם</div>' +
+    '<table style="width:100%;border-collapse:collapse;font-size:.85rem;color:#e0d5c0;"><tbody>' +
+    list.slice(0, 200).map(function (c) {
+      return '<tr style="border-bottom:1px solid #1a2a1a;">' +
+        '<td style="padding:7px 8px;font-family:monospace;color:#e9c46a;" dir="ltr">' + c.code + '</td>' +
+        '<td style="padding:7px 8px;"><input value="' + String(c.reader || '').replace(/"/g, '&quot;') + '" ' +
+          'onkeydown="if(event.key===\'Enter\')saveReader(\'' + c.code + '\',this.value,this)" ' +
+          'onblur="saveReader(\'' + c.code + '\',this.value,this)" placeholder="שם הקורא" ' +
+          'style="width:100%;background:#12180f;border:1px solid #2a3a2a;border-radius:6px;padding:6px 9px;color:#e0d5c0;font-family:inherit;font-size:.85rem;"></td>' +
+        '<td style="padding:7px 8px;color:#8a7e6a;white-space:nowrap;">' + (c.uses ? c.uses + ' כניסות' : '—') + '</td>' +
+      '</tr>';
+    }).join('') + '</tbody></table>' +
+    (list.length > 200 ? '<div style="color:#5a5040;font-size:.75rem;padding-top:6px;">מוצגים 200 הראשונים — חפש כדי לצמצם</div>' : '');
+}
+async function saveReader(code, reader, inputEl) {
+  var item = (window.allCodes || []).find(function (c) { return c.code === code; });
+  if (item && (item.reader || '') === reader) return;
+  try {
+    var r = await fetch('/api/admin/codes/reader?token=' + encodeURIComponent(adminToken), {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ code: code, reader: reader })
+    });
+    var d = await r.json();
+    if (d.success) {
+      if (item) item.reader = d.reader;
+      if (inputEl) { inputEl.style.borderColor = '#2e9e63'; setTimeout(function () { inputEl.style.borderColor = '#2a3a2a'; }, 1200); }
+    }
+  } catch (e) {}
+}
+
 function showAdminTab(tab) {
   currentAdminTab = tab;
   document.querySelectorAll('.admin-tab').forEach(function(t) { t.classList.remove('active'); });
@@ -4176,6 +4229,8 @@ async function loadCodesTab() {
         + '<th style="text-align:right;padding:6px 10px;border-bottom:1px solid #2a3a2a;">כמות</th></tr></thead><tbody>'
         + rows + '</tbody></table>';
     }
+
+    renderReaders();
 
     // Hide detail
     document.getElementById('batch-detail').style.display = 'none';
