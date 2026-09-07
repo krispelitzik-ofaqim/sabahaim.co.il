@@ -4623,7 +4623,7 @@ async function loadLeadsTab() {
         return '<span class="admin-badge ' + (val ? 'active' : 'inactive') + '">' + (val ? '✓' : '✗') + '</span>';
       }
       return '<tr>' +
-        '<td class="code-cell">' + l.code + '</td>' +
+        '<td class="code-cell">' + l.code + (l.reader ? '<div style="color:#e9c46a;font-weight:700;font-size:.8rem;margin-top:2px;">' + l.reader + '</div>' : '') + '</td>' +
         '<td style="direction:ltr;text-align:left;">' + (l.phone || '—') + '</td>' +
         '<td style="text-align:center;">' + badge(l.vaultOpened) + '</td>' +
         '<td style="text-align:center;">' + badge(l.printedLetter) + '</td>' +
@@ -4700,7 +4700,7 @@ async function loadArchiveTab() {
         return '<span class="admin-badge ' + (val ? 'active' : 'inactive') + '">' + (val ? '✓' : '✗') + '</span>';
       }
       return '<tr>' +
-        '<td class="code-cell">' + l.code + '</td>' +
+        '<td class="code-cell">' + l.code + (l.reader ? '<div style="color:#e9c46a;font-weight:700;font-size:.8rem;margin-top:2px;">' + l.reader + '</div>' : '') + '</td>' +
         '<td style="direction:ltr;text-align:left;">' + (l.phone || '—') + '</td>' +
         '<td style="text-align:center;">' + badge(l.vaultOpened) + '</td>' +
         '<td style="text-align:center;">' + badge(l.printedLetter) + '</td>' +

@@ -729,6 +729,11 @@ app.get('/api/admin/leads', (req, res) => {
   } else {
     leads = Object.values(data.leads).filter(l => (l.status || 'active') === statusFilter);
   }
+  // Carry the reader's name across from the code, so a lead is a person and not
+  // a random string. The name lives on the code because it is set before anyone
+  // has entered — a lead only exists once they do.
+  const codeMap = new Map(loadCodes().codes.map(c => [c.code, c.reader || '']));
+  leads = leads.map(l => Object.assign({}, l, { reader: codeMap.get(l.code) || '' }));
   res.json({ success: true, leads });
 });
 
