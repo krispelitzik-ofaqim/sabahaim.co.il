@@ -48,31 +48,42 @@ body{margin:0;background:var(--paper);color:var(--ink);
 .filters button em{font-style:normal;color:var(--muted);margin-inline-start:5px}
 .filters button.on em{color:#9FA9B8}
 
-.order{background:var(--card);border:1px solid var(--line);border-radius:16px;
-  padding:15px 17px;margin-bottom:11px}
-.order.needPhone{border-color:#E7B4AD;background:#FFF8F7}
-.top{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
-/* מספר שאפשר להכתיב בטלפון, במקום 17 התווים של PayPal */
-.top .no{background:var(--ink);color:#fff;border-radius:9px;padding:3px 10px;
-  font-size:13px;font-weight:800;font-variant-numeric:tabular-nums}
-.top .who{font-size:16px;font-weight:800}
-.top .when{font-size:12.5px;color:var(--muted);font-variant-numeric:tabular-nums}
-.top .sum{margin-inline-start:auto;font-size:15px;font-weight:800;
-  font-variant-numeric:tabular-nums}
-.top .sum small{font-size:11.5px;color:var(--muted);font-weight:600;margin-inline-start:5px}
+.order{background:var(--card);border:1px solid var(--line);border-radius:14px;
+  margin-bottom:8px;overflow:hidden}
+.order.needPhone{border-color:#E7B4AD}
+.order:hover{box-shadow:inset 0 0 0 1px var(--line)}
 
-.lines{margin-top:9px;display:grid;gap:3px;font-size:13.5px;color:#49525F;line-height:1.55}
+.head{display:flex;align-items:center;gap:11px;width:100%;background:none;border:0;
+  padding:13px 15px;font-family:inherit;cursor:pointer;text-align:start}
+.head:hover{background:var(--wash)}
+.no{background:var(--ink);color:#fff;border-radius:8px;padding:3px 9px;flex:none;
+  font-size:12.5px;font-weight:800;font-variant-numeric:tabular-nums}
+.who{font-size:15px;font-weight:800;color:var(--ink);white-space:nowrap;
+  overflow:hidden;text-overflow:ellipsis;min-width:0}
+.city{font-size:13px;color:var(--muted);white-space:nowrap}
+.badge{flex:none;font-size:11.5px;font-weight:800;border-radius:999px;padding:3px 10px;
+  background:var(--wash)}
+.badge.bad{background:#FBE7E4;color:#9E2B1E}
+.sum{margin-inline-start:auto;font-size:14px;font-weight:800;flex:none;
+  font-variant-numeric:tabular-nums}
+.chev{flex:none;font-size:11px;color:var(--muted);transition:transform .18s}
+.order.open .chev{transform:rotate(180deg)}
+
+.order .body{display:none;padding:0 15px 14px;border-top:1px solid var(--line)}
+.order.open .body{display:block}
+
+.lines{margin-top:11px;display:grid;gap:3px;font-size:13.5px;color:#49525F;line-height:1.55}
 .lines a{color:#49525F}
 .lines .addr{font-weight:700;color:var(--ink)}
-.warn{display:inline-block;margin-top:8px;background:#FBE7E4;color:#9E2B1E;
+.warn{display:inline-block;background:#FBE7E4;color:#9E2B1E;
   border-radius:999px;padding:4px 11px;font-size:12px;font-weight:800}
 
 .row{margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
 .row input{border:1px solid var(--line);border-radius:10px;padding:8px 11px;
   font-family:inherit;font-size:13px;min-width:0}
 .row input.phone{width:170px}
-.row input.track{width:200px}
-.row input.memo{flex:1;min-width:180px}
+.row input.track{width:190px}
+.row input.memo{flex:1;min-width:170px}
 .row select{border:1px solid var(--line);border-radius:10px;padding:8px 11px;
   font-family:inherit;font-size:13px;font-weight:700;background:var(--card)}
 .row .wa{background:var(--green);color:#fff;border:0;border-radius:10px;padding:8px 14px;
@@ -202,39 +213,55 @@ function paint(r) {
 function card(o) {
   const st = o.status || 'new';
   const wa = waNum(o.phone);
+  const city = (o.address || '').split(',').map(x => x.trim()).filter(Boolean).slice(-2, -1)[0] || '';
   const msg = encodeURIComponent(
     `שלום ${o.name || ''}, כאן איציק — הצופן הסודי. הספר שלך יוצא אליך בימים הקרובים.`);
+  const stHe = (STATUS.find(x => x.k === st) || {}).he || '';
+
   return `
   <div class="order ${o.phone ? '' : 'needPhone'}" data-id="${esc(o.id)}">
-    <div class="top">
+    <button class="head" onclick="toggle(this)">
       <span class="no">#${o.no || '—'}</span>
       <span class="who">${esc(o.name) || '—'}</span>
-      <span class="when">${when(o.at)}</span>
-      <span class="sum">${o.amount} ${esc(o.currency)}
-        ${o.qty > 1 ? `<small>${o.qty} עותקים</small>` : ''}</span>
-    </div>
-    <div class="lines">
-      ${o.address ? `<div class="addr">${esc(o.address)}</div>` : ''}
-      ${o.email ? `<div><a href="mailto:${esc(o.email)}">${esc(o.email)}</a></div>` : ''}
-      ${o.address ? '' : '<div class="warn">אין כתובת משלוח ב-PayPal</div>'}
-      ${o.phone ? '' : '<div class="warn">אין טלפון — שלחו לה/לו מייל ובקשו</div>'}
-    </div>
-    <div class="row">
-      <input class="phone" placeholder="טלפון" value="${esc(o.phone)}"
-             oninput="edit(this,'phone')">
-      <select onchange="edit(this,'status')" class="st-${st}">
-        ${STATUS.map(s => `<option value="${s.k}" ${s.k === st ? 'selected' : ''}>${s.he}</option>`).join('')}
-      </select>
-      <input class="track" placeholder="מספר מעקב" value="${esc(o.tracking)}"
-             oninput="edit(this,'tracking')">
-      <input class="memo" placeholder="הערה" value="${esc(o.memo)}"
-             oninput="edit(this,'memo')">
-      <a class="wa ${wa ? '' : 'off'}" target="_blank" rel="noopener"
-         href="${wa ? `https://wa.me/${wa}?text=${msg}` : '#'}">וואטסאפ</a>
-      <span class="saved">נשמר</span>
+      <span class="city">${esc(city)}</span>
+      <span class="badge st-${st}">${stHe}</span>
+      ${o.phone ? '' : '<span class="badge bad">אין טלפון</span>'}
+      <span class="sum">${o.amount} ${esc(o.currency)}</span>
+      <span class="chev">▾</span>
+    </button>
+
+    <div class="body">
+      <div class="lines">
+        ${o.address ? `<div class="addr">${esc(o.address)}</div>` : '<div class="warn">אין כתובת משלוח</div>'}
+        <div>${when(o.at)}${o.qty > 1 ? ` · ${o.qty} עותקים` : ''}</div>
+        ${o.email ? `<div><a href="mailto:${esc(o.email)}">${esc(o.email)}</a></div>` : ''}
+      </div>
+      <div class="row">
+        <input class="phone" placeholder="טלפון" value="${esc(o.phone)}"
+               oninput="edit(this,'phone')">
+        <select onchange="edit(this,'status')" class="st-${st}">
+          ${STATUS.map(x => `<option value="${x.k}" ${x.k === st ? 'selected' : ''}>${x.he}</option>`).join('')}
+        </select>
+        <input class="track" placeholder="מספר מעקב" value="${esc(o.tracking)}"
+               oninput="edit(this,'tracking')">
+        <input class="memo" placeholder="הערה" value="${esc(o.memo)}"
+               oninput="edit(this,'memo')">
+        <a class="wa ${wa ? '' : 'off'}" target="_blank" rel="noopener"
+           href="${wa ? `https://wa.me/${wa}?text=${msg}` : '#'}">וואטסאפ</a>
+        <span class="saved">נשמר</span>
+      </div>
     </div>
   </div>`;
 }
+
+/* שורה אחת לכל הזמנה, ומי שלוחצים עליה נפתחת. אחת בכל פעם — חמש־עשרה
+   הזמנות פתוחות בבת אחת זה דף שאי אפשר לסרוק בעין. */
+window.toggle = function (btn) {
+  const box = btn.closest('.order');
+  const was = box.classList.contains('open');
+  document.querySelectorAll('.order.open').forEach(o => o.classList.remove('open'));
+  if (!was) box.classList.add('open');
+};
 
 window.setFilter = k => { FILTER = k; paint(); };
 
