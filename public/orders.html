@@ -148,7 +148,6 @@ code{background:var(--wash);padding:2px 6px;border-radius:6px;font-size:12px}
 .lbl .body{display:flex;flex-direction:column;min-width:0;height:100%}
 .lbl .block{min-width:0}
 .lbl .to{flex:1;display:flex;flex-direction:column;justify-content:center;gap:1mm}
-.lbl .tag{font-size:7.5pt;font-weight:800;letter-spacing:.18em;color:#AAA}
 .lbl .nm{font-size:21pt;font-weight:800;line-height:1.15}
 .lbl .ad{font-size:16pt;line-height:1.3}
 .lbl .city{font-size:19pt;font-weight:800;line-height:1.25}
@@ -534,7 +533,6 @@ window.printIt = async function (what) {
 
         <div class="body">
           <div class="block to">
-            <div class="tag">מען</div>
             <div class="nm">${esc(o.name) || '—'}</div>
             ${a.street ? `<div class="ad">${esc(a.street)}</div>` : ''}
             <div class="city">${esc(a.city) || '—'}${a.zip ? ` <small>${esc(a.zip)}</small>` : ''}</div>
@@ -543,7 +541,6 @@ window.printIt = async function (what) {
           </div>
 
           <div class="block from">
-            <div class="tag">שולח</div>
             <div class="sender">
               <img src="/marketing/logo-taktika.png" alt="">
               <span>${SENDER}</span>
