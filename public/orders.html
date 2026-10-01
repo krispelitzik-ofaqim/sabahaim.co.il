@@ -99,6 +99,35 @@ body{margin:0;background:var(--paper);color:var(--ink);
 .empty b{color:var(--ink)}
 .note{margin-top:14px;font-size:12.5px;color:var(--muted);line-height:1.7}
 code{background:var(--wash);padding:2px 6px;border-radius:6px;font-size:12px}
+/* ── נייר ─────────────────────────────────────────────────────
+   מה שמודפס הוא מה שמסונן על המסך, לא הכול — מי שמסנן "ממתין" מדפיס
+   מדבקות רק למי שעוד לא נשלח אליו. */
+#print{display:none}
+@media print{
+  @page{size:A4;margin:9mm}
+  body{background:#fff}
+  .bar,.wrap{display:none !important}
+  #print{display:block}
+  .lbl{break-inside:avoid}
+}
+
+.sheet{display:grid;grid-template-columns:1fr 1fr;gap:4mm}
+.lbl{border:1px dashed #BBB;border-radius:3mm;padding:7mm 7mm 6mm;min-height:52mm;
+  display:flex;flex-direction:column;gap:2mm}
+.lbl .n{font-size:10pt;font-weight:800;color:#555}
+.lbl .to{font-size:15pt;font-weight:800;line-height:1.25}
+.lbl .ad{font-size:12.5pt;line-height:1.5}
+.lbl .ph{font-size:12pt;font-weight:700}
+.lbl .from{margin-top:auto;padding-top:3mm;border-top:1px solid #DDD;
+  font-size:9pt;color:#666;line-height:1.5}
+
+.rep{width:100%;border-collapse:collapse;font-size:10.5pt}
+.rep caption{text-align:start;font-size:14pt;font-weight:800;padding-bottom:4mm}
+.rep th{text-align:start;font-size:9.5pt;color:#555;border-bottom:1.5px solid #333;
+  padding:2mm 1.5mm;font-weight:800}
+.rep td{border-bottom:1px solid #DDD;padding:2.5mm 1.5mm;vertical-align:top}
+.rep .box{width:7mm;height:7mm;border:1.5px solid #333;border-radius:1.5mm;display:block}
+.rep tfoot td{border:0;padding-top:4mm;font-size:10pt;color:#555}
 </style>
 </head>
 <body>
@@ -117,6 +146,8 @@ code{background:var(--wash);padding:2px 6px;border-radius:6px;font-size:12px}
     <span class="count" id="count"></span>
     <div class="right">
       <span class="sync" id="sync"></span>
+      <button onclick="printIt('labels')">מדבקות</button>
+      <button onclick="printIt('report')">דוח אריזה</button>
       <button id="syncBtn" onclick="sync()">משיכה מ-PayPal</button>
     </div>
   </div>
@@ -127,6 +158,8 @@ code{background:var(--wash);padding:2px 6px;border-radius:6px;font-size:12px}
     <div class="note" id="note"></div>
   </div>
 </div>
+
+<div id="print"></div>
 
 <script>
 /* הדף הזה לא נוגע בפאנל הניהול — הוא מדבר עם שלוש כתובות משלו בלבד. */
@@ -282,6 +315,57 @@ window.edit = function (el, field) {
     setTimeout(() => mark.classList.remove('on'), 1200);
     if (field === 'phone') box.classList.toggle('needPhone', !val);
   }, 500);
+};
+
+/* ── נייר ─────────────────────────────────────────────────────
+   מודפס מה שמסונן על המסך: מסנן "ממתין" מדפיס מדבקות רק למי שעוד לא
+   נשלח אליו. השולח מודפס על כל מדבקה כי חבילה בלי כתובת חוזרת שולחת
+   את עצמה לפח. */
+const SENDER = 'איציק קריספל · הצופן הסודי · אופקים · 054-537-0088';
+
+function shown() {
+  return ORDERS.filter(o =>
+    FILTER === 'all' ? true :
+    FILTER === 'nophone' ? !o.phone :
+    (o.status || 'new') === FILTER);
+}
+
+window.printIt = function (what) {
+  const list = shown();
+  if (!list.length) return;
+  const box = document.getElementById('print');
+
+  if (what === 'labels') {
+    box.innerHTML = `<div class="sheet">${list.map(o => `
+      <div class="lbl">
+        <div class="n">הזמנה #${o.no || ''}</div>
+        <div class="to">${esc(o.name) || '—'}</div>
+        <div class="ad">${esc(o.address) || '—'}</div>
+        ${o.phone ? `<div class="ph">${esc(o.phone)}</div>` : ''}
+        <div class="from">מאת ${SENDER}</div>
+      </div>`).join('')}</div>`;
+  } else {
+    const today = new Date().toLocaleDateString('he-IL');
+    box.innerHTML = `
+      <table class="rep">
+        <caption>דוח אריזה · ${today} · ${list.length} הזמנות</caption>
+        <thead><tr>
+          <th>✓</th><th>#</th><th>שם</th><th>כתובת</th><th>טלפון</th><th>סטטוס</th><th>מעקב</th>
+        </tr></thead>
+        <tbody>${list.map(o => `
+          <tr>
+            <td><span class="box"></span></td>
+            <td>${o.no || ''}</td>
+            <td>${esc(o.name)}</td>
+            <td>${esc(o.address)}</td>
+            <td>${esc(o.phone) || '—'}</td>
+            <td>${(STATUS.find(x => x.k === (o.status || 'new')) || {}).he || ''}</td>
+            <td>${esc(o.tracking) || ''}</td>
+          </tr>`).join('')}</tbody>
+        <tfoot><tr><td colspan="7">סה״כ ${list.reduce((n, o) => n + o.amount, 0)} ₪</td></tr></tfoot>
+      </table>`;
+  }
+  window.print();
 };
 
 async function sync() {
