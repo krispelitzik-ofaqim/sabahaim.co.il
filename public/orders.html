@@ -1,0 +1,282 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="robots" content="noindex,nofollow">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>הזמנות · הצופן הסודי</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700;800&display=swap">
+<style>
+:root{
+  --ink:#1A2230; --soft:#55607180; --muted:#78828F; --paper:#F7F6F3; --card:#FFFFFF;
+  --line:#E6E3DC; --gold:#B8862B; --red:#C0392B; --green:#2E7D5F; --wash:#F1EEE8;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);
+  font-family:'Heebo',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+
+.bar{position:sticky;top:0;z-index:5;background:var(--ink);color:#fff;
+  padding:12px 18px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.bar h1{margin:0;font-size:16px;font-weight:800}
+.bar .count{font-size:12.5px;color:#9FA9B8;font-weight:600}
+.bar .right{margin-inline-start:auto;display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+.bar button{background:#2E3B4E;color:#fff;border:0;border-radius:10px;padding:8px 15px;
+  font-family:inherit;font-size:13px;font-weight:700;cursor:pointer}
+.bar button:hover{background:var(--gold)}
+.bar button[disabled]{opacity:.5;cursor:default}
+.bar .sync{font-size:11.5px;color:#9FA9B8}
+
+.wrap{max-width:1180px;margin:0 auto;padding:18px}
+
+.gate{max-width:360px;margin:16vh auto;background:var(--card);border:1px solid var(--line);
+  border-radius:18px;padding:26px}
+.gate h2{margin:0 0 6px;font-size:19px;font-weight:800}
+.gate p{margin:0 0 16px;font-size:13.5px;color:var(--muted);line-height:1.6}
+.gate input{width:100%;border:1px solid var(--line);border-radius:11px;padding:12px 14px;
+  font-family:inherit;font-size:15px;margin-bottom:11px}
+.gate button{width:100%;background:var(--ink);color:#fff;border:0;border-radius:11px;
+  padding:13px;font-family:inherit;font-size:14px;font-weight:800;cursor:pointer}
+.gate .err{color:var(--red);font-size:13px;margin-top:10px;min-height:18px}
+
+.filters{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:14px}
+.filters button{background:var(--card);border:1px solid var(--line);border-radius:999px;
+  padding:7px 15px;font-family:inherit;font-size:12.5px;font-weight:700;color:var(--ink);
+  cursor:pointer}
+.filters button.on{background:var(--ink);border-color:var(--ink);color:#fff}
+.filters button em{font-style:normal;color:var(--muted);margin-inline-start:5px}
+.filters button.on em{color:#9FA9B8}
+
+.order{background:var(--card);border:1px solid var(--line);border-radius:16px;
+  padding:15px 17px;margin-bottom:11px}
+.order.needPhone{border-color:#E7B4AD;background:#FFF8F7}
+.top{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+.top .who{font-size:16px;font-weight:800}
+.top .when{font-size:12.5px;color:var(--muted);font-variant-numeric:tabular-nums}
+.top .sum{margin-inline-start:auto;font-size:15px;font-weight:800;
+  font-variant-numeric:tabular-nums}
+.top .sum small{font-size:11.5px;color:var(--muted);font-weight:600;margin-inline-start:5px}
+
+.lines{margin-top:9px;display:grid;gap:3px;font-size:13.5px;color:#49525F;line-height:1.55}
+.lines a{color:#49525F}
+.lines .addr{font-weight:700;color:var(--ink)}
+.warn{display:inline-block;margin-top:8px;background:#FBE7E4;color:#9E2B1E;
+  border-radius:999px;padding:4px 11px;font-size:12px;font-weight:800}
+
+.row{margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.row input{border:1px solid var(--line);border-radius:10px;padding:8px 11px;
+  font-family:inherit;font-size:13px;min-width:0}
+.row input.phone{width:170px}
+.row input.track{width:200px}
+.row input.memo{flex:1;min-width:180px}
+.row select{border:1px solid var(--line);border-radius:10px;padding:8px 11px;
+  font-family:inherit;font-size:13px;font-weight:700;background:var(--card)}
+.row .wa{background:var(--green);color:#fff;border:0;border-radius:10px;padding:8px 14px;
+  font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;text-decoration:none}
+.row .wa.off{background:var(--wash);color:var(--muted);pointer-events:none}
+.saved{font-size:12px;font-weight:700;color:var(--green);opacity:0;transition:opacity .2s}
+.saved.on{opacity:1}
+
+.st-new{color:var(--gold)} .st-packed{color:#2E6B8E}
+.st-sent{color:#2E7D5F} .st-done{color:var(--muted)}
+
+.empty{padding:40px 10px;text-align:center;color:var(--muted);font-size:14px;line-height:1.7}
+.empty b{color:var(--ink)}
+.note{margin-top:14px;font-size:12.5px;color:var(--muted);line-height:1.7}
+code{background:var(--wash);padding:2px 6px;border-radius:6px;font-size:12px}
+</style>
+</head>
+<body>
+
+<div id="gate" class="gate">
+  <h2>הזמנות הספר</h2>
+  <p>הזינו את סיסמת הניהול.</p>
+  <input id="pw" type="password" autocomplete="current-password" placeholder="סיסמה">
+  <button onclick="enter()">כניסה</button>
+  <div class="err" id="gateErr"></div>
+</div>
+
+<div id="app" hidden>
+  <div class="bar">
+    <h1>הזמנות הספר</h1>
+    <span class="count" id="count"></span>
+    <div class="right">
+      <span class="sync" id="sync"></span>
+      <button id="syncBtn" onclick="sync()">משיכה מ-PayPal</button>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <div class="filters" id="filters"></div>
+    <div id="list"></div>
+    <div class="note" id="note"></div>
+  </div>
+</div>
+
+<script>
+/* הדף הזה לא נוגע בפאנל הניהול — הוא מדבר עם שלוש כתובות משלו בלבד. */
+const STATUS = [
+  { k: 'new',    he: 'ממתין' },
+  { k: 'packed', he: 'נארז' },
+  { k: 'sent',   he: 'נשלח' },
+  { k: 'done',   he: 'נמסר' },
+];
+let TOKEN = '', ORDERS = [], FILTER = 'all';
+
+const esc = s => String(s == null ? '' : s)
+  .replace(/[&<>"]/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;' }[c]));
+
+const api = (path, body) => fetch(path, {
+  method: body ? 'POST' : 'GET',
+  headers: { 'x-admin-token': TOKEN, 'Content-Type': 'application/json' },
+  body: body ? JSON.stringify(body) : undefined,
+}).then(r => r.json());
+
+async function enter() {
+  TOKEN = document.getElementById('pw').value.trim();
+  const r = await api('/api/orders').catch(() => ({}));
+  if (!r || !r.success) {
+    document.getElementById('gateErr').textContent = 'סיסמה שגויה';
+    return;
+  }
+  try { sessionStorage.setItem('sc_orders_tok', TOKEN); } catch (e) {}
+  document.getElementById('gate').hidden = true;
+  document.getElementById('app').hidden = false;
+  paint(r);
+}
+document.getElementById('pw').addEventListener('keydown', e => { if (e.key === 'Enter') enter(); });
+
+/* התאריך נקרא כמו שישראלי אומר אותו */
+const when = iso => {
+  const d = new Date(iso);
+  if (isNaN(d)) return '';
+  return d.toLocaleDateString('he-IL', { day: '2-digit', month: '2-digit', year: 'numeric' });
+};
+
+/* מספר לוואטסאפ: בלי אפס מוביל, עם 972 */
+const waNum = p => {
+  const d = String(p || '').replace(/\D/g, '');
+  if (!d) return '';
+  if (d.startsWith('972')) return d;
+  return '972' + d.replace(/^0/, '');
+};
+
+function paint(r) {
+  if (r) {
+    ORDERS = r.orders || [];
+    document.getElementById('sync').textContent =
+      r.syncedAt ? 'סונכרן ' + when(r.syncedAt) : 'עוד לא סונכרן';
+    document.getElementById('note').innerHTML = r.hasKeys ? '' :
+      'חסרים מפתחות PayPal בשרת. הוסיפו <code>PAYPAL_CLIENT_ID</code> ו-<code>PAYPAL_SECRET</code> ואז לחצו משיכה.';
+  }
+
+  const need = ORDERS.filter(o => !o.phone).length;
+  const counts = { all: ORDERS.length, nophone: need };
+  STATUS.forEach(s => counts[s.k] = ORDERS.filter(o => (o.status || 'new') === s.k).length);
+
+  document.getElementById('count').textContent =
+    ORDERS.length + ' הזמנות' + (need ? ' · ' + need + ' בלי טלפון' : '');
+
+  const tabs = [{ k: 'all', he: 'הכול' }, { k: 'nophone', he: 'בלי טלפון' }].concat(STATUS);
+  document.getElementById('filters').innerHTML = tabs.map(t =>
+    `<button class="${FILTER === t.k ? 'on' : ''}" onclick="setFilter('${t.k}')">
+       ${t.he}<em>${counts[t.k] || 0}</em></button>`).join('');
+
+  const list = ORDERS.filter(o =>
+    FILTER === 'all' ? true :
+    FILTER === 'nophone' ? !o.phone :
+    (o.status || 'new') === FILTER);
+
+  document.getElementById('list').innerHTML = list.length ? list.map(card).join('') :
+    `<div class="empty">אין כאן הזמנות.<br>
+       ${ORDERS.length ? 'נסו מסנן אחר.' : 'לחצו <b>משיכה מ-PayPal</b> למעלה.'}</div>`;
+}
+
+function card(o) {
+  const st = o.status || 'new';
+  const wa = waNum(o.phone);
+  const msg = encodeURIComponent(
+    `שלום ${o.name || ''}, כאן איציק — הצופן הסודי. הספר שלך יוצא אליך בימים הקרובים.`);
+  return `
+  <div class="order ${o.phone ? '' : 'needPhone'}" data-id="${esc(o.id)}">
+    <div class="top">
+      <span class="who">${esc(o.name) || '—'}</span>
+      <span class="when">${when(o.at)}</span>
+      <span class="sum">${o.amount} ${esc(o.currency)}
+        ${o.qty > 1 ? `<small>${o.qty} עותקים</small>` : ''}</span>
+    </div>
+    <div class="lines">
+      ${o.address ? `<div class="addr">${esc(o.address)}</div>` : ''}
+      ${o.email ? `<div><a href="mailto:${esc(o.email)}">${esc(o.email)}</a></div>` : ''}
+      ${o.address ? '' : '<div class="warn">אין כתובת משלוח ב-PayPal</div>'}
+      ${o.phone ? '' : '<div class="warn">אין טלפון — שלחו לה/לו מייל ובקשו</div>'}
+    </div>
+    <div class="row">
+      <input class="phone" placeholder="טלפון" value="${esc(o.phone)}"
+             oninput="edit(this,'phone')">
+      <select onchange="edit(this,'status')" class="st-${st}">
+        ${STATUS.map(s => `<option value="${s.k}" ${s.k === st ? 'selected' : ''}>${s.he}</option>`).join('')}
+      </select>
+      <input class="track" placeholder="מספר מעקב" value="${esc(o.tracking)}"
+             oninput="edit(this,'tracking')">
+      <input class="memo" placeholder="הערה" value="${esc(o.memo)}"
+             oninput="edit(this,'memo')">
+      <a class="wa ${wa ? '' : 'off'}" target="_blank" rel="noopener"
+         href="${wa ? `https://wa.me/${wa}?text=${msg}` : '#'}">וואטסאפ</a>
+      <span class="saved">נשמר</span>
+    </div>
+  </div>`;
+}
+
+window.setFilter = k => { FILTER = k; paint(); };
+
+/* כל הקלדה נשמרת לבדה אחרי חצי שנייה של שקט — בלי כפתור שמירה לשכוח ללחוץ */
+const timers = {};
+window.edit = function (el, field) {
+  const box = el.closest('.order');
+  const id = box.dataset.id;
+  const val = el.value;
+  const mark = box.querySelector('.saved');
+  clearTimeout(timers[id + field]);
+  timers[id + field] = setTimeout(async () => {
+    const r = await api('/api/orders/update', { id, [field]: val }).catch(() => ({}));
+    if (!r.success) return;
+    const o = ORDERS.find(x => x.id === id);
+    if (o) o[field] = val;
+    mark.classList.add('on');
+    setTimeout(() => mark.classList.remove('on'), 1200);
+    if (field === 'phone') box.classList.toggle('needPhone', !val);
+  }, 500);
+};
+
+async function sync() {
+  const b = document.getElementById('syncBtn');
+  b.disabled = true; b.textContent = 'מושך…';
+  const r = await api('/api/orders/sync', { days: 365 }).catch(e => ({ error: String(e) }));
+  b.disabled = false; b.textContent = 'משיכה מ-PayPal';
+  if (!r.success) {
+    document.getElementById('note').textContent = 'PayPal החזיר שגיאה: ' + (r.error || '');
+    return;
+  }
+  const fresh = await api('/api/orders');
+  paint(fresh);
+  document.getElementById('note').textContent =
+    r.added ? `נוספו ${r.added} הזמנות חדשות.` : 'אין הזמנות חדשות.';
+}
+
+/* חזרה לדף בלי להקליד סיסמה שוב באותו טאב */
+(async () => {
+  let t = '';
+  try { t = sessionStorage.getItem('sc_orders_tok') || ''; } catch (e) {}
+  if (!t) return;
+  TOKEN = t;
+  const r = await api('/api/orders').catch(() => ({}));
+  if (!r.success) return;
+  document.getElementById('gate').hidden = true;
+  document.getElementById('app').hidden = false;
+  paint(r);
+})();
+</script>
+</body>
+</html>

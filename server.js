@@ -934,6 +934,145 @@ app.post('/api/admin/qa/edit', (req, res) => {
   res.json({ success: true });
 });
 
+/* ── הזמנות הספר ──────────────────────────────────────────────
+   PayPal יודע מי שילם, כמה, ולאן לשלוח — והוא לא יודע טלפון, הוא לא יודע
+   אם הספר נארז, ואי אפשר לכתוב אצלו הערה. אז המכירות נמשכות משם פעם
+   בכמה דקות, והשכבה שחסרה — טלפון, סטטוס, מספר מעקב, הערות — נשמרת כאן.
+
+   מה שנמשך מ-PayPal לעולם לא נדרס: אם שינינו סטטוס או הוספנו טלפון,
+   סנכרון חוזר לא ימחק אותם. */
+const ORDERS_PATH = path.join(DATA_DIR, 'orders.json');
+
+function loadOrders() {
+  if (!fs.existsSync(ORDERS_PATH)) return { orders: [], syncedAt: null };
+  try { return JSON.parse(fs.readFileSync(ORDERS_PATH, 'utf8')); }
+  catch (e) { return { orders: [], syncedAt: null }; }
+}
+function saveOrders(d) {
+  fs.writeFileSync(ORDERS_PATH, JSON.stringify(d, null, 2), 'utf8');
+}
+
+/* PayPal נותן אסימון לשעתיים תמורת שני הקודים; הוא נשמר בזיכרון בלבד */
+let ppToken = null, ppTokenUntil = 0;
+async function paypalToken() {
+  const id = process.env.PAYPAL_CLIENT_ID, sec = process.env.PAYPAL_SECRET;
+  if (!id || !sec) throw new Error('PayPal credentials missing');
+  if (ppToken && Date.now() < ppTokenUntil) return ppToken;
+
+  const r = await fetch('https://api-m.paypal.com/v1/oauth2/token', {
+    method: 'POST',
+    headers: {
+      'Authorization': 'Basic ' + Buffer.from(id + ':' + sec).toString('base64'),
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
+    body: 'grant_type=client_credentials',
+  });
+  if (!r.ok) throw new Error('PayPal auth failed: ' + r.status);
+  const j = await r.json();
+  ppToken = j.access_token;
+  ppTokenUntil = Date.now() + (j.expires_in - 60) * 1000;
+  return ppToken;
+}
+
+/* חיפוש העסקאות מוגבל ל-31 יום לבקשה, אז מושכים בחלונות */
+async function paypalSales(days) {
+  const token = await paypalToken();
+  const out = [];
+  const end = new Date();
+  let left = Math.max(1, Math.min(days || 90, 1095));
+
+  while (left > 0) {
+    const span = Math.min(left, 30);
+    const from = new Date(end.getTime() - span * 86400000);
+    const q = new URLSearchParams({
+      start_date: from.toISOString().slice(0, 19) + '-0000',
+      end_date: end.toISOString().slice(0, 19) + '-0000',
+      fields: 'transaction_info,payer_info,shipping_info,cart_info',
+      page_size: '100', page: '1',
+    });
+    const r = await fetch('https://api-m.paypal.com/v1/reporting/transactions?' + q, {
+      headers: { Authorization: 'Bearer ' + token },
+    });
+    if (!r.ok) throw new Error('PayPal search failed: ' + r.status + ' ' + (await r.text()).slice(0, 200));
+    const j = await r.json();
+    out.push(...(j.transaction_details || []));
+    end.setTime(from.getTime());
+    left -= span;
+  }
+  return out;
+}
+
+/* רק מכירות נכנסות — לא החזרים, לא משיכות, לא העברות */
+function asOrder(t) {
+  const ti = t.transaction_info || {};
+  const pi = t.payer_info || {};
+  const sh = (t.shipping_info || {});
+  const amount = parseFloat((ti.transaction_amount || {}).value || '0');
+  if (!(amount > 0)) return null;
+  if (ti.transaction_status && !['S', 'P'].includes(ti.transaction_status)) return null;
+
+  const a = sh.address || {};
+  const addr = [a.line1, a.line2, a.city, a.postal_code, a.country_code]
+    .filter(Boolean).join(', ');
+
+  return {
+    id: ti.transaction_id,
+    at: ti.transaction_initiation_date || ti.transaction_updated_date || '',
+    name: sh.name || [ (pi.payer_name || {}).given_name, (pi.payer_name || {}).surname ]
+            .filter(Boolean).join(' ') || '',
+    email: pi.email_address || '',
+    amount, currency: (ti.transaction_amount || {}).currency_code || 'ILS',
+    qty: Number(((t.cart_info || {}).item_details || [{}])[0].item_quantity || 1),
+    address: addr,
+    note: ti.transaction_note || '',
+    /* השכבה שלנו — נשמרת בין סנכרונים */
+    phone: '', status: 'new', tracking: '', memo: '',
+  };
+}
+
+app.get('/api/orders', (req, res) => {
+  if (!checkAdmin(req)) return res.status(401).json({ error: 'Unauthorized' });
+  const db = loadOrders();
+  db.orders.sort((a, b) => String(b.at).localeCompare(String(a.at)));
+  res.json({ success: true, ...db, hasKeys: !!(process.env.PAYPAL_CLIENT_ID && process.env.PAYPAL_SECRET) });
+});
+
+app.post('/api/orders/sync', async (req, res) => {
+  if (!checkAdmin(req)) return res.status(401).json({ error: 'Unauthorized' });
+  try {
+    const days = Number(req.body && req.body.days) || 120;
+    const found = (await paypalSales(days)).map(asOrder).filter(Boolean);
+    const db = loadOrders();
+    const have = new Map(db.orders.map(o => [o.id, o]));
+    let added = 0;
+    found.forEach(o => {
+      const old = have.get(o.id);
+      if (!old) { db.orders.push(o); added++; return; }
+      /* PayPal מעדכן את העובדות; מה שאנחנו כתבנו נשאר שלנו */
+      Object.assign(old, o, {
+        phone: old.phone, status: old.status, tracking: old.tracking, memo: old.memo,
+      });
+    });
+    db.syncedAt = new Date().toISOString();
+    saveOrders(db);
+    res.json({ success: true, added, total: db.orders.length, syncedAt: db.syncedAt });
+  } catch (e) {
+    res.status(500).json({ success: false, error: String(e.message || e) });
+  }
+});
+
+app.post('/api/orders/update', (req, res) => {
+  if (!checkAdmin(req)) return res.status(401).json({ error: 'Unauthorized' });
+  const db = loadOrders();
+  const o = db.orders.find(x => x.id === String(req.body.id || ''));
+  if (!o) return res.status(404).json({ error: 'not found' });
+  ['phone', 'status', 'tracking', 'memo'].forEach(k => {
+    if (typeof req.body[k] === 'string') o[k] = req.body[k].slice(0, 300);
+  });
+  saveOrders(db);
+  res.json({ success: true, order: o });
+});
+
 // API 404 — return proper JSON 404 for unknown /api/* routes
 // so they don't fall through to the SPA HTML fallback below.
 app.use('/api', (req, res) => {
