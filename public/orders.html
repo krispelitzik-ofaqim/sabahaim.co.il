@@ -58,8 +58,20 @@ body{margin:0;background:var(--paper);color:var(--ink);
 .order.done:hover .head{opacity:1}
 .order:hover{box-shadow:inset 0 0 0 1px var(--line)}
 
-.head{display:flex;align-items:center;gap:11px;width:100%;background:none;border:0;
-  padding:13px 15px;font-family:inherit;cursor:pointer;text-align:start}
+.head{display:flex;align-items:center;gap:11px;width:100%;
+  padding:13px 15px;font-family:inherit;cursor:pointer;text-align:start;flex-wrap:wrap}
+/* ארבעת השלבים על השורה עצמה — אין צורך לפתוח כדי לסמן שנשלח */
+.steps{display:flex;gap:0;border:1px solid var(--line);border-radius:9px;overflow:hidden;flex:none}
+.step{background:var(--card);border:0;border-inline-end:1px solid var(--line);
+  padding:6px 11px;font-family:inherit;font-size:12px;font-weight:700;color:var(--muted);
+  cursor:pointer;white-space:nowrap}
+.step:last-child{border-inline-end:0}
+.step:hover{background:var(--wash);color:var(--ink)}
+.step.on{color:#fff}
+.step.on.st-new{background:var(--gold)}
+.step.on.st-packed{background:#2E6B8E}
+.step.on.st-sent{background:#2E7D5F}
+.step.on.st-done{background:#6B7A85}
 .head:hover{background:var(--wash)}
 .no{background:var(--ink);color:#fff;border-radius:8px;padding:3px 9px;flex:none;
   font-size:12.5px;font-weight:800;font-variant-numeric:tabular-nums}
@@ -262,15 +274,17 @@ function card(o) {
   return `
   <div class="order ${st === 'done' ? 'done' : ''} ${o.phone || st === 'done' ? '' : 'needPhone'}"
        data-id="${esc(o.id)}">
-    <button class="head" onclick="toggle(this)">
+    <div class="head" onclick="toggle(this)">
       <span class="no">#${o.no || '—'}</span>
       <span class="who">${esc(o.name) || '—'}</span>
       <span class="city">${esc(city)}</span>
-      <span class="badge st-${st}">${stHe}</span>
       ${o.phone ? '' : '<span class="badge bad">אין טלפון</span>'}
       <span class="sum">${o.amount} ${esc(o.currency)}</span>
+      <span class="steps">${STATUS.map(x =>
+        `<button class="step ${x.k === st ? 'on st-' + x.k : ''}"
+                 onclick="setStatus(event,'${esc(o.id)}','${x.k}')">${x.he}</button>`).join('')}</span>
       <span class="chev">▾</span>
-    </button>
+    </div>
 
     <div class="body">
       <div class="lines">
@@ -281,9 +295,6 @@ function card(o) {
       <div class="row">
         <input class="phone" placeholder="טלפון" value="${esc(o.phone)}"
                oninput="edit(this,'phone')">
-        <select onchange="edit(this,'status')" class="st-${st}">
-          ${STATUS.map(x => `<option value="${x.k}" ${x.k === st ? 'selected' : ''}>${x.he}</option>`).join('')}
-        </select>
         <input class="track" placeholder="מספר מעקב" value="${esc(o.tracking)}"
                oninput="edit(this,'tracking')">
         <input class="memo" placeholder="הערה" value="${esc(o.memo)}"
@@ -298,6 +309,16 @@ function card(o) {
 
 /* שורה אחת לכל הזמנה, ומי שלוחצים עליה נפתחת. אחת בכל פעם — חמש־עשרה
    הזמנות פתוחות בבת אחת זה דף שאי אפשר לסרוק בעין. */
+/* לחיצה על שלב מסמנת אותו, ולא פותחת את השורה */
+window.setStatus = async function (ev, id, k) {
+  ev.stopPropagation();
+  const o = ORDERS.find(x => x.id === id);
+  if (!o || (o.status || 'new') === k) return;
+  o.status = k;
+  paint();
+  await api('/api/orders/update', { id, status: k }).catch(() => {});
+};
+
 window.toggle = function (btn) {
   const box = btn.closest('.order');
   const was = box.classList.contains('open');
