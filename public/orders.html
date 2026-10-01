@@ -117,6 +117,55 @@ body{margin:0;background:var(--paper);color:var(--ink);
 .empty b{color:var(--ink)}
 .note{margin-top:14px;font-size:12.5px;color:var(--muted);line-height:1.7}
 code{background:var(--wash);padding:2px 6px;border-radius:6px;font-size:12px}
+/* ── ברקוד ─────────────────────────────────────────────────────
+   Code 128B, מצויר כאן ולא נטען מספרייה: המדבקה חייבת להיות זהה בכל פעם
+   ובכל מחשב, וגם כשאין רשת. המקודד הוא כמאה שורות והוא כל התלות.
+
+   הברקוד נושא את מספר ההזמנה בלבד — SC-7. אין בו שם, אין בו כתובת.
+   מי שסורק אותו בלי הסיסמה רואה שבע. */
+const C128 = [
+  '212222','222122','222221','121223','121322','131222','122213','122312','132212','221213',
+  '221312','231212','112232','122132','122231','113222','123122','123221','223211','221132',
+  '221231','213212','223112','312131','311222','321122','321221','312212','322112','322211',
+  '212123','212321','232121','111323','131123','131321','112313','132113','132311','211313',
+  '231113','231311','112133','112331','132131','113123','113321','133121','313121','211331',
+  '231131','213113','213311','213131','311123','311321','331121','312113','312311','332111',
+  '314111','221411','431111','111224','111422','121124','121421','141122','141221','112214',
+  '112412','122114','122411','142112','142211','241211','221114','413111','241112','134111',
+  '111242','121142','121241','114212','124112','124211','411212','421112','421211','212141',
+  '214121','412121','111143','111341','131141','114113','114311','411113','411311','113141',
+  '114131','311141','411131','211412','211214','211232','2331112',
+];
+
+function code128(text) {
+  const bars = [];
+  let sum = 104, i = 1;            // Start B
+  bars.push(C128[104]);
+  [...String(text)].forEach(ch => {
+    const v = ch.charCodeAt(0) - 32;
+    bars.push(C128[v]);
+    sum += v * i++;
+  });
+  bars.push(C128[sum % 103]);      // check
+  bars.push(C128[106]);            // stop
+  return bars.join('');
+}
+
+/* רוחב 1 ליחידה, שחור ולבן לסירוגין */
+function barcodeSVG(text, h) {
+  const w = code128(text);
+  let x = 0, rects = '';
+  [...w].forEach((n, i) => {
+    const units = Number(n);
+    if (i % 2 === 0) rects += `<rect x="${x}" y="0" width="${units}" height="${h}" fill="#000"/>`;
+    x += units;
+  });
+  return `<svg class="bc" viewBox="0 0 ${x} ${h}" preserveAspectRatio="none"
+            width="100%" height="${h}">${rects}</svg>`;
+}
+
+const orderCode = o => 'SC-' + (o.no || 0);
+
 /* ── נייר ─────────────────────────────────────────────────────
    מה שמודפס הוא מה שמסונן על המסך, לא הכול — מי שמסנן "ממתין" מדפיס
    מדבקות רק למי שעוד לא נשלח אליו. */
@@ -136,7 +185,11 @@ code{background:var(--wash);padding:2px 6px;border-radius:6px;font-size:12px}
 .lbl .to{font-size:15pt;font-weight:800;line-height:1.25}
 .lbl .ad{font-size:12.5pt;line-height:1.5}
 .lbl .ph{font-size:12pt;font-weight:700}
-.lbl .from{margin-top:auto;padding-top:3mm;border-top:1px solid #DDD;
+.lbl .code{margin-top:auto;padding-top:3mm}
+.lbl .code .bc{display:block;height:11mm}
+.lbl .code span{display:block;text-align:center;font-size:9pt;font-weight:700;
+  letter-spacing:.14em;margin-top:1mm}
+.lbl .from{padding-top:2.5mm;border-top:1px solid #DDD;
   font-size:9pt;color:#666;line-height:1.5}
 
 .rep{width:100%;border-collapse:collapse;font-size:10.5pt}
@@ -146,6 +199,27 @@ code{background:var(--wash);padding:2px 6px;border-radius:6px;font-size:12px}
 .rep td{border-bottom:1px solid #DDD;padding:2.5mm 1.5mm;vertical-align:top}
 .rep .box{width:7mm;height:7mm;border:1.5px solid #333;border-radius:1.5mm;display:block}
 .rep tfoot td{border:0;padding-top:4mm;font-size:10pt;color:#555}
+/* ── סריקה ────────────────────────────────────────────────────
+   הברקוד נושא מספר בלבד; מה שנפתח אחריו הוא הדף הזה, שכבר מאחורי סיסמה.
+   מי שסורק חבילה ברחוב מקבל מספר ולא שם ולא כתובת. */
+.scan{position:fixed;inset:0;z-index:60;background:rgba(14,18,24,.92);
+  display:flex;align-items:center;justify-content:center;padding:16px}
+.scan[hidden]{display:none}
+.scanBox{width:min(460px,100%);background:var(--card);border-radius:18px;overflow:hidden}
+.scanTop{display:flex;align-items:center;justify-content:space-between;
+  padding:13px 16px;border-bottom:1px solid var(--line)}
+.scanTop b{font-size:15px;font-weight:800}
+.scanTop button{background:var(--wash);border:0;border-radius:9px;padding:7px 14px;
+  font-family:inherit;font-size:13px;font-weight:700;cursor:pointer}
+#cam{display:block;width:100%;height:280px;object-fit:cover;background:#111}
+.scanMsg{padding:11px 16px;font-size:13.5px;color:var(--muted);min-height:20px}
+.scanMsg.hit{color:var(--green);font-weight:800}
+.scanManual{display:flex;gap:8px;padding:0 16px 16px}
+.scanManual input{flex:1;border:1px solid var(--line);border-radius:10px;padding:10px 12px;
+  font-family:inherit;font-size:14px}
+.scanManual button{background:var(--ink);color:#fff;border:0;border-radius:10px;
+  padding:10px 18px;font-family:inherit;font-size:13.5px;font-weight:700;cursor:pointer}
+.order.hit{box-shadow:0 0 0 3px var(--gold)}
 </style>
 </head>
 <body>
@@ -164,6 +238,7 @@ code{background:var(--wash);padding:2px 6px;border-radius:6px;font-size:12px}
     <span class="count" id="count"></span>
     <div class="right">
       <span class="sync" id="sync"></span>
+      <button onclick="openScan()">סריקה</button>
       <button onclick="printIt('labels')">מדבקות</button>
       <button onclick="printIt('report')">דוח אריזה</button>
       <button id="syncBtn" onclick="sync()">משיכה מ-PayPal</button>
@@ -178,6 +253,21 @@ code{background:var(--wash);padding:2px 6px;border-radius:6px;font-size:12px}
 </div>
 
 <div id="print"></div>
+
+<div class="scan" id="scan" hidden>
+  <div class="scanBox">
+    <div class="scanTop">
+      <b>סריקת חבילה</b>
+      <button onclick="closeScan()">סגור</button>
+    </div>
+    <video id="cam" playsinline muted></video>
+    <div class="scanMsg" id="scanMsg"></div>
+    <div class="scanManual">
+      <input id="scanIn" placeholder="או הקלידו מספר הזמנה" inputmode="numeric">
+      <button onclick="jumpTo(document.getElementById('scanIn').value)">מצא</button>
+    </div>
+  </div>
+</div>
 
 <script>
 /* הדף הזה לא נוגע בפאנל הניהול — הוא מדבר עם שלוש כתובות משלו בלבד. */
@@ -383,6 +473,7 @@ window.printIt = async function (what) {
         <div class="to">${esc(o.name) || '—'}</div>
         <div class="ad">${esc(o.address) || '—'}</div>
         ${o.phone ? `<div class="ph">${esc(o.phone)}</div>` : ''}
+        <div class="code">${barcodeSVG(orderCode(o), 34)}<span>${orderCode(o)}</span></div>
         <div class="from">מאת ${SENDER}</div>
       </div>`).join('')}</div>`;
   } else {
@@ -416,6 +507,76 @@ window.printIt = async function (what) {
     paint();
   }
 };
+
+/* ── סריקה ────────────────────────────────────────────────────
+   BarcodeDetector הוא של הדפדפן עצמו — אין ספרייה, אין שרת, התמונה לא
+   עוזבת את הטלפון. איפה שהוא לא קיים, נשארת ההקלדה. */
+let camStream = null, scanTimer = null;
+
+window.openScan = async function () {
+  document.getElementById('scan').hidden = false;
+  const msg = document.getElementById('scanMsg');
+  const video = document.getElementById('cam');
+
+  if (!('BarcodeDetector' in window)) {
+    msg.textContent = 'הדפדפן הזה לא יודע לסרוק. הקלידו את המספר למטה.';
+    video.style.display = 'none';
+    document.getElementById('scanIn').focus();
+    return;
+  }
+  try {
+    camStream = await navigator.mediaDevices.getUserMedia(
+      { video: { facingMode: 'environment' } });
+    video.srcObject = camStream;
+    await video.play();
+    msg.textContent = 'כוונו את המצלמה לברקוד';
+  } catch (e) {
+    msg.textContent = 'אין גישה למצלמה. הקלידו את המספר למטה.';
+    video.style.display = 'none';
+    return;
+  }
+
+  const det = new BarcodeDetector({ formats: ['code_128'] });
+  scanTimer = setInterval(async () => {
+    try {
+      const found = await det.detect(video);
+      if (found.length) jumpTo(found[0].rawValue);
+    } catch (e) { /* פריים שלא נקרא — ננסה את הבא */ }
+  }, 350);
+};
+
+window.closeScan = function () {
+  clearInterval(scanTimer); scanTimer = null;
+  if (camStream) { camStream.getTracks().forEach(t => t.stop()); camStream = null; }
+  document.getElementById('cam').style.display = '';
+  document.getElementById('scan').hidden = true;
+};
+
+window.jumpTo = function (raw) {
+  const n = Number(String(raw).replace(/\D/g, ''));
+  const o = ORDERS.find(x => x.no === n);
+  const msg = document.getElementById('scanMsg');
+  if (!o) { msg.className = 'scanMsg'; msg.textContent = 'לא נמצאה הזמנה ' + (n || '—'); return; }
+
+  msg.className = 'scanMsg hit';
+  msg.textContent = `#${o.no} · ${o.name}`;
+  if (navigator.vibrate) navigator.vibrate(40);
+
+  setTimeout(() => {
+    closeScan();
+    FILTER = 'all';
+    paint();
+    const box = document.querySelector(`.order[data-id="${CSS.escape(o.id)}"]`);
+    if (!box) return;
+    box.classList.add('open', 'hit');
+    box.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    setTimeout(() => box.classList.remove('hit'), 2400);
+  }, 450);
+};
+
+document.getElementById('scanIn').addEventListener('keydown', e => {
+  if (e.key === 'Enter') jumpTo(e.target.value);
+});
 
 async function sync() {
   const b = document.getElementById('syncBtn');
