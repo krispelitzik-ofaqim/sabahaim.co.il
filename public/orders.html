@@ -51,6 +51,11 @@ body{margin:0;background:var(--paper);color:var(--ink);
 .order{background:var(--card);border:1px solid var(--line);border-radius:14px;
   margin-bottom:8px;overflow:hidden}
 .order.needPhone{border-color:#E7B4AD}
+/* נמסר — נגמר, ולכן דהוי */
+.order.done{background:#F4F8F5;border-color:#D6E6DB}
+.order.done .head{opacity:.62}
+.order.done .no{background:var(--green)}
+.order.done:hover .head{opacity:1}
 .order:hover{box-shadow:inset 0 0 0 1px var(--line)}
 
 .head{display:flex;align-items:center;gap:11px;width:100%;background:none;border:0;
@@ -233,10 +238,13 @@ function paint(r) {
     `<button class="${FILTER === t.k ? 'on' : ''}" onclick="setFilter('${t.k}')">
        ${t.he}<em>${counts[t.k] || 0}</em></button>`).join('');
 
-  const list = ORDERS.filter(o =>
-    FILTER === 'all' ? true :
-    FILTER === 'nophone' ? !o.phone :
-    (o.status || 'new') === FILTER);
+  /* מה שדורש ממך משהו עולה למעלה, ומה שנגמר יורד. הדף הזה הוא רשימת
+     מה שנשאר לעשות — נמסר רק מסתיר את מה שלא. */
+  const order = { new: 0, packed: 1, sent: 2, done: 3 };
+  const list = shown().sort((a, b) =>
+    (order[a.status || 'new'] - order[b.status || 'new'])
+    || (!a.phone === !b.phone ? 0 : a.phone ? 1 : -1)
+    || String(a.at).localeCompare(String(b.at)));
 
   document.getElementById('list').innerHTML = list.length ? list.map(card).join('') :
     `<div class="empty">אין כאן הזמנות.<br>
@@ -252,7 +260,8 @@ function card(o) {
   const stHe = (STATUS.find(x => x.k === st) || {}).he || '';
 
   return `
-  <div class="order ${o.phone ? '' : 'needPhone'}" data-id="${esc(o.id)}">
+  <div class="order ${st === 'done' ? 'done' : ''} ${o.phone || st === 'done' ? '' : 'needPhone'}"
+       data-id="${esc(o.id)}">
     <button class="head" onclick="toggle(this)">
       <span class="no">#${o.no || '—'}</span>
       <span class="who">${esc(o.name) || '—'}</span>
