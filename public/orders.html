@@ -126,27 +126,35 @@ code{background:var(--wash);padding:2px 6px;border-radius:6px;font-size:12px}
    מדבקות רק למי שעוד לא נשלח אליו. */
 #print{display:none}
 @media print{
-  @page{size:A4;margin:9mm}
+  @page{size:A4;margin:0}
   body{background:#fff}
   .bar,.wrap{display:none !important}
   #print{display:block}
   .lbl{break-inside:avoid}
 }
 
-.sheet{display:grid;grid-template-columns:1fr 1fr;gap:4mm}
-.lbl{border:1px dashed #BBB;border-radius:3mm;padding:7mm 7mm 6mm;min-height:52mm;
-  display:flex;flex-direction:column;gap:2mm}
-.lbl .n{font-size:10pt;font-weight:800;color:#555}
-.lbl .to{font-size:15pt;font-weight:800;line-height:1.25}
-.lbl .ad{font-size:12.5pt;line-height:1.5}
-.lbl .ph{font-size:12pt;font-weight:700}
-.lbl .code{margin-top:auto;padding-top:3mm}
-.lbl .code .bc{display:block;height:11mm}
-.lbl .code span{display:block;text-align:center;font-size:9pt;font-weight:700;
-  letter-spacing:.14em;margin-top:1mm}
-.lbl .from{display:flex;align-items:center;gap:3mm;padding-top:2.5mm;
-  border-top:1px solid #DDD;font-size:9pt;color:#555;line-height:1.45}
-.lbl .from img{width:14mm;flex:none}
+/* גיליון תקני של 8 מדבקות ב-A4: שתי עמודות של 105 מ"מ, ארבע שורות של 74.
+   אין רווח ואין שוליים — כל תא יושב בדיוק על מדבקה אחת. */
+.sheet{display:grid;grid-template-columns:105mm 105mm;grid-auto-rows:74mm;gap:0}
+.lbl{padding:7mm 8mm;display:grid;grid-template-columns:17mm 1fr;gap:5mm;
+  break-inside:avoid;overflow:hidden}
+@media screen{ .lbl{outline:1px dashed #CCC} }
+/* הברקוד מאונך בצד, כדי שכל הרוחב יישאר לכתובת */
+.lbl .code{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1.5mm}
+.lbl .code .bc{width:38mm;height:11mm;transform:rotate(-90deg);transform-origin:center}
+.lbl .code{overflow:hidden}
+
+.lbl .body{display:flex;flex-direction:column;gap:1.5mm;min-width:0}
+.lbl .to{font-size:17pt;font-weight:800;line-height:1.2}
+.lbl .ad{font-size:14pt;line-height:1.35}
+.lbl .city{font-size:16pt;font-weight:800;line-height:1.3}
+.lbl .city small{font-size:11pt;font-weight:600;color:#555;margin-inline-start:1.5mm}
+.lbl .abroad{font-size:13pt;font-weight:700;letter-spacing:.08em}
+.lbl .ph{font-size:13pt;font-weight:700;direction:ltr;unicode-bidi:isolate;
+  text-align:start;margin-top:.5mm}
+.lbl .from{display:flex;align-items:center;gap:3mm;margin-top:auto;padding-top:3mm;
+  border-top:1px solid #DDD;font-size:8.5pt;color:#555;line-height:1.4}
+.lbl .from img{width:13mm;flex:none}
 
 .rep{width:100%;border-collapse:collapse;font-size:10.5pt}
 .rep caption{text-align:start;font-size:14pt;font-weight:800;padding-bottom:4mm}
@@ -274,6 +282,27 @@ function barcodeSVG(text, h) {
 }
 
 const orderCode = o => 'SC-' + (o.no || 0);
+
+/* PayPal מוסר כתובת כשורה אחת מופרדת בפסיקים, ובסוף קוד מדינה בן שתי
+   אותיות. העיר היא מה שלפני המיקוד, והרחוב הוא כל השאר — כדי שהדוור
+   יקרא את העיר בשורה משלה. */
+function splitAddress(raw) {
+  const parts = String(raw || '').split(',').map(x => x.trim()).filter(Boolean);
+  if (!parts.length) return { street: '', city: '', zip: '', abroad: '' };
+
+  let country = '';
+  if (/^[A-Z]{2}$/.test(parts[parts.length - 1])) country = parts.pop();
+
+  let zip = '';
+  if (parts.length > 1 && /^\d{5,7}$/.test(parts[parts.length - 1])) zip = parts.pop();
+
+  const city = parts.pop() || '';
+  return {
+    street: parts.join(', '),
+    city, zip,
+    abroad: country && country !== 'IL' ? country : '',
+  };
+}
 
 /* הדף הזה לא נוגע בפאנל הניהול — הוא מדבר עם שלוש כתובות משלו בלבד. */
 const STATUS = [
@@ -448,7 +477,7 @@ window.edit = function (el, field) {
    מודפס מה שמסונן על המסך: מסנן "ממתין" מדפיס מדבקות רק למי שעוד לא
    נשלח אליו. השולח מודפס על כל מדבקה כי חבילה בלי כתובת חוזרת שולחת
    את עצמה לפח. */
-const SENDER = 'טקטיקה הוצאה לאור · ת.ד 712, אופקים';
+const SENDER = 'TAKTIKA הוצאה לאור · ת.ד 712, אופקים';
 
 function shown() {
   return ORDERS.filter(o =>
@@ -472,18 +501,23 @@ window.printIt = async function (what) {
   const box = document.getElementById('print');
 
   if (what === 'labels') {
-    box.innerHTML = `<div class="sheet">${list.map(o => `
+    box.innerHTML = `<div class="sheet">${list.map(o => {
+      const a = splitAddress(o.address);
+      return `
       <div class="lbl">
-        <div class="n">הזמנה #${o.no || ''}</div>
-        <div class="to">${esc(o.name) || '—'}</div>
-        <div class="ad">${esc(o.address) || '—'}</div>
-        ${o.phone ? `<div class="ph">${esc(o.phone)}</div>` : ''}
-        <div class="code">${barcodeSVG(orderCode(o), 34)}<span>${orderCode(o)}</span></div>
-        <div class="from">
-          <img src="/marketing/logo-taktika.png" alt="">
-          <span>${SENDER}</span>
+        <div class="code">${barcodeSVG(orderCode(o), 34)}</div>
+        <div class="body">
+          <div class="to">${esc(o.name) || '—'}</div>
+          ${a.street ? `<div class="ad">${esc(a.street)}</div>` : ''}
+          <div class="city">${esc(a.city) || '—'}${a.zip ? ` <small>${esc(a.zip)}</small>` : ''}</div>
+          ${a.abroad ? `<div class="abroad">${esc(a.abroad)}</div>` : ''}
+          ${o.phone ? `<div class="ph">${esc(o.phone)}</div>` : ''}
+          <div class="from">
+            <img src="/marketing/logo-taktika.png" alt="">
+            <span>${SENDER}</span>
+          </div>
         </div>
-      </div>`).join('')}</div>`;
+      </div>`; }).join('')}</div>`;
   } else {
     const today = new Date().toLocaleDateString('he-IL');
     box.innerHTML = `
