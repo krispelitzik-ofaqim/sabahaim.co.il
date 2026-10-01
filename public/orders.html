@@ -140,7 +140,10 @@ async function enter() {
     document.getElementById('gateErr').textContent = 'סיסמה שגויה';
     return;
   }
-  try { sessionStorage.setItem('sc_orders_tok', TOKEN); } catch (e) {}
+  try {
+    sessionStorage.setItem('sc_orders_tok', TOKEN);
+    localStorage.setItem('sab_admin', TOKEN);
+  } catch (e) {}
   document.getElementById('gate').hidden = true;
   document.getElementById('app').hidden = false;
   paint(r);
@@ -265,10 +268,11 @@ async function sync() {
     r.added ? `נוספו ${r.added} הזמנות חדשות.` : 'אין הזמנות חדשות.';
 }
 
-/* חזרה לדף בלי להקליד סיסמה שוב באותו טאב */
+/* מי שכבר נכנס לפאנל הניהול באותו דפדפן — לא מקליד סיסמה שוב.
+   הפאנל שומר אותה תחת sab_admin, וזה אותו מקור ואותה הרשאה. */
 (async () => {
   let t = '';
-  try { t = sessionStorage.getItem('sc_orders_tok') || ''; } catch (e) {}
+  try { t = localStorage.getItem('sab_admin') || sessionStorage.getItem('sc_orders_tok') || ''; } catch (e) {}
   if (!t) return;
   TOKEN = t;
   const r = await api('/api/orders').catch(() => ({}));
