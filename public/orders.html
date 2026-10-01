@@ -189,8 +189,9 @@ const orderCode = o => 'SC-' + (o.no || 0);
 .lbl .code .bc{display:block;height:11mm}
 .lbl .code span{display:block;text-align:center;font-size:9pt;font-weight:700;
   letter-spacing:.14em;margin-top:1mm}
-.lbl .from{padding-top:2.5mm;border-top:1px solid #DDD;
-  font-size:9pt;color:#666;line-height:1.5}
+.lbl .from{display:flex;align-items:center;gap:3mm;padding-top:2.5mm;
+  border-top:1px solid #DDD;font-size:9pt;color:#555;line-height:1.45}
+.lbl .from img{width:14mm;flex:none}
 
 .rep{width:100%;border-collapse:collapse;font-size:10.5pt}
 .rep caption{text-align:start;font-size:14pt;font-weight:800;padding-bottom:4mm}
@@ -474,7 +475,10 @@ window.printIt = async function (what) {
         <div class="ad">${esc(o.address) || '—'}</div>
         ${o.phone ? `<div class="ph">${esc(o.phone)}</div>` : ''}
         <div class="code">${barcodeSVG(orderCode(o), 34)}<span>${orderCode(o)}</span></div>
-        <div class="from">מאת ${SENDER}</div>
+        <div class="from">
+          <img src="/marketing/logo-taktika.png" alt="">
+          <span>${SENDER}</span>
+        </div>
       </div>`).join('')}</div>`;
   } else {
     const today = new Date().toLocaleDateString('he-IL');
