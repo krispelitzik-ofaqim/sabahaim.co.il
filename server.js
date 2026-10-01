@@ -1002,7 +1002,9 @@ async function paypalSales(days) {
   return out;
 }
 
-/* רק מכירות נכנסות — לא החזרים, לא משיכות, לא העברות */
+/* רק מכירות של הספר. בחשבון PayPal יש גם המרות מטבע, מנויים ותשלומים
+   שאיציק עצמו שילם — ואף אחד מהם לא מגיע עם כתובת משלוח. הכתובת היא
+   הסימן הבטוח: מי שקנה ספר מסר לאן לשלוח אותו. */
 function asOrder(t) {
   const ti = t.transaction_info || {};
   const pi = t.payer_info || {};
@@ -1012,6 +1014,7 @@ function asOrder(t) {
   if (ti.transaction_status && !['S', 'P'].includes(ti.transaction_status)) return null;
 
   const a = sh.address || {};
+  if (!a.line1 && !a.city) return null;
   const addr = [a.line1, a.line2, a.city, a.postal_code, a.country_code]
     .filter(Boolean).join(', ');
 
