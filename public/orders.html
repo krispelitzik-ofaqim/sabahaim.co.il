@@ -136,28 +136,29 @@ code{background:var(--wash);padding:2px 6px;border-radius:6px;font-size:12px}
 /* גיליון תקני של 8 מדבקות ב-A4: שתי עמודות של 105 מ"מ, ארבע שורות של 74.
    אין רווח ואין שוליים — כל תא יושב בדיוק על מדבקה אחת. */
 .sheet{display:grid;grid-template-columns:105mm 105mm;grid-auto-rows:74mm;gap:0}
-.lbl{padding:6mm 7mm;display:grid;grid-template-columns:18mm 1fr;gap:4mm;
+/* 105×74 מ"מ זה הרבה נייר. הכתובת תופסת את כולו: מי שמחלק דואר קורא
+   אותה מטר משם, לא מטווח של מסך. */
+.lbl{padding:5mm 6mm;display:grid;grid-template-columns:24mm 1fr;gap:4mm;
   break-inside:avoid;overflow:hidden}
 @media screen{ .lbl{outline:1px dashed #CCC} }
-.lbl .side{display:flex;align-items:flex-start;justify-content:center}
-.lbl .qrbox{width:18mm;height:18mm}
+.lbl .side{display:flex;flex-direction:column;align-items:center;justify-content:space-between}
+.lbl .qrbox{width:24mm;height:24mm}
 .lbl .qrbox .qr{display:block;width:100%;height:100%}
 
-.lbl .body{display:flex;flex-direction:column;min-width:0}
+.lbl .body{display:flex;flex-direction:column;min-width:0;height:100%}
 .lbl .block{min-width:0}
-/* שני שדות: מען ושולח, כל אחד עם התווית שלו */
-.lbl .tag{font-size:7.5pt;font-weight:800;letter-spacing:.18em;color:#999;
-  margin-bottom:1mm}
-.lbl .nm{font-size:16pt;font-weight:800;line-height:1.2}
-.lbl .ad{font-size:13pt;line-height:1.35}
-.lbl .city{font-size:15pt;font-weight:800;line-height:1.3}
-.lbl .city small{font-size:10.5pt;font-weight:600;color:#555;margin-inline-start:1.5mm}
-.lbl .abroad{font-size:12pt;font-weight:700;letter-spacing:.08em}
-.lbl .ph{font-size:12pt;font-weight:700;direction:ltr;unicode-bidi:isolate;
-  text-align:start;margin-top:.8mm}
-.lbl .from{margin-top:auto;padding-top:2.5mm;border-top:1px solid #DDD}
-.lbl .sender{display:flex;align-items:center;gap:2.5mm;font-size:8.5pt;color:#555;
-  line-height:1.4}
+.lbl .to{flex:1;display:flex;flex-direction:column;justify-content:center;gap:1mm}
+.lbl .tag{font-size:7.5pt;font-weight:800;letter-spacing:.18em;color:#AAA}
+.lbl .nm{font-size:21pt;font-weight:800;line-height:1.15}
+.lbl .ad{font-size:16pt;line-height:1.3}
+.lbl .city{font-size:19pt;font-weight:800;line-height:1.25}
+.lbl .city small{font-size:12pt;font-weight:600;color:#555;margin-inline-start:2mm}
+.lbl .abroad{font-size:14pt;font-weight:700;letter-spacing:.08em}
+.lbl .ph{font-size:14pt;font-weight:700;direction:ltr;unicode-bidi:isolate;
+  text-align:start;margin-top:1mm}
+.lbl .from{padding-top:2mm;border-top:1px solid #DDD}
+.lbl .sender{display:flex;align-items:center;gap:2.5mm;font-size:9.5pt;color:#555;
+  line-height:1.3;white-space:nowrap}
 .lbl .sender img{width:12mm;flex:none}
 
 .rep{width:100%;border-collapse:collapse;font-size:10.5pt}
@@ -499,7 +500,7 @@ window.edit = function (el, field) {
    מודפס מה שמסונן על המסך: מסנן "ממתין" מדפיס מדבקות רק למי שעוד לא
    נשלח אליו. השולח מודפס על כל מדבקה כי חבילה בלי כתובת חוזרת שולחת
    את עצמה לפח. */
-const SENDER = 'TAKTIKA הוצאה לאור · ת.ד 712, אופקים';
+const SENDER = 'TAKTIKA · ת.ד 712, אופקים';
 
 function shown() {
   return ORDERS.filter(o =>
@@ -528,7 +529,7 @@ window.printIt = async function (what) {
       return `
       <div class="lbl">
         <div class="side">
-          <div class="qrbox">${qrSVG(orderURL(o), 62)}</div>
+          <div class="qrbox">${qrSVG(orderURL(o), 90)}</div>
         </div>
 
         <div class="body">
