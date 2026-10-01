@@ -52,6 +52,9 @@ body{margin:0;background:var(--paper);color:var(--ink);
   padding:15px 17px;margin-bottom:11px}
 .order.needPhone{border-color:#E7B4AD;background:#FFF8F7}
 .top{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+/* מספר שאפשר להכתיב בטלפון, במקום 17 התווים של PayPal */
+.top .no{background:var(--ink);color:#fff;border-radius:9px;padding:3px 10px;
+  font-size:13px;font-weight:800;font-variant-numeric:tabular-nums}
 .top .who{font-size:16px;font-weight:800}
 .top .when{font-size:12.5px;color:var(--muted);font-variant-numeric:tabular-nums}
 .top .sum{margin-inline-start:auto;font-size:15px;font-weight:800;
@@ -204,6 +207,7 @@ function card(o) {
   return `
   <div class="order ${o.phone ? '' : 'needPhone'}" data-id="${esc(o.id)}">
     <div class="top">
+      <span class="no">#${o.no || '—'}</span>
       <span class="who">${esc(o.name) || '—'}</span>
       <span class="when">${when(o.at)}</span>
       <span class="sum">${o.amount} ${esc(o.currency)}

@@ -1033,9 +1033,21 @@ function asOrder(t) {
   };
 }
 
+/* מספר הזמנה קצר שאפשר לומר בטלפון. PayPal נותן מזהה באורך 17 תווים —
+   אי אפשר להכתיב אותו ללקוח. הראשונה שנקנתה היא 1, ומספר שניתן לא משתנה
+   לעולם, גם אם מגיעות הזמנות ישנות יותר בסנכרון מאוחר. */
+function numberOrders(db) {
+  let max = db.orders.reduce((n, o) => Math.max(n, o.no || 0), 0);
+  db.orders
+    .filter(o => !o.no)
+    .sort((a, b) => String(a.at).localeCompare(String(b.at)))
+    .forEach(o => { o.no = ++max; });
+}
+
 app.get('/api/orders', (req, res) => {
   if (!checkAdmin(req)) return res.status(401).json({ error: 'Unauthorized' });
   const db = loadOrders();
+  if (db.orders.some(o => !o.no)) { numberOrders(db); saveOrders(db); }
   db.orders.sort((a, b) => String(b.at).localeCompare(String(a.at)));
   res.json({ success: true, ...db, hasKeys: !!(process.env.PAYPAL_CLIENT_ID && process.env.PAYPAL_SECRET) });
 });
@@ -1056,6 +1068,7 @@ app.post('/api/orders/sync', async (req, res) => {
         phone: old.phone, status: old.status, tracking: old.tracking, memo: old.memo,
       });
     });
+    numberOrders(db);
     db.syncedAt = new Date().toISOString();
     saveOrders(db);
     res.json({ success: true, added, total: db.orders.length, syncedAt: db.syncedAt });
