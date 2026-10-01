@@ -138,7 +138,7 @@ code{background:var(--wash);padding:2px 6px;border-radius:6px;font-size:12px}
 .sheet{display:grid;grid-template-columns:105mm 105mm;grid-auto-rows:74mm;gap:0}
 /* 105×74 מ"מ זה הרבה נייר. שני שליש לכתובת של המזמין, שליש ל-QR ולשולח
    מתחתיו — חלוקה שנראית בלי שום קו שמפריד. */
-.lbl{padding:4mm 5mm;display:grid;grid-template-columns:2fr 1fr;gap:5mm;
+.lbl{padding:4mm 5mm;display:grid;grid-template-columns:1fr 2fr;gap:5mm;
   break-inside:avoid;overflow:hidden}
 @media screen{ .lbl{outline:1px dashed #CCC} }
 
@@ -528,6 +528,14 @@ window.printIt = async function (what) {
       const a = splitAddress(o.address);
       return `
       <div class="lbl">
+        <div class="side">
+          <div class="qrbox">${qrSVG(orderURL(o), 90)}</div>
+          <div class="sender">
+            <img src="/marketing/logo-taktika.png" alt="">
+            <span>${SENDER}</span>
+          </div>
+        </div>
+
         <div class="body">
           <div class="block to">
             <div class="nm">${esc(o.name) || '—'}</div>
@@ -535,14 +543,6 @@ window.printIt = async function (what) {
             <div class="city">${esc(a.city) || '—'}${a.zip ? ` <small>${esc(a.zip)}</small>` : ''}</div>
             ${a.abroad ? `<div class="abroad">${esc(a.abroad)}</div>` : ''}
             ${o.phone ? `<div class="ph">${esc(o.phone)}</div>` : ''}
-          </div>
-        </div>
-
-        <div class="side">
-          <div class="qrbox">${qrSVG(orderURL(o), 90)}</div>
-          <div class="sender">
-            <img src="/marketing/logo-taktika.png" alt="">
-            <span>${SENDER}</span>
           </div>
         </div>
       </div>`; }).join('')}</div>`;
