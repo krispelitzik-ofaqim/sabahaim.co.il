@@ -1082,7 +1082,7 @@ app.post('/api/orders/update', (req, res) => {
   const db = loadOrders();
   const o = db.orders.find(x => x.id === String(req.body.id || ''));
   if (!o) return res.status(404).json({ error: 'not found' });
-  ['phone', 'status', 'tracking', 'memo'].forEach(k => {
+  ['phone', 'status', 'tracking', 'memo', 'printedAt'].forEach(k => {
     if (typeof req.body[k] === 'string') o[k] = req.body[k].slice(0, 300);
   });
   saveOrders(db);

@@ -81,6 +81,7 @@ body{margin:0;background:var(--paper);color:var(--ink);
 .badge{flex:none;font-size:11.5px;font-weight:800;border-radius:999px;padding:3px 10px;
   background:var(--wash)}
 .badge.bad{background:#FBE7E4;color:#9E2B1E}
+.badge.printed{background:#E8EEF4;color:#2E5B7E}
 .sum{margin-inline-start:auto;font-size:14px;font-weight:800;flex:none;
   font-variant-numeric:tabular-nums}
 .chev{flex:none;font-size:11px;color:var(--muted);transition:transform .18s}
@@ -279,6 +280,7 @@ function card(o) {
       <span class="who">${esc(o.name) || '—'}</span>
       <span class="city">${esc(city)}</span>
       ${o.phone ? '' : '<span class="badge bad">אין טלפון</span>'}
+      ${o.printedAt ? '<span class="badge printed">מדבקה הודפסה</span>' : ''}
       <span class="sum">${o.amount} ${esc(o.currency)}</span>
       <span class="steps">${STATUS.map(x =>
         `<button class="step ${x.k === st ? 'on st-' + x.k : ''}"
@@ -360,9 +362,18 @@ function shown() {
     (o.status || 'new') === FILTER);
 }
 
-window.printIt = function (what) {
-  const list = shown();
+window.printIt = async function (what) {
+  let list = shown();
   if (!list.length) return;
+
+  /* מדבקה מודפסת פעם אחת. אחרי שהדפסת חמש־עשרה והגיעו שתיים חדשות,
+     לחיצה על ״מדבקות״ מדפיסה שתיים — לא שבע־עשרה. */
+  if (what === 'labels') {
+    const fresh = list.filter(o => !o.printedAt);
+    if (fresh.length) list = fresh;
+    else if (!confirm('כל המדבקות כבר הודפסו. להדפיס את כולן שוב?')) return;
+  }
+
   const box = document.getElementById('print');
 
   if (what === 'labels') {
@@ -396,6 +407,14 @@ window.printIt = function (what) {
       </table>`;
   }
   window.print();
+
+  if (what === 'labels') {
+    const now = new Date().toISOString();
+    list.forEach(o => { o.printedAt = now; });
+    await Promise.all(list.map(o =>
+      api('/api/orders/update', { id: o.id, printedAt: now }).catch(() => {})));
+    paint();
+  }
 };
 
 async function sync() {
