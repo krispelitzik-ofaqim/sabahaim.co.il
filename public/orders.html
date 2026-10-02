@@ -128,7 +128,9 @@ code{background:var(--wash);padding:2px 6px;border-radius:6px;font-size:12px}
    מדבקות רק למי שעוד לא נשלח אליו. */
 #print{display:none}
 @media print{
-  @page{size:A4;margin:0}
+  /* גיליון TW-2512: 105×46 מ"מ, 12 בדף — שתי עמודות ברוחב מלא, שש שורות,
+     והשארית מתחלקת לשוליים עליונים ותחתונים. */
+  @page{size:A4;margin:10.5mm 0}
   body{background:#fff}
   .bar,.wrap{display:none !important}
   #print{display:block}
@@ -137,10 +139,10 @@ code{background:var(--wash);padding:2px 6px;border-radius:6px;font-size:12px}
 
 /* גיליון תקני של 8 מדבקות ב-A4: שתי עמודות של 105 מ"מ, ארבע שורות של 74.
    אין רווח ואין שוליים — כל תא יושב בדיוק על מדבקה אחת. */
-.sheet{display:grid;grid-template-columns:105mm 105mm;grid-auto-rows:74mm;gap:0}
+.sheet{display:grid;grid-template-columns:105mm 105mm;grid-auto-rows:46mm;gap:0}
 /* 105×74 מ"מ זה הרבה נייר. שני שליש לכתובת של המזמין, שליש ל-QR ולשולח
    מתחתיו — חלוקה שנראית בלי שום קו שמפריד. */
-.lbl{padding:4mm 5mm;display:grid;grid-template-columns:1fr 2fr;gap:5mm;
+.lbl{padding:2.5mm 3.5mm;display:grid;grid-template-columns:1fr 2fr;gap:3mm;
   break-inside:avoid;overflow:hidden}
 @media screen{ .lbl{outline:1px dashed #CCC} }
 
@@ -150,22 +152,22 @@ code{background:var(--wash);padding:2px 6px;border-radius:6px;font-size:12px}
 .lbl .body{display:flex;flex-direction:column;align-items:flex-end;justify-content:flex-start;
   min-width:0;text-align:start}
 .lbl .block{min-width:0;width:100%}
-.lbl .nm{font-size:27pt;font-weight:800;line-height:1.05;margin-top:-1mm}
-.lbl .ad{font-size:20pt;line-height:1.3;margin-top:1.5mm}
-.lbl .city{font-size:24pt;font-weight:800;line-height:1.25;margin-top:.5mm}
+.lbl .nm{font-size:15pt;font-weight:800;line-height:1.1}
+.lbl .ad{font-size:11.5pt;line-height:1.25;margin-top:.6mm}
+.lbl .city{font-size:13.5pt;font-weight:800;line-height:1.2;margin-top:.3mm}
 /* המיקוד בשורה משלו מתחת לעיר, כמו שכתובת ישראלית נכתבת */
-.lbl .zip{font-size:15pt;font-weight:600;color:#555;line-height:1.25;
+.lbl .zip{font-size:10pt;font-weight:600;color:#555;line-height:1.25;
   font-variant-numeric:tabular-nums}
-.lbl .abroad{font-size:17pt;font-weight:700;letter-spacing:.08em}
-.lbl .ph{font-size:17pt;font-weight:700;direction:ltr;unicode-bidi:isolate;
-  text-align:start;margin-top:1.5mm;align-self:flex-end}
+.lbl .abroad{font-size:10pt;font-weight:700;letter-spacing:.05em}
+.lbl .ph{font-size:10.5pt;font-weight:700;direction:ltr;unicode-bidi:isolate;
+  text-align:start;margin-top:.6mm;align-self:flex-end}
 
-.lbl .side{display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:2.5mm}
-.lbl .qrbox{width:32mm;height:32mm}
+.lbl .side{display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:1mm}
+.lbl .qrbox{width:22mm;height:22mm}
 .lbl .qrbox .qr{display:block;width:100%;height:100%}
-.lbl .sender{display:flex;flex-direction:column;align-items:center;gap:1.5mm;
-  font-size:9.5pt;color:#555;line-height:1.3;text-align:center}
-.lbl .sender img{width:17mm}
+.lbl .sender{display:flex;flex-direction:column;align-items:center;gap:.5mm;
+  font-size:6.5pt;color:#555;line-height:1.3;text-align:center}
+.lbl .sender img{width:11mm}
 
 .rep{width:100%;border-collapse:collapse;font-size:10.5pt}
 .rep caption{text-align:start;font-size:14pt;font-weight:800;padding-bottom:4mm}
