@@ -61,16 +61,18 @@ body{margin:0;background:var(--paper);color:var(--ink);
 .head{display:flex;align-items:center;gap:11px;width:100%;
   padding:13px 15px;font-family:inherit;cursor:pointer;text-align:start;flex-wrap:wrap}
 /* ארבעת השלבים על השורה עצמה — אין צורך לפתוח כדי לסמן שנשלח */
-.steps{display:flex;gap:0;border:1px solid var(--line);border-radius:9px;overflow:hidden;flex:none}
-.step{background:var(--card);border:0;border-inline-end:1px solid var(--line);
-  padding:6px 11px;font-family:inherit;font-size:12px;font-weight:700;color:var(--muted);
+/* רקע לבן תמיד, גם על שורה מוארת, והטקסט כהה מספיק כדי להיקרא */
+.steps{display:flex;gap:0;border:1px solid var(--line);border-radius:9px;overflow:hidden;
+  flex:none;background:#fff}
+.step{background:#fff;border:0;border-inline-end:1px solid var(--line);
+  padding:6px 11px;font-family:inherit;font-size:12px;font-weight:700;color:#5A6472;
   cursor:pointer;white-space:nowrap}
 .step:last-child{border-inline-end:0}
 .step:hover{background:var(--wash);color:var(--ink)}
 .step.on{color:#fff}
 .step.on.st-new{background:var(--gold)}
 .step.on.st-packed{background:#2E6B8E}
-.step.on.st-sent{background:#2E7D5F}
+.step.on.st-sent{background:#1E6B4A}
 .step.on.st-done{background:#6B7A85}
 .head:hover{background:var(--wash)}
 .no{background:var(--ink);color:#fff;border-radius:8px;padding:3px 9px;flex:none;
