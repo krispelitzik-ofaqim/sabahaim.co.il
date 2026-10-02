@@ -702,7 +702,7 @@ window.jumpTo = function (raw) {
   if (!o) { msg.className = 'scanMsg'; msg.textContent = 'לא נמצאה הזמנה ' + (n || '—'); return; }
 
   msg.className = 'scanMsg hit';
-  msg.textContent = `#${o.no} · ${o.name}`;
+  msg.innerHTML = `<bdi dir="ltr">#${o.no}</bdi> · <bdi>${esc(o.name)}</bdi>`;
   if (navigator.vibrate) navigator.vibrate(40);
 
   setTimeout(() => {
