@@ -169,6 +169,17 @@ code{background:var(--wash);padding:2px 6px;border-radius:6px;font-size:12px}
   font-size:6.5pt;color:#555;line-height:1.3;text-align:center}
 .lbl .sender img{width:11mm}
 
+/* דף כיוונון */
+.sheet.align .lbl.cal{display:flex;flex-direction:column;align-items:center;
+  justify-content:space-between;outline:1px solid #000;outline-offset:-1px;
+  padding:1.5mm;position:relative}
+.lbl.cal .arrow{font-size:7pt;font-weight:800;letter-spacing:.1em;color:#000}
+.lbl.cal .num{font-size:20pt;font-weight:800;color:#000;line-height:1}
+.lbl.cal .side-mark{position:absolute;top:50%;transform:translateY(-50%);
+  font-size:7pt;font-weight:800;color:#000}
+.lbl.cal .s-r{right:2mm}
+.lbl.cal .s-l{left:2mm}
+
 .rep{width:100%;border-collapse:collapse;font-size:10.5pt}
 .rep caption{text-align:start;font-size:14pt;font-weight:800;padding-bottom:4mm}
 .rep th{text-align:start;font-size:9.5pt;color:#555;border-bottom:1.5px solid #333;
@@ -217,6 +228,7 @@ code{background:var(--wash);padding:2px 6px;border-radius:6px;font-size:12px}
       <span class="sync" id="sync"></span>
       <button onclick="openScan()">סריקה</button>
       <button onclick="printIt('labels')">מדבקות</button>
+      <button onclick="printIt('align')">דף כיוונון</button>
       <button onclick="printIt('report')">דוח אריזה</button>
       <button id="syncBtn" onclick="sync()">משיכה מ-PayPal</button>
     </div>
@@ -519,7 +531,7 @@ function shown() {
 
 window.printIt = async function (what) {
   let list = shown();
-  if (!list.length) return;
+  if (what !== 'align' && !list.length) return;
 
   /* מדבקה מודפסת פעם אחת. אחרי שהדפסת חמש־עשרה והגיעו שתיים חדשות,
      לחיצה על ״מדבקות״ מדפיסה שתיים — לא שבע־עשרה. */
@@ -555,6 +567,19 @@ window.printIt = async function (what) {
           </div>
         </div>
       </div>`; }).join('')}</div>`;
+  } else if (what === 'align') {
+    /* דף כיוונון: שנים־עשר מלבנים בדיוק במידות הגיליון, כל אחד עם המספר
+       שלו וסימון למעלה. מדפיסים על נייר רגיל, מניחים מול האור על גיליון
+       המדבקות, ורואים מיד אם המדפסת מזיזה את הדף. */
+    box.innerHTML = `<div class="sheet align">${
+      Array.from({ length: 12 }, (_, i) => `
+        <div class="lbl cal">
+          <div class="arrow">▲ למעלה</div>
+          <div class="num">${i + 1}</div>
+          <div class="side-mark s-r">ימין</div>
+          <div class="side-mark s-l">שמאל</div>
+          <div class="arrow down">למטה ▼</div>
+        </div>`).join('')}</div>`;
   } else {
     const today = new Date().toLocaleDateString('he-IL');
     box.innerHTML = `
