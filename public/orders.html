@@ -61,7 +61,9 @@ body{margin:0;background:var(--paper);color:var(--ink);
 .order.row-done{--st:#065F46}
 .order::before{content:'';position:absolute;inset-block:0;inset-inline-start:0;
   width:5px;background:var(--st);border-start-start-radius:14px;border-end-start-radius:14px}
-.order .head{background:color-mix(in srgb,var(--st) 5%,#fff)}
+.order .head{background:color-mix(in srgb,var(--st) 7%,#fff)}
+/* נמסר — הבלוק עצמו בירוק עמוק יותר, לא רק הכפתור */
+.order.row-done .head{background:color-mix(in srgb,var(--st) 18%,#fff)}
 .order .head:hover{background:color-mix(in srgb,var(--st) 11%,#fff)}
 .order .no{background:var(--st)}
 .order.done{border-color:color-mix(in srgb,var(--st) 28%,#fff)}
