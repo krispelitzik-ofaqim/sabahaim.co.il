@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>הצופן הסודי · ספר לילדים מחוננים</title>
+<meta name="description" content="ספר הרפתקאות לילדים מחוננים: 64 עמודים של כימיה, פיסיקה ולוגיקה, וכספת שצריך לפצח. 79 ₪, 10 ₪ הנחה בהזמנה אונליין.">
+<meta property="og:title" content="הצופן הסודי · ספר לילדים מחוננים">
+<meta property="og:description" content="הספר הזה נכתב לילדים מחוננים. קנו להם — הם כבר יודעים מה לעשות.">
+<meta property="og:image" content="gifted/cover.jpg">
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;600;800;900&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#0B1024;--deep:#1B1440;--gold:#FFC93C;--mute:#C9CFEA}
+*{box-sizing:border-box}
+body{margin:0;background:var(--ink);color:#fff;font-family:Heebo,Arial,sans-serif;line-height:1.5}
+a{color:inherit}
+.wrap{max-width:1080px;margin:0 auto;padding:0 20px}
+.buy{display:inline-flex;align-items:center;gap:10px;background:var(--gold);color:var(--deep);font-weight:900;font-size:20px;
+  text-decoration:none;border-radius:999px;padding:16px 34px;box-shadow:0 12px 30px -10px rgba(255,201,60,.6)}
+.buy:hover{filter:brightness(1.05)}
+.price{font-weight:800;color:var(--mute)}
+.price b{color:#fff;font-size:1.25em}.price em{font-style:normal;color:var(--gold)}
+
+/* hero */
+.hero{position:relative;overflow:hidden;background:radial-gradient(circle at 70% 30%,#2D2172 0%,var(--ink) 65%)}
+.hero .wrap{display:grid;grid-template-columns:1.1fr 1fr;gap:30px;align-items:center;padding-block:56px 64px}
+.kick{color:var(--gold);font-weight:800;letter-spacing:.06em;font-size:15px}
+h1{font-size:clamp(34px,5.4vw,60px);line-height:1.08;margin:12px 0 16px;font-weight:900}
+h1 em{font-style:normal;color:var(--gold)}
+.lead{font-size:clamp(17px,2vw,21px);color:#E3E7FA;margin:0 0 26px}
+.books{position:relative;height:clamp(300px,42vw,470px);perspective:1800px}
+.book{position:absolute;top:6%;width:68%;aspect-ratio:1;border-radius:10px;background-size:cover;background-position:center;
+  box-shadow:-3px 0 0 #F4EFE3,-6px 1px 0 #D9CFBA,-9px 2px 0 #F4EFE3,-12px 3px 0 #D9CFBA,-14px 4px 0 #8C8272,0 30px 60px rgba(0,0,0,.6)}
+.book::after{content:"";position:absolute;inset:0 0 0 auto;width:7%;background:linear-gradient(90deg,rgba(0,0,0,0),rgba(0,0,0,.35));border-radius:0 10px 10px 0}
+.book.back{left:0;background-image:url(gifted/back.jpg);transform:rotateY(16deg) scale(.88)}
+.book.front{right:0;background-image:url(gifted/cover.jpg);transform:rotateY(-16deg);z-index:1}
+
+/* sections */
+section{padding-block:56px}
+h2{font-size:clamp(28px,3.6vw,40px);margin:0 0 14px;font-weight:900;line-height:1.15}
+h2 em{font-style:normal;color:var(--gold)}
+.sub{color:var(--mute);font-size:18px;margin:0 0 28px;max-width:60ch}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.card{background:#151A3A;border:1px solid #262C5C;border-radius:18px;overflow:hidden}
+.card img{display:block;width:100%;aspect-ratio:4/3;object-fit:cover}
+.card div{padding:16px 18px 20px}
+.card b{display:block;font-size:21px;font-weight:900;color:var(--gold)}
+.card p{margin:6px 0 0;color:#D7DCF3;font-size:16px}
+.vault{background:linear-gradient(180deg,var(--ink),#120D2E)}
+.vault .wrap{display:grid;grid-template-columns:1fr 1fr;gap:34px;align-items:center}
+.vault video{width:100%;border-radius:18px;display:block;box-shadow:0 20px 50px rgba(0,0,0,.5)}
+.els{display:flex;gap:10px;margin:18px 0 22px;direction:ltr;justify-content:flex-end}
+.els span{width:64px;height:64px;border:3px solid var(--gold);border-radius:12px;display:grid;place-items:center;font-weight:900;font-size:26px;background:#0E1230}
+.facts{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.fact{background:#151A3A;border-radius:16px;padding:18px;text-align:center}
+.fact b{display:block;font-size:30px;font-weight:900;color:var(--gold)}
+.fact span{color:#D7DCF3;font-size:15px}
+.offer{text-align:center;background:radial-gradient(circle at 50% 0%,#2D2172,var(--ink) 70%)}
+.offer .big{font-size:clamp(40px,6vw,64px);font-weight:900;line-height:1}
+.offer .gift{display:inline-block;margin:14px 0 8px;background:var(--gold);color:var(--deep);font-weight:900;border-radius:12px;padding:6px 16px;font-size:20px}
+.offer p{color:var(--mute);margin:6px 0 26px}
+.slogan{font-size:clamp(22px,3vw,30px);font-weight:900;margin:30px 0 0}
+.slogan em{font-style:normal;color:var(--gold)}
+footer{padding:28px 20px 40px;text-align:center;color:#8E96BE;font-size:14px}
+.sticky{position:fixed;inset-inline:0;bottom:0;display:none;padding:10px 14px calc(10px + env(safe-area-inset-bottom,0px));background:rgba(11,16,36,.94);border-top:1px solid #262C5C;z-index:5}
+.sticky .buy{width:100%;justify-content:center;padding:14px}
+@media (max-width:820px){
+  .hero .wrap,.vault .wrap{grid-template-columns:1fr}
+  .hero .wrap{padding-block:30px 40px}
+  .books{order:-1;height:72vw}
+  .grid3{grid-template-columns:1fr}
+  .facts{grid-template-columns:repeat(2,1fr)}
+  .els{justify-content:center}
+  .sticky{display:block}
+  body{padding-bottom:84px}
+}
+</style>
+</head>
+<body>
+
+<header class="hero"><div class="wrap">
+  <div>
+    <div class="kick">הצופן הסודי · ספר לילדים · גילאי <bdi dir="ltr">8–12</bdi></div>
+    <h1>הבת שלכם מחוננת?<br><em>הבן שלכם אובחן כמחונן?</em></h1>
+    <p class="lead">הם לא עוד ילדים ממוצעים, והם צריכים אתגר אמיתי. 64 עמודים של כימיה, פיסיקה ולוגיקה, בתוך הרפתקה שצריך לפצח לבד.</p>
+    <a class="buy" href="https://www.paypal.com/ncp/payment/BZ4ZJR6DTMLZC">להזמנת הספר ←</a>
+    <p class="price" style="margin-top:14px"><b>79 ₪</b> · <em>10 ₪ הנחה בהזמנה אונליין</em> · משלוח עד הבית</p>
+  </div>
+  <div class="books" aria-label="הספר הצופן הסודי, כריכה קדמית ואחורית"><div class="book back"></div><div class="book front"></div></div>
+</div></header>
+
+<section><div class="wrap">
+  <h2>מה יש <em>בפנים</em></h2>
+  <p class="sub">דרור, ילד סקרן עם משקפיים, יוצא למסע בעקבות הצופן שהשאיר לו סבא חיים. בכל פרק — מדע אמיתי שצריך להבין כדי להתקדם.</p>
+  <div class="grid3">
+    <div class="card"><img src="gifted/illus-15.jpg" alt="" loading="lazy"><div><b>כימיה</b><p>יסודות, מתכות ותגובות — נחושת, כסף וזהב, ולמה כל אחד מהם חשוב.</p></div></div>
+    <div class="card"><img src="gifted/illus-35.jpg" alt="" loading="lazy"><div><b>פיסיקה</b><p>מבני גבישים, חשמל ואור — מדע של מעבדה אמיתית, בשפה של ילדים.</p></div></div>
+    <div class="card"><img src="gifted/illus-21.jpg" alt="" loading="lazy"><div><b>לוגיקה</b><p>קודים, מטריצות וחידות — כל רמז מוביל לרמז הבא.</p></div></div>
+  </div>
+</div></section>
+
+<section class="vault"><div class="wrap">
+  <div>
+    <h2>בסוף מחכה <em>כספת</em>.</h2>
+    <p class="sub">צריך להגיע אליה ולפרוץ אותה. הרמזים פזורים לאורך הספר — הקוד אצל מי שקרא, הבין וחיבר.</p>
+    <div class="els"><span>Fe</span><span>Cu</span><span>Ag</span><span>Au</span></div>
+    <p class="slogan">חושבים שהם מסוגלים?<br><em>כן, כן — הם מחוננים.</em></p>
+  </div>
+  <video src="gifted/vault.mp4" poster="gifted/frontispiece-vault.jpg" controls playsinline preload="none"></video>
+</div></section>
+
+<section><div class="wrap">
+  <div class="facts">
+    <div class="fact"><b>64</b><span>עמודים</span></div>
+    <div class="fact"><b dir="ltr">8–12</b><span>גילאים</span></div>
+    <div class="fact"><b>3</b><span>תחומי מדע</span></div>
+    <div class="fact"><b>1</b><span>כספת לפצח</span></div>
+  </div>
+</div></section>
+
+<section class="offer"><div class="wrap">
+  <div class="big">79 ₪</div>
+  <div class="gift">10 ₪ הנחה בהזמנה אונליין</div>
+  <p>תשלום מאובטח ב־PayPal, באשראי או ב־Apple Pay · משלוח עד הבית</p>
+  <a class="buy" href="https://www.paypal.com/ncp/payment/BZ4ZJR6DTMLZC">להזמנת הספר ←</a>
+  <p class="slogan">הספר הזה נכתב לילדים מחוננים.<br><em>קנו להם — הם כבר יודעים מה לעשות.</em></p>
+</div></section>
+
+<footer>הצופן הסודי · יצחק קריספל · הוצאת טקטיקה</footer>
+<div class="sticky"><a class="buy" href="https://www.paypal.com/ncp/payment/BZ4ZJR6DTMLZC">להזמנה · 79 ₪, 10 ₪ הנחה אונליין</a></div>
+</body>
+</html>
