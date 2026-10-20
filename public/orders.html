@@ -221,6 +221,12 @@ code{background:var(--wash);padding:2px 6px;border-radius:6px;font-size:12px}
 .scanManual button{background:var(--ink);color:#fff;border:0;border-radius:10px;
   padding:10px 18px;font-family:inherit;font-size:13.5px;font-weight:700;cursor:pointer}
 .order.hit{box-shadow:0 0 0 3px var(--gold)}
+.doneBox{margin-top:18px}
+.doneBox>summary{cursor:pointer;list-style:none;padding:12px 16px;border-radius:12px;background:var(--wash);font-weight:800;font-size:15px;color:var(--muted)}
+.doneBox>summary::-webkit-details-marker{display:none}
+.doneBox>summary::before{content:"▸ ";}
+.doneBox[open]>summary::before{content:"▾ ";}
+.doneBox[open]>summary{margin-bottom:12px}
 .note.top:not(:empty){margin:0 0 12px;padding:11px 14px;border-radius:12px;background:#FFF6E0;color:#5A4410;font-weight:700;font-size:14px}
 /* ── בחירת משבצת בגיליון ─────────────────────────────────────
    גיליון שהודפסו עליו כבר כמה מדבקות חוזר למדפסת; המשבצות שכבר נלקחו
@@ -472,9 +478,13 @@ function paint(r) {
     (order[a.status || 'new'] - order[b.status || 'new'])
     || String(b.at).localeCompare(String(a.at)));
 
-  document.getElementById('list').innerHTML = list.length ? list.map(card).join('') :
-    `<div class="empty">אין כאן הזמנות.<br>
-       ${ORDERS.length ? 'נסו מסנן אחר.' : 'לחצו <b>משיכה מ-PayPal</b> למעלה.'}</div>`;
+  /* מה שנמסר גמור — הוא נאסף למטה תחת "נמסרו", סגור, ונפתח רק בלחיצה */
+  const open = FILTER === 'done' ? list : list.filter(o => (o.status || 'new') !== 'done');
+  const done = FILTER === 'done' ? [] : list.filter(o => (o.status || 'new') === 'done');
+  document.getElementById('list').innerHTML = (open.length ? open.map(card).join('') :
+    `<div class="empty">אין כאן הזמנות פתוחות.<br>
+       ${ORDERS.length ? '' : 'לחצו <b>משיכה מ-PayPal</b> למעלה.'}</div>`) +
+    (done.length ? `<details class="doneBox"><summary>נמסרו · ${done.length}</summary>${done.map(card).join('')}</details>` : '');
 }
 
 function card(o) {
