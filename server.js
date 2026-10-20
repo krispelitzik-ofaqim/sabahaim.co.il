@@ -1015,6 +1015,12 @@ function ppPhone(ph) {
   return '+' + cc + ' ' + n;
 }
 
+/* טלפון שהקונה כתב בהערה או בשורת הכתובת: 05X-XXXXXXX או +972 */
+function phoneIn(text) {
+  const m = String(text || '').replace(/[\s\-.()]/g, '').match(/(?:\+?972|0)(5\d{8}|[2-9]\d{7})/);
+  return m ? '0' + m[1] : '';
+}
+
 function asOrder(t) {
   const ti = t.transaction_info || {};
   const pi = t.payer_info || {};
@@ -1039,7 +1045,8 @@ function asOrder(t) {
     address: addr,
     note: ti.transaction_note || '',
     /* השכבה שלנו — נשמרת בין סנכרונים */
-    phone: ppPhone(pi.phone_number), status: 'new', tracking: '', memo: '',
+    phone: ppPhone(pi.phone_number) || phoneIn(ti.transaction_note) || phoneIn(a.line2) || phoneIn(a.line1),
+    status: 'new', tracking: '', memo: '',
   };
 }
 
@@ -1120,7 +1127,8 @@ app.post('/api/orders/import', async (req, res) => {
       amount: parseFloat((cap.amount || {}).value || '0'),
       currency: (cap.amount || {}).currency_code || 'ILS',
       qty, address: addr, note: pu.description || '',
-      phone: ppPhone((payer.phone || {}).phone_number ? { national_number: payer.phone.phone_number.national_number } : null), status: 'new', tracking: '', memo: addr ? '' : 'אין כתובת ב-PayPal',
+      phone: ppPhone((payer.phone || {}).phone_number ? { national_number: payer.phone.phone_number.national_number } : null) ||
+        phoneIn(pu.description) || phoneIn(pu.custom_id) || phoneIn(a.address_line_2) || phoneIn(a.address_line_1), status: 'new', tracking: '', memo: addr ? '' : 'אין כתובת ב-PayPal',
     };
     const db = loadOrders();
     const old = db.orders.find(x => x.id === id);
