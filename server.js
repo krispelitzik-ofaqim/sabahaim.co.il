@@ -1005,6 +1005,16 @@ async function paypalSales(days) {
 /* רק מכירות של הספר. בחשבון PayPal יש גם המרות מטבע, מנויים ותשלומים
    שאיציק עצמו שילם — ואף אחד מהם לא מגיע עם כתובת משלוח. הכתובת היא
    הסימן הבטוח: מי שקנה ספר מסר לאן לשלוח אותו. */
+/* טלפון, אם PayPal מסר אחד: מספר ישראלי נכתב עם אפס מוביל */
+function ppPhone(ph) {
+  ph = ph || {};
+  const n = String(ph.national_number || ph.phone_number && ph.phone_number.national_number || '').replace(/\D/g, '');
+  if (!n) return '';
+  const cc = String(ph.country_code || '').replace(/\D/g, '');
+  if (!cc || cc === '972') return n.startsWith('0') ? n : '0' + n;
+  return '+' + cc + ' ' + n;
+}
+
 function asOrder(t) {
   const ti = t.transaction_info || {};
   const pi = t.payer_info || {};
@@ -1029,7 +1039,7 @@ function asOrder(t) {
     address: addr,
     note: ti.transaction_note || '',
     /* השכבה שלנו — נשמרת בין סנכרונים */
-    phone: '', status: 'new', tracking: '', memo: '',
+    phone: ppPhone(pi.phone_number), status: 'new', tracking: '', memo: '',
   };
 }
 
@@ -1065,7 +1075,7 @@ app.post('/api/orders/sync', async (req, res) => {
       if (!old) { db.orders.push(o); added++; return; }
       /* PayPal מעדכן את העובדות; מה שאנחנו כתבנו נשאר שלנו */
       Object.assign(old, o, {
-        phone: old.phone, status: old.status, tracking: old.tracking, memo: old.memo,
+        phone: old.phone || o.phone, status: old.status, tracking: old.tracking, memo: old.memo,
       });
     });
     numberOrders(db);
@@ -1110,11 +1120,11 @@ app.post('/api/orders/import', async (req, res) => {
       amount: parseFloat((cap.amount || {}).value || '0'),
       currency: (cap.amount || {}).currency_code || 'ILS',
       qty, address: addr, note: pu.description || '',
-      phone: '', status: 'new', tracking: '', memo: addr ? '' : 'אין כתובת ב-PayPal',
+      phone: ppPhone((payer.phone || {}).phone_number ? { national_number: payer.phone.phone_number.national_number } : null), status: 'new', tracking: '', memo: addr ? '' : 'אין כתובת ב-PayPal',
     };
     const db = loadOrders();
     const old = db.orders.find(x => x.id === id);
-    if (old) Object.assign(old, o, { phone: old.phone, status: old.status, tracking: old.tracking, memo: old.memo, printedAt: old.printedAt });
+    if (old) Object.assign(old, o, { phone: old.phone || o.phone, status: old.status, tracking: old.tracking, memo: old.memo, printedAt: old.printedAt });
     else db.orders.push(o);
     numberOrders(db);
     saveOrders(db);
