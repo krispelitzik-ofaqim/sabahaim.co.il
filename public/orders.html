@@ -465,11 +465,12 @@ function paint(r) {
 
   /* מה שדורש ממך משהו עולה למעלה, ומה שנגמר יורד. הדף הזה הוא רשימת
      מה שנשאר לעשות — נמסר רק מסתיר את מה שלא. */
-  const order = { new: 0, packed: 1, sent: 2, done: 3 };
+  /* מה שעוד לא יצא (ממתין ונארז) למעלה, לפי תאריך הקנייה — החדשה
+     ראשונה, וסימון "נארז" לא מזיז אותה. אחר כך נשלח, ואחריו נמסר. */
+  const order = { new: 0, packed: 0, sent: 1, done: 2 };
   const list = shown().sort((a, b) =>
     (order[a.status || 'new'] - order[b.status || 'new'])
-    || (!a.phone === !b.phone ? 0 : a.phone ? 1 : -1)
-    || String(a.at).localeCompare(String(b.at)));
+    || String(b.at).localeCompare(String(a.at)));
 
   document.getElementById('list').innerHTML = list.length ? list.map(card).join('') :
     `<div class="empty">אין כאן הזמנות.<br>
