@@ -1077,6 +1077,53 @@ app.post('/api/orders/sync', async (req, res) => {
   }
 });
 
+/* הזמנה אחת לפי מזהה העסקה שב-PayPal. חיפוש העסקאות של PayPal מתעדכן
+   באיחור של כמה שעות; קריאת התשלום עצמו וההזמנה שמאחוריו זמינה מיד —
+   כך אפשר לשלוח ספר שנקנה לפני רבע שעה. */
+async function paypalGet(path) {
+  const token = await paypalToken();
+  const r = await fetch('https://api-m.paypal.com' + path, { headers: { Authorization: 'Bearer ' + token } });
+  if (!r.ok) throw new Error('PayPal ' + r.status + ' ' + (await r.text()).slice(0, 160));
+  return r.json();
+}
+app.post('/api/orders/import', async (req, res) => {
+  if (!checkAdmin(req)) return res.status(401).json({ error: 'Unauthorized' });
+  const id = String((req.body && req.body.id) || '').trim().toUpperCase();
+  if (!/^[A-Z0-9]{8,24}$/.test(id)) return res.status(400).json({ success: false, error: 'מזהה עסקה לא תקין' });
+  try {
+    const cap = await paypalGet('/v2/payments/captures/' + id);
+    const orderId = ((cap.supplementary_data || {}).related_ids || {}).order_id;
+    const ord = orderId ? await paypalGet('/v2/checkout/orders/' + orderId).catch(() => null) : null;
+    const pu = ((ord && ord.purchase_units) || [{}])[0] || {};
+    const sh = pu.shipping || {};
+    const a = sh.address || {};
+    const payer = (ord && ord.payer) || {};
+    const addr = [a.address_line_1, a.address_line_2, a.admin_area_2, a.postal_code, a.country_code]
+      .filter(Boolean).join(', ');
+    const qty = (pu.items || []).reduce((n, it) => n + Number(it.quantity || 0), 0) || 1;
+    const o = {
+      id,
+      at: cap.create_time || new Date().toISOString(),
+      name: (sh.name || {}).full_name ||
+        [ (payer.name || {}).given_name, (payer.name || {}).surname ].filter(Boolean).join(' ') || '',
+      email: payer.email_address || '',
+      amount: parseFloat((cap.amount || {}).value || '0'),
+      currency: (cap.amount || {}).currency_code || 'ILS',
+      qty, address: addr, note: pu.description || '',
+      phone: '', status: 'new', tracking: '', memo: addr ? '' : 'אין כתובת ב-PayPal',
+    };
+    const db = loadOrders();
+    const old = db.orders.find(x => x.id === id);
+    if (old) Object.assign(old, o, { phone: old.phone, status: old.status, tracking: old.tracking, memo: old.memo, printedAt: old.printedAt });
+    else db.orders.push(o);
+    numberOrders(db);
+    saveOrders(db);
+    res.json({ success: true, added: !old, order: db.orders.find(x => x.id === id) });
+  } catch (e) {
+    res.status(500).json({ success: false, error: String(e.message || e) });
+  }
+});
+
 app.post('/api/orders/update', (req, res) => {
   if (!checkAdmin(req)) return res.status(401).json({ error: 'Unauthorized' });
   const db = loadOrders();

@@ -260,6 +260,7 @@ code{background:var(--wash);padding:2px 6px;border-radius:6px;font-size:12px}
       <button onclick="printIt('align')">דף כיוונון</button>
       <button onclick="printIt('report')">דוח אריזה</button>
       <button id="syncBtn" onclick="sync()">משיכה מ-PayPal</button>
+      <button onclick="importOne()">הוספה לפי מזהה עסקה</button>
     </div>
   </div>
 
@@ -801,6 +802,21 @@ function openFromHash() {
   if (n && ORDERS.length) jumpTo(n);
 }
 addEventListener('hashchange', openFromHash);
+
+/* הזמנה שנכנסה עכשיו: מדביקים את מזהה העסקה מ-PayPal והיא נכנסת מיד */
+window.importOne = async function () {
+  const id = (prompt('הדביקו את מזהה העסקה מ-PayPal (למשל 8RV43369H2032754H):') || '').trim();
+  if (!id) return;
+  const note = document.getElementById('note');
+  note.textContent = 'מושך את העסקה מ-PayPal…';
+  const r = await api('/api/orders/import', { id }).catch(e => ({ error: String(e) }));
+  if (!r || !r.success) { note.textContent = 'PayPal החזיר שגיאה: ' + ((r && r.error) || ''); return; }
+  note.textContent = (r.added ? 'נוספה הזמנה #' : 'עודכנה הזמנה #') + r.order.no + ' · ' + (r.order.name || '') +
+    (r.order.address ? '' : ' · שימו לב: אין כתובת משלוח');
+  const msg = note.textContent;
+  const k = await api('/api/orders').catch(() => null);
+  if (k && k.orders) { paint(k); note.textContent = msg; }
+};
 
 async function sync() {
   const b = document.getElementById('syncBtn');
