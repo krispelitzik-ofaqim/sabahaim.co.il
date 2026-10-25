@@ -244,6 +244,10 @@ code{background:var(--wash);padding:2px 6px;border-radius:6px;font-size:12px}
 .slotActs .go{background:var(--ink);color:#fff}
 .slotActs .fresh{background:var(--wash);color:var(--ink)}
 .lbl.skip{visibility:hidden}
+.oneLbl{align-items:center;gap:8px;margin-top:8px}
+.oneLbl button{border:0;border-radius:10px;padding:9px 14px;background:var(--ink);color:#fff;font-family:inherit;font-size:14px;font-weight:800;cursor:pointer}
+.oneLbl span{font-size:13.5px;color:var(--muted)}
+.oneLbl select{font-family:inherit;font-size:14px;padding:6px 8px;border-radius:8px}
 </style>
 </head>
 <body>
@@ -528,9 +532,25 @@ function card(o) {
            href="${wa ? `https://wa.me/${wa}?text=${msg}` : '#'}">וואטסאפ</a>
         <span class="saved">נשמר</span>
       </div>
+      <div class="row oneLbl">
+        <button type="button" onclick="printOne(event,'${esc(o.id)}')">🏷 הדפסת מדבקה</button>
+        <span>כמה:</span>
+        <select id="n-${esc(o.id)}" onclick="event.stopPropagation()">${[1,2,3,4,5,6].map(n =>
+          `<option${n === Math.min(o.qty || 1, 6) ? ' selected' : ''}>${n}</option>`).join('')}</select>
+      </div>
     </div>
   </div>`;
 }
+
+/* (owner, 25.10.2026) one order at a time: a failed print again, or two labels
+   for a buyer of two books — no "already printed" question */
+window.printOne = function (ev, id) {
+  ev.stopPropagation();
+  const o = ORDERS.find(x => x.id === id); if (!o) return;
+  const n = +(document.getElementById('n-' + id) || {}).value || 1;
+  printIt.only = Array.from({ length: n }, () => o);
+  printIt('labels');
+};
 
 /* שורה אחת לכל הזמנה, ומי שלוחצים עליה נפתחת. אחת בכל פעם — חמש־עשרה
    הזמנות פתוחות בבת אחת זה דף שאי אפשר לסרוק בעין. */
@@ -631,10 +651,10 @@ window.openSlots = function (list) {
   paintSlots(); document.getElementById('slots').hidden = false;
 };
 window.pickSlot = function (i) { slotStart = i; paintSlots(); };
-window.closeSlots = function () { document.getElementById('slots').hidden = true; };
+window.closeSlots = function () { document.getElementById('slots').hidden = true; if (!printIt.slotsOk) printIt.only = null; };
 window.freshSheet = function () { saveUsed([]); slotStart = 0; paintSlots(); };
 window.goSlots = function () {
-  closeSlots(); printIt.skip = slotStart; printIt.slotsOk = true; printIt('labels');
+  printIt.slotsOk = true; closeSlots(); printIt.skip = slotStart; printIt('labels');
 };
 function markUsed(start, n) {
   const u = usedSlots();
@@ -647,12 +667,12 @@ function markUsed(start, n) {
 }
 
 window.printIt = async function (what) {
-  let list = shown();
+  let list = (what === 'labels' && printIt.only) || shown();
   if (what !== 'align' && !list.length) return;
 
   /* מדבקה מודפסת פעם אחת. אחרי שהדפסת חמש־עשרה והגיעו שתיים חדשות,
      לחיצה על ״מדבקות״ מדפיסה שתיים — לא שבע־עשרה. */
-  if (what === 'labels') {
+  if (what === 'labels' && !printIt.only) {
     const fresh = list.filter(o => !o.printedAt);
     if (fresh.length) list = fresh;
     else if (!confirm('כל המדבקות כבר הודפסו. להדפיס את כולן שוב?')) return;
@@ -730,6 +750,8 @@ window.printIt = async function (what) {
 
   if (what === 'labels') {
     markUsed(skip, list.length);
+    printIt.only = null;
+    list = [...new Set(list)];
     const now = new Date().toISOString();
     list.forEach(o => { o.printedAt = now; });
     await Promise.all(list.map(o =>
