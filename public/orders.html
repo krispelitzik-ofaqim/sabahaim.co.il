@@ -605,7 +605,7 @@ window.edit = function (el, field) {
    מודפס מה שמסונן על המסך: מסנן "ממתין" מדפיס מדבקות רק למי שעוד לא
    נשלח אליו. השולח מודפס על כל מדבקה כי חבילה בלי כתובת חוזרת שולחת
    את עצמה לפח. */
-const SENDER = 'TAKTIKA · ת.ד 712, אופקים';
+const SENDER = 'TAKTIKA · ת.ד 712, <bdi>OFAKIM</bdi>';
 
 function shown() {
   return ORDERS.filter(o =>
@@ -723,7 +723,7 @@ window.printIt = async function (what) {
     box.innerHTML = `<div class="sheet">${Array.from({ length: SLOTS }, () => `
       <div class="lbl snd">
         <img src="/marketing/logo-taktika.png" alt="">
-        <div><small>שולח</small><b>TAKTIKA</b><span>ת.ד 712, אופקים</span></div>
+        <div><small>שולח</small><b>TAKTIKA</b><span>ת.ד 712, <bdi>OFAKIM</bdi></span></div>
       </div>`).join('')}</div>`;
   } else if (what === 'align') {
     /* דף כיוונון: שנים־עשר מלבנים בדיוק במידות הגיליון, כל אחד עם המספר
