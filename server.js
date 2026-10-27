@@ -1021,6 +1021,19 @@ function phoneIn(text) {
   return m ? '0' + m[1] : '';
 }
 
+/* (owner, 27.10.2026) the PayPal button asks "רשום כאן מס טלפון לתיאום שליח",
+   and the answer lands in a field we did not read (custom/option/description,
+   depending on the API). Look through every text field whose name says it is
+   one of those — never ids, so a long transaction number is not taken for a phone. */
+function deepPhone(o, depth) {
+  if (!o || typeof o !== 'object' || (depth || 0) > 6) return '';
+  for (const [k, v] of Object.entries(o)) {
+    if (typeof v === 'string') { if (/custom|note|option|descri|instruct|memo|subject|label|value|phone|message|text/i.test(k) && !/id$|_id|^id/i.test(k)) { const p = phoneIn(v); if (p) return p; } }
+    else { const p = deepPhone(v, (depth || 0) + 1); if (p) return p; }
+  }
+  return '';
+}
+
 function asOrder(t) {
   const ti = t.transaction_info || {};
   const pi = t.payer_info || {};
@@ -1045,7 +1058,7 @@ function asOrder(t) {
     address: addr,
     note: ti.transaction_note || '',
     /* השכבה שלנו — נשמרת בין סנכרונים */
-    phone: ppPhone(pi.phone_number) || phoneIn(ti.transaction_note) || phoneIn(a.line2) || phoneIn(a.line1),
+    phone: ppPhone(pi.phone_number) || phoneIn(ti.transaction_note) || phoneIn(ti.custom_field) || deepPhone(t) || phoneIn(a.line2) || phoneIn(a.line1),
     status: 'new', tracking: '', memo: '',
   };
 }
@@ -1128,7 +1141,7 @@ app.post('/api/orders/import', async (req, res) => {
       currency: (cap.amount || {}).currency_code || 'ILS',
       qty, address: addr, note: pu.description || '',
       phone: ppPhone((payer.phone || {}).phone_number ? { national_number: payer.phone.phone_number.national_number } : null) ||
-        phoneIn(pu.description) || phoneIn(pu.custom_id) || phoneIn(a.address_line_2) || phoneIn(a.address_line_1), status: 'new', tracking: '', memo: addr ? '' : 'אין כתובת ב-PayPal',
+        phoneIn(pu.description) || phoneIn(pu.custom_id) || deepPhone(ord) || phoneIn(a.address_line_2) || phoneIn(a.address_line_1), status: 'new', tracking: '', memo: addr ? '' : 'אין כתובת ב-PayPal',
     };
     const db = loadOrders();
     const old = db.orders.find(x => x.id === id);
