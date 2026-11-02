@@ -683,7 +683,12 @@ window.printIt = async function (what) {
      לחיצה על ״מדבקות״ מדפיסה שתיים — לא שבע־עשרה. */
   if (what === 'labels' && !printIt.only) {
     const fresh = list.filter(o => !o.printedAt);
-    if (fresh.length) list = fresh;
+    /* (owner, 2.11.2026) a label "printed" this morning may never have come out of the printer: when new labels
+       go out, the ones marked printed today are offered too — older ones never, so 15 + 2 still prints 2 */
+    const day = new Date().toDateString();
+    const today = list.filter(o => o.printedAt && new Date(o.printedAt).toDateString() === day);
+    if (fresh.length && today.length && confirm(`יש ${fresh.length} מדבקות חדשות, ו־${today.length} שסומנו היום כמודפסות.\nלהדפיס גם אותן, יחד? (ביטול = רק החדשות)`)) list = today.concat(fresh);
+    else if (fresh.length) list = fresh;
     else if (!confirm('כל המדבקות כבר הודפסו. להדפיס את כולן שוב?')) return;
   }
 
