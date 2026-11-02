@@ -689,7 +689,9 @@ window.printIt = async function (what) {
     const today = list.filter(o => o.printedAt && new Date(o.printedAt).toDateString() === day);
     if (fresh.length && today.length && confirm(`יש ${fresh.length} מדבקות חדשות, ו־${today.length} שסומנו היום כמודפסות.\nלהדפיס גם אותן, יחד? (ביטול = רק החדשות)`)) list = today.concat(fresh);
     else if (fresh.length) list = fresh;
-    else if (!confirm('כל המדבקות כבר הודפסו. להדפיס את כולן שוב?')) return;
+    /* nothing new: today's labels again first (printed on plain paper by mistake), and only then all of them */
+    else if (today.length && confirm(`כל המדבקות כבר הודפסו.\nלהדפיס שוב את ${today.length} של היום?`)) list = today;
+    else if (!confirm('להדפיס שוב את כל המדבקות?')) return;
   }
 
   if (what === 'labels' && !printIt.slotsOk) { openSlots(list); return; }
