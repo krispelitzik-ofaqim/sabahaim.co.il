@@ -126,7 +126,8 @@ body{margin:0;background:var(--paper);color:var(--ink);
 .msgBox .ok.on.y{background:#2E8B57;color:#fff;border-color:#2E8B57}.msgBox .ok.on.n{background:#C0392B;color:#fff;border-color:#C0392B}
 .msgBox textarea{width:100%;box-sizing:border-box;margin-top:8px;min-height:70px;border:1px solid var(--line);border-radius:10px;padding:8px 11px;font:inherit;font-size:14px;resize:vertical}
 .msgBox .mSend{display:flex;gap:8px;margin-top:6px}.msgBox .mSend a{font-size:13px;font-weight:700}
-.badge.msg{background:#EAF3EE;color:#22603F}.badge.msg.n{background:#FBE7E4;color:#9E2B1E}
+.chips{display:inline-flex;gap:4px;flex:none}.chip{border:1px solid var(--line);background:#fff;border-radius:999px;padding:3px 9px;font:inherit;font-size:12px;font-weight:700;cursor:pointer;color:#6B7B88}
+.chip.y{background:#EAF3EE;border-color:#9CCBB0;color:#22603F}.chip.n{background:#FBE7E4;border-color:#E9A79D;color:#9E2B1E}
 .row select{border:1px solid var(--line);border-radius:10px;padding:8px 11px;
   font-family:inherit;font-size:13px;font-weight:700;background:var(--card)}
 .row .wa{background:var(--green);color:#fff;border:0;border-radius:10px;padding:8px 14px;
@@ -549,7 +550,7 @@ function card(o) {
       <span class="city">${esc(city)}</span>
       ${o.phone ? '' : '<span class="badge bad">אין טלפון</span>'}
       ${o.printedAt ? '<span class="badge printed">מדבקה הודפסה</span>' : ''}
-      ${o.noteCh || o.noteOk ? `<span class="badge msg ${o.noteOk === 'n' ? 'n' : ''}">${({phone:'טלפון',wa:'וואטסאפ',sms:'הודעה'})[o.noteCh] || 'הודעה'} ${o.noteOk === 'y' ? '✓' : o.noteOk === 'n' ? '✗' : ''}</span>` : ''}
+      <span class="chips">${[['lblOk','מדבקה'],['phoneOk','טלפון'],['msgOk','הודעה']].map(c => { const v = o[c[0]] || (c[0] === 'lblOk' && o.printedAt ? 'y' : ''); return `<button type="button" class="chip ${v}" title="לחיצה: ✓ ← ✗ ← ריק" onclick="cycleOk(event,'${esc(o.id)}','${c[0]}')">${c[1]} ${v === 'y' ? '✓' : v === 'n' ? '✗' : '·'}</button>`; }).join('')}</span>
       <span class="sum">${o.amount} ${esc(o.currency)}</span>
       <span class="steps">${STATUS.map(x =>
         `<button class="step ${x.k === st ? 'on st-' + x.k : ''}"
@@ -575,11 +576,7 @@ function card(o) {
         <span class="saved">נשמר</span>
       </div>
       <div class="msgBox">
-        <div class="mTop"><b>הודעה ללקוח</b>
-          ${[['phone','טלפון'],['wa','וואטסאפ'],['sms','הודעה']].map(c => `<button type="button" class="ch ${o.noteCh === c[0] ? 'on' : ''}" onclick="setNote(event,'${esc(o.id)}','noteCh','${c[0]}')">${c[1]}</button>`).join('')}
-          <button type="button" class="ok y ${o.noteOk === 'y' ? 'on' : ''}" title="נשלח / נמסר" onclick="setNote(event,'${esc(o.id)}','noteOk','y')">✓</button>
-          <button type="button" class="ok n ${o.noteOk === 'n' ? 'on' : ''}" title="לא נענה" onclick="setNote(event,'${esc(o.id)}','noteOk','n')">✗</button>
-        </div>
+        <div class="mTop"><b>תוכן ההודעה ללקוח</b></div>
         <textarea placeholder="תוכן ההודעה — למשל ההודעה מהמעקב של הדואר" oninput="edit(this,'note')" onclick="event.stopPropagation()">${esc(o.note)}</textarea>
         <div class="mSend">${wa ? `<a target="_blank" rel="noopener" href="#" onclick="event.stopPropagation();this.href='https://wa.me/${wa}?text='+encodeURIComponent(this.closest('.msgBox').querySelector('textarea').value)">שליחה בוואטסאפ</a><a href="#" onclick="event.stopPropagation();this.href='sms:${esc(o.phone)}?body='+encodeURIComponent(this.closest('.msgBox').querySelector('textarea').value)">שליחה בהודעה</a>` : ''}</div>
       </div>
@@ -615,6 +612,16 @@ window.setStatus = async function (ev, id, k) {
   await api('/api/orders/update', { id, status: k }).catch(() => {});
 };
 
+window.cycleOk = async function (ev, id, k) {
+  ev.stopPropagation();
+  const o = ORDERS.find(x => x.id === id); if (!o) return;
+  const cur = o[k] || (k === 'lblOk' && o.printedAt ? 'y' : '');
+  o[k] = cur === '' ? 'y' : cur === 'y' ? 'n' : '';
+  const open = document.querySelector('.order.open'); const was = open && open.dataset.id;
+  paint();
+  if (was) { const b = document.querySelector(`.order[data-id="${CSS.escape(was)}"]`); if (b) b.classList.add('open'); }
+  await api('/api/orders/update', { id, [k]: o[k] }).catch(() => {});
+};
 window.setNote = async function (ev, id, k, v) {
   ev.stopPropagation();
   const o = ORDERS.find(x => x.id === id); if (!o) return;
