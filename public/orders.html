@@ -127,6 +127,7 @@ body{margin:0;background:var(--paper);color:var(--ink);
 .msgBox .ch,.msgBox .ok{border:1px solid var(--line);background:#fff;border-radius:999px;padding:5px 12px;font:inherit;font-size:13px;cursor:pointer}
 .msgBox .ch.on{background:#2E5B7E;color:#fff;border-color:#2E5B7E}
 .msgBox .ok.on.y{background:#2E8B57;color:#fff;border-color:#2E8B57}.msgBox .ok.on.n{background:#C0392B;color:#fff;border-color:#C0392B}
+.spotRow{display:flex;gap:8px;margin-top:8px}.spotRow input{flex:1;border:1px solid var(--line);border-radius:10px;padding:8px 11px;font:inherit;font-size:14px}
 .msgBox textarea{width:100%;box-sizing:border-box;margin-top:8px;min-height:70px;border:1px solid var(--line);border-radius:10px;padding:8px 11px;font:inherit;font-size:14px;resize:vertical}
 .msgBox .mSend{display:flex;gap:8px;margin-top:6px}.msgBox .mSend a{font-size:13px;font-weight:700}
 .chips{display:inline-flex;gap:4px;flex:none}.chip{border:1px solid var(--line);background:#fff;border-radius:999px;padding:3px 9px;font-size:12px;font-weight:700;color:#6B7B88}.chip[role=button]{cursor:pointer}
@@ -581,8 +582,9 @@ function card(o) {
       </div>
       <div class="srcRow"><b>מקור:</b>${[['g','גוגל'],['f','פייסבוק'],['o','אחר']].map(c => `<button type="button" class="ch ${o.src === c[0] ? 'on' : ''}" onclick="setSrc(event,'${esc(o.id)}','${c[0]}')">${c[1]}</button>`).join('')}</div>
       <div class="msgBox">
-        <div class="mTop"><b>תוכן ההודעה ללקוח</b><button type="button" class="ch" onclick="fillNote(event,this)">מילוי הודעת איסוף</button></div>
-        <textarea placeholder="הדביקו כאן את נקודת האיסוף מהמעקב של הדואר, ואז לחצו &quot;מילוי הודעת איסוף&quot;" oninput="edit(this,'note')" onclick="event.stopPropagation()">${esc(o.note)}</textarea>
+        <div class="mTop"><b>תוכן ההודעה ללקוח</b></div>
+        <div class="spotRow"><input class="spot" placeholder="נקודת האיסוף — מדביקים מהמעקב של הדואר" value="${esc(o.spot)}" oninput="edit(this,'spot')" onclick="event.stopPropagation()"><button type="button" class="ch" onclick="fillNote(event,this)">מילוי הודעת איסוף</button></div>
+        <textarea placeholder="תוכן ההודעה ללקוח" oninput="edit(this,'note')" onclick="event.stopPropagation()">${esc(o.note)}</textarea>
         <div class="mSend">${wa ? `<a target="_blank" rel="noopener" href="#" onclick="event.stopPropagation();markSent(this);this.href='https://wa.me/${wa}?text='+encodeURIComponent(this.closest('.msgBox').querySelector('textarea').value)">שליחה בוואטסאפ</a><a href="#" onclick="event.stopPropagation();markSent(this);this.href='sms:${esc(o.phone)}?body='+encodeURIComponent(this.closest('.msgBox').querySelector('textarea').value)">שליחה בהודעה</a>` : ''}</div>
       </div>
       <div class="row oneLbl">
@@ -625,8 +627,8 @@ window.fillNote = function (ev, btn) {
   const first = String(o.name || '').replace(/,.*/, '').trim().split(/\s+/)[0] || '';
   /* (owner, 6.11.2026) he pastes the pickup point from the post's tracking page (e.g. "מינימרקט אושר נתניה / ח 50") into the box first;
      the button wraps it into the message. An old filled message is not taken as a pickup point. */
-  const raw = /^שלום/.test(ta.value.trim()) ? '' : ta.value;
-  const spot = raw.split('\n').map(x => x.trim()).filter(x => x && !/^icon$/i.test(x)).join('\n');
+  const raw = (box.querySelector('input.spot') || {}).value || '';
+  const spot = raw.replace(/\bicon\b/gi, '\n').split(/\n| {2,}| · /).map(x => x.trim()).filter(x => x && !/^icon$/i.test(x)).join('\n');
   ta.value = `שלום ${first},\nהחבילה שלך מהוצאת הספרים TAKTIKA הגיעה לנקודת האיסוף ומחכה לך` + (spot ? `:\n${spot}` : '.') +
     (trk ? `\nמספר המשלוח: ${trk}` : '');
   edit(ta, 'note');
