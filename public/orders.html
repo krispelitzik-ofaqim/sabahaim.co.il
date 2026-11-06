@@ -576,7 +576,7 @@ function card(o) {
       </div>
       <div class="msgBox">
         <div class="mTop"><b>תוכן ההודעה ללקוח</b><button type="button" class="ch" onclick="fillNote(event,this)">מילוי הודעת איסוף</button></div>
-        <textarea placeholder="תוכן ההודעה — למשל ההודעה מהמעקב של הדואר" oninput="edit(this,'note')" onclick="event.stopPropagation()">${esc(o.note)}</textarea>
+        <textarea placeholder="הדביקו כאן את נקודת האיסוף מהמעקב של הדואר, ואז לחצו &quot;מילוי הודעת איסוף&quot;" oninput="edit(this,'note')" onclick="event.stopPropagation()">${esc(o.note)}</textarea>
         <div class="mSend">${wa ? `<a target="_blank" rel="noopener" href="#" onclick="event.stopPropagation();markSent(this);this.href='https://wa.me/${wa}?text='+encodeURIComponent(this.closest('.msgBox').querySelector('textarea').value)">שליחה בוואטסאפ</a><a href="#" onclick="event.stopPropagation();markSent(this);this.href='sms:${esc(o.phone)}?body='+encodeURIComponent(this.closest('.msgBox').querySelector('textarea').value)">שליחה בהודעה</a>` : ''}</div>
       </div>
       <div class="row oneLbl">
@@ -617,9 +617,12 @@ window.fillNote = function (ev, btn) {
   const box = btn.closest('.order'), o = ORDERS.find(x => x.id === box.dataset.id); if (!o) return;
   const ta = box.querySelector('.msgBox textarea'), trk = (box.querySelector('input.track') || {}).value || o.tracking || '';
   const first = String(o.name || '').replace(/,.*/, '').trim().split(/\s+/)[0] || '';
-  ta.value = `שלום ${first},\nהחבילה שלך מהוצאת הספרים TAKTIKA הגיעה לנקודת האיסוף ומחכה לך.` +
-    (trk ? `\nמספר המשלוח: ${trk}\nאיפה לאסוף ועד מתי: https://doar.israelpost.co.il/deliverytracking?itemcode=${trk}` : '') +
-    `\nלאיסוף צריך להביא תעודה מזהה.`;
+  /* (owner, 6.11.2026) he pastes the pickup point from the post's tracking page (e.g. "מינימרקט אושר נתניה / ח 50") into the box first;
+     the button wraps it into the message. An old filled message is not taken as a pickup point. */
+  const raw = /^שלום/.test(ta.value.trim()) ? '' : ta.value;
+  const spot = raw.split('\n').map(x => x.trim()).filter(x => x && !/^icon$/i.test(x)).join('\n');
+  ta.value = `שלום ${first},\nהחבילה שלך מהוצאת הספרים TAKTIKA הגיעה לנקודת האיסוף ומחכה לך` + (spot ? `:\n${spot}` : '.') +
+    (trk ? `\nמספר המשלוח: ${trk}\nמעקב: https://doar.israelpost.co.il/deliverytracking?itemcode=${trk}` : '');
   edit(ta, 'note');
 };
 window.markSent = function (a) { const id = a.closest('.order').dataset.id, o = ORDERS.find(x => x.id === id); if (!o || o.msgOk === 'y') return; o.msgOk = 'y'; api('/api/orders/update', { id, msgOk: 'y' }).catch(() => {}); const c = a.closest('.order').querySelector('.chip[role=button]'); if (c) { c.className = 'chip y'; c.textContent = 'הודעה ✓'; } };
