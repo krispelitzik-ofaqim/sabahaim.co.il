@@ -550,7 +550,7 @@ function card(o) {
       <span class="city">${esc(city)}</span>
       ${o.phone ? '' : '<span class="badge bad">אין טלפון</span>'}
       ${o.printedAt ? '<span class="badge printed">מדבקה הודפסה</span>' : ''}
-      <span class="chips">${[['lblOk','מדבקה'],['phoneOk','טלפון'],['msgOk','הודעה']].map(c => { const v = o[c[0]] || (c[0] === 'lblOk' && o.printedAt ? 'y' : ''); return `<button type="button" class="chip ${v}" title="לחיצה: ✓ ← ✗ ← ריק" onclick="cycleOk(event,'${esc(o.id)}','${c[0]}')">${c[1]} ${v === 'y' ? '✓' : v === 'n' ? '✗' : '·'}</button>`; }).join('')}</span>
+      <span class="chips">${[['phoneOk','טלפון'],['lblOk','מדבקה'],['msgOk','הודעה']].map(c => { const v = o[c[0]] || (c[0] === 'lblOk' && o.printedAt ? 'y' : ''); return `<button type="button" class="chip ${v}" title="לחיצה: ✓ ← ✗ ← ריק" onclick="cycleOk(event,'${esc(o.id)}','${c[0]}')">${c[1]} ${v === 'y' ? '✓' : v === 'n' ? '✗' : '·'}</button>`; }).join('')}</span>
       <span class="sum">${o.amount} ${esc(o.currency)}</span>
       <span class="steps">${STATUS.map(x =>
         `<button class="step ${x.k === st ? 'on st-' + x.k : ''}"
