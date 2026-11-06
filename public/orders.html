@@ -312,7 +312,7 @@ code{background:var(--wash);padding:2px 6px;border-radius:6px;font-size:12px}
 
   <div class="wrap">
     <div class="note top" id="note"></div>
-    <details class="stats" id="stats"></details>
+    <div class="stats" id="stats"></div>
     <div class="filters" id="filters"></div>
     <div id="list"></div>
   </div>
@@ -581,7 +581,1013 @@ function card(o) {
            href="${wa ? `https://wa.me/${wa}?text=${msg}` : '#'}">וואטסאפ</a>
         <span class="saved">נשמר</span>
       </div>
-      <div class="srcRow"><b>מקור:</b>${[['g','גוגל'],['f','פייסבוק'],['o','אחר']].map(c => `<button type="button" class="ch ${o.src === c[0] ? 'on' : ''}" onclick="setSrc(event,'${esc(o.id)}','${c[0]}')">${c[1]}</button>`).join('')}</div>
+      <div class="msgBox">
+        <div class="mTop"><b>תוכן ההודעה ללקוח</b></div>
+        <div class="mPrev">${noteHtml(o)}</div>
+        <div class="spotRow">
+          <label>נקודת האיסוף: <input class="spot" value="${esc(o.spot)}" oninput="noteField(this,'spot')" onclick="event.stopPropagation()"></label>
+          <label>מספר חבילה: <input class="pkg" value="${esc(o.pkg || o.tracking)}" oninput="noteField(this,'pkg')" onclick="event.stopPropagation()"></label>
+        </div>
+        <div class="mSend">${wa ? `<a target="_blank" rel="noopener" href="#" onclick="event.stopPropagation();markSent(this);this.href='https://wa.me/${wa}?text='+encodeURIComponent(noteText(ORDERS.find(x=>x.id===this.closest('.order').dataset.id)))">שליחה בוואטסאפ</a><a href="#" onclick="event.stopPropagation();markSent(this);this.href='sms:${esc(o.phone)}?body='+encodeURIComponent(noteText(ORDERS.find(x=>x.id===this.closest('.order').dataset.id),1))">שליחה בהודעה</a>` : ''}</div>
+      </div>
+      <div class="row oneLbl">
+        <button type="button" onclick="printOne(event,'${esc(o.id)}')">🏷 הדפסת מדבקה</button>
+        <span>כמה:</span>
+        <select id="n-${esc(o.id)}" onclick="event.stopPropagation()">${[1,2,3,4,5,6].map(n =>
+          `<option${n === Math.min(o.qty || 1, 6) ? ' selected' : ''}>${n}</option>`).join('')}</select>
+      </div>
+    </div>
+  </div>`;
+}
+
+/* (owner, 25.10.2026) one order at a time: a failed print again, or two labels
+   for a buyer of two books — no "already printed" question */
+window.printOne = function (ev, id) {
+  ev.stopPropagation();
+  const o = ORDERS.find(x => x.id === id); if (!o) return;
+  const n = +(document.getElementById('n-' + id) || {}).value || 1;
+  printIt.only = Array.from({ length: n }, () => o);
+  printIt('labels');
+};
+
+/* שורה אחת לכל הזמנה, ומי שלוחצים עליה נפתחת. אחת בכל פעם — חמש־עשרה
+   הזמנות פתוחות בבת אחת זה דף שאי אפשר לסרוק בעין. */
+/* לחיצה על שלב מסמנת אותו, ולא פותחת את השורה */
+window.setStatus = async function (ev, id, k) {
+  ev.stopPropagation();
+  const o = ORDERS.find(x => x.id === id);
+  if (!o || (o.status || 'new') === k) return;
+  o.status = k;
+  paint();
+  await api('/api/orders/update', { id, status: k }).catch(() => {});
+};
+
+/* (owner, 6.11.2026) the pickup message writes itself: under it two boxes, the pickup point and the parcel number;
+   what is typed in them shows in the message bold and blue (in WhatsApp: bold), with no link */
+const cleanSpot = v => String(v || '').replace(/\bicon\b/gi, ' ').replace(/\s+/g, ' ').trim();
+const firstName = o => String(o.name || '').replace(/,.*/, '').trim().split(/\s+/)[0] || '';
+function noteParts(o) { return { first: firstName(o), spot: cleanSpot(o.spot), pkg: String(o.pkg || o.tracking || '').trim() }; }
+window.noteText = function (o, plain) { if (!o) return ''; const p = noteParts(o), b = x => plain ? x : '*' + x + '*';
+  return `שלום ${p.first},\nהחבילה שלך מהוצאת הספרים TAKTIKA הגיעה לנקודת האיסוף ומחכה לך.` + (p.spot ? `\nנקודת האיסוף: ${b(p.spot)}` : '') + (p.pkg ? `\nמספר חבילה: ${b(p.pkg)}` : ''); };
+function noteHtml(o) { const p = noteParts(o), b = x => '<b class="mv">' + esc(x) + '</b>';
+  return `שלום ${esc(p.first)},<br>החבילה שלך מהוצאת הספרים TAKTIKA הגיעה לנקודת האיסוף ומחכה לך.` + (p.spot ? `<br>נקודת האיסוף: ${b(p.spot)}` : '') + (p.pkg ? `<br>מספר חבילה: ${b(p.pkg)}` : ''); }
+window.noteField = function (el, k) { const box = el.closest('.order'), o = ORDERS.find(x => x.id === box.dataset.id); if (!o) return;
+  o[k] = el.value; box.querySelector('.mPrev').innerHTML = noteHtml(o); edit(el, k); };
+window.markSent = function (a) { const id = a.closest('.order').dataset.id, o = ORDERS.find(x => x.id === id); if (!o || o.msgOk === 'y') return; o.msgOk = 'y'; api('/api/orders/update', { id, msgOk: 'y' }).catch(() => {}); const c = a.closest('.order').querySelector('.chip[role=button]'); if (c) { c.className = 'chip y'; c.textContent = 'הודעה ✓'; } };
+window.cycleOk = async function (ev, id, k) {
+  ev.stopPropagation();
+  const o = ORDERS.find(x => x.id === id); if (!o) return;
+  o[k] = o[k] === 'y' ? '' : 'y';
+  const open = document.querySelector('.order.open'); const was = open && open.dataset.id;
+  paint();
+  if (was) { const b = document.querySelector(`.order[data-id="${CSS.escape(was)}"]`); if (b) b.classList.add('open'); }
+  await api('/api/orders/update', { id, [k]: o[k] }).catch(() => {});
+};
+window.setNote = async function (ev, id, k, v) {
+  ev.stopPropagation();
+  const o = ORDERS.find(x => x.id === id); if (!o) return;
+  o[k] = o[k] === v ? '' : v;
+  const open = document.querySelector('.order.open'); const was = open && open.dataset.id;
+  paint();
+  if (was) { const b = document.querySelector(`.order[data-id="${CSS.escape(was)}"]`); if (b) b.classList.add('open'); }
+  await api('/api/orders/update', { id, [k]: o[k] }).catch(() => {});
+};
+
+window.toggle = function (btn) {
+  const box = btn.closest('.order');
+  const was = box.classList.contains('open');
+  document.querySelectorAll('.order.open').forEach(o => o.classList.remove('open'));
+  if (!was) box.classList.add('open');
+};
+
+window.setFilter = k => { FILTER = k; paint(); };
+
+/* כל הקלדה נשמרת לבדה אחרי חצי שנייה של שקט — בלי כפתור שמירה לשכוח ללחוץ */
+const timers = {};
+window.edit = function (el, field) {
+  const box = el.closest('.order');
+  const id = box.dataset.id;
+  const val = el.value;
+  const mark = box.querySelector('.saved');
+  clearTimeout(timers[id + field]);
+  timers[id + field] = setTimeout(async () => {
+    const r = await api('/api/orders/update', { id, [field]: val }).catch(() => ({}));
+    if (!r.success) return;
+    const o = ORDERS.find(x => x.id === id);
+    if (o) o[field] = val;
+    if (field === 'phone') { box.classList.toggle('needPhone', !val); const c = box.querySelector('.chips .chip'); if (c) { c.className = 'chip ' + (val.trim() ? 'y' : 'n'); c.textContent = 'טלפון ' + (val.trim() ? '✓' : '✗'); } }
+    if (mark) { mark.classList.add('on'); setTimeout(() => mark.classList.remove('on'), 1200); }
+  }, 500);
+};
+
+/* ── נייר ─────────────────────────────────────────────────────
+   מודפס מה שמסונן על המסך: מסנן "ממתין" מדפיס מדבקות רק למי שעוד לא
+   נשלח אליו. השולח מודפס על כל מדבקה כי חבילה בלי כתובת חוזרת שולחת
+   את עצמה לפח. */
+const SENDER = 'TAKTIKA · ת.ד 712, <bdi>OFAKIM</bdi>';
+
+function shown() {
+  return ORDERS.filter(o =>
+    FILTER === 'all' ? true :
+    FILTER === 'nophone' ? !o.phone :
+    (o.status || 'new') === FILTER);
+}
+
+/* כל מדבקה ממלאת את עצמה: מתחילים גדול ויורדים עד שהיא נכנסת. שם קצר
+   יוצא גדול, כתובת מקסיקנית בשתי שורות יוצאת קטנה — ושתיהן מנצלות את כל
+   הגובה שיש להן. */
+function fitLabels() {
+  /* #print מוסתר עד להדפסה, ואי אפשר למדוד מה שלא מצויר — אז הוא מוצג
+     מחוץ למסך לרגע המדידה. */
+  const box = document.getElementById('print');
+  const was = box.style.cssText;
+  box.style.cssText = 'display:block;position:fixed;inset-inline-start:-9999px;top:0';
+
+  document.querySelectorAll('#print .lbl').forEach(l => {
+    let px = 19;
+    l.style.fontSize = px + 'px';
+    while (px > 6.5 && l.scrollHeight > l.clientHeight + 1) {
+      px -= 0.5;
+      l.style.fontSize = px + 'px';
+    }
+  });
+
+  box.style.cssText = was;
+}
+
+/* המשבצות שכבר הודפסו בגיליון שבמגש. נשמר במחשב הזה בלבד — הגיליון
+   הפיזי נמצא ליד המדפסת הזו. */
+const SLOTS = 12;
+function usedSlots() { try { return JSON.parse(localStorage.getItem('labelSlotsUsed') || '[]'); } catch (e) { return []; } }
+function saveUsed(u) { try { localStorage.setItem('labelSlotsUsed', JSON.stringify(u)); } catch (e) {} }
+let slotList = [], slotStart = 0;
+function firstFree(u) { for (let i = 0; i < SLOTS; i++) if (!u.includes(i)) return i; return 0; }
+function paintSlots() {
+  const u = usedSlots(), n = slotList.length;
+  document.getElementById('slotGrid').innerHTML = Array.from({ length: SLOTS }, (_, i) => {
+    const cls = u.includes(i) && !(i >= slotStart && i < slotStart + n) ? 'used'
+      : (i >= slotStart && i < slotStart + n) ? 'next' : '';
+    return `<button type="button" class="${cls}" onclick="pickSlot(${i})">${i + 1}</button>`;
+  }).join('');
+  const over = slotStart + n > SLOTS;
+  document.getElementById('slotMsg').innerHTML =
+    `${n === 1 ? 'מדבקה אחת' : n + ' מדבקות'} יודפסו במשבצות המסומנות. המשבצות המחוקות כבר נוצלו. ` +
+    `אפשר ללחוץ על משבצת אחרת כדי להתחיל ממנה.` + (over ? ' <b>מה שלא נכנס ימשיך לגיליון הבא.</b>' : '');
+}
+window.openSlots = function (list) {
+  slotList = list; slotStart = firstFree(usedSlots());
+  paintSlots(); document.getElementById('slots').hidden = false;
+};
+window.pickSlot = function (i) { slotStart = i; paintSlots(); };
+window.closeSlots = function () { document.getElementById('slots').hidden = true; if (!printIt.slotsOk) printIt.only = null; };
+window.freshSheet = function () { saveUsed([]); slotStart = 0; paintSlots(); };
+window.goSlots = function () {
+  printIt.slotsOk = true; closeSlots(); printIt.skip = slotStart; printIt('labels');
+};
+function markUsed(start, n) {
+  const u = usedSlots();
+  for (let i = start; i < start + n; i++) {
+    const k = i % SLOTS;
+    if (i >= SLOTS && k === 0) u.length = 0;   /* עברנו לגיליון חדש */
+    if (!u.includes(k)) u.push(k);
+  }
+  saveUsed(u.length >= SLOTS ? [] : u);
+}
+
+let pickList = [];
+const isToday = o => o.printedAt && new Date(o.printedAt).toDateString() === new Date().toDateString();
+window.openPick = function (list) {
+  pickList = list;
+  const fresh = list.filter(o => !o.printedAt), on = new Set((fresh.length ? fresh : list.filter(isToday)).map(o => o.id));
+  const tag = o => !o.printedAt ? '<i class="pkN">חדשה</i>' : isToday(o) ? '<i class="pkT">הודפסה היום</i>'
+    : `<i class="pkO">הודפסה ${new Date(o.printedAt).toLocaleDateString('he-IL', { day: 'numeric', month: 'numeric' })}</i>`;
+  document.getElementById('pickRows').innerHTML = list.map(o => `<label class="pkR"><input type="checkbox" value="${esc(o.id)}"${on.has(o.id) ? ' checked' : ''}>` +
+    `<span class="pkNm"><bdi>${esc(o.name) || '—'}</bdi> <small dir="ltr">#${esc(o.no || '')}</small></span>${tag(o)}</label>`).join('');
+  pickCount(); document.getElementById('pick').hidden = false;
+};
+window.pickCount = function () {
+  const n = document.querySelectorAll('#pickRows input:checked').length;
+  document.getElementById('pickGo').textContent = n ? `המשך: ${n === 1 ? 'מדבקה אחת' : n + ' מדבקות'}` : 'לא נבחרה מדבקה';
+  document.getElementById('pickGo').disabled = !n;
+};
+window.pickSet = function (k) {
+  document.querySelectorAll('#pickRows input').forEach(b => { const o = pickList.find(x => x.id === b.value) || {};
+    b.checked = k === 'all' ? true : k === 'none' ? false : k === 'new' ? !o.printedAt : isToday(o); });
+  pickCount();
+};
+window.closePick = function () { document.getElementById('pick').hidden = true; };
+window.goPick = function () {
+  const ids = new Set([...document.querySelectorAll('#pickRows input:checked')].map(b => b.value));
+  const sel = pickList.filter(o => ids.has(o.id)); if (!sel.length) return;
+  closePick(); printIt.only = sel; printIt('labels');
+};
+
+window.printIt = async function (what) {
+  let list = (what === 'labels' && printIt.only) || shown();
+  if (what !== 'align' && what !== 'sender' && !list.length) return;
+
+  /* מדבקה מודפסת פעם אחת. אחרי שהדפסת חמש־עשרה והגיעו שתיים חדשות,
+     לחיצה על ״מדבקות״ מדפיסה שתיים — לא שבע־עשרה. */
+  /* (owner, 2.11.2026) no more questions: a list of the orders with a box each — the new ones ticked, or today's
+     when nothing is new — and buttons for new / today / all / none. Whatever is ticked prints, printed before or not. */
+  if (what === 'labels' && !printIt.only) { openPick(list); return; }
+
+  if (what === 'labels' && !printIt.slotsOk) { openSlots(list); return; }
+  const skip = what === 'labels' ? printIt.skip || 0 : 0;
+  printIt.slotsOk = false;
+
+  const box = document.getElementById('print');
+
+  if (what === 'labels') {
+    box.innerHTML = `<div class="sheet">${'<div class="lbl skip"></div>'.repeat(skip)}${list.map(o => {
+      const a = splitAddress(o.address);
+      return `
+      <div class="lbl">
+        <div class="side">
+          <div class="qrbox">${qrSVG(orderURL(o), 90)}</div>
+          <div class="sender">
+            <img src="/marketing/logo-taktika.png" alt="">
+            <span>${SENDER}</span>
+          </div>
+        </div>
+
+        <div class="body">
+          <div class="block to">
+            <div class="nm">${esc(o.name) || '—'}</div>
+            ${a.street ? `<div class="ad">${esc(a.street)}</div>` : ''}
+            <div class="city">${esc(a.city) || '—'}</div>
+            ${a.zip ? `<div class="zip">${esc(a.zip)}</div>` : ''}
+            ${a.abroad ? `<div class="abroad">${esc(a.abroad)}</div>` : ''}
+            ${o.phone ? `<div class="ph">${esc(o.phone)}</div>` : ''}
+          </div>
+        </div>
+      </div>`; }).join('')}</div>`;
+  } else if (what === 'sender') {
+    /* (owner, 27.10.2026) a full sheet of sender labels for stock: one goes on
+       each parcel beside the buyer's label */
+    box.innerHTML = `<div class="sheet">${Array.from({ length: SLOTS }, () => `
+      <div class="lbl snd">
+        <img src="/marketing/logo-taktika.png" alt="">
+        <div><small>שולח</small><b>TAKTIKA</b><span>ת.ד 712, <bdi>OFAKIM</bdi></span></div>
+      </div>`).join('')}</div>`;
+  } else if (what === 'align') {
+    /* דף כיוונון: שנים־עשר מלבנים בדיוק במידות הגיליון, כל אחד עם המספר
+       שלו וסימון למעלה. מדפיסים על נייר רגיל, מניחים מול האור על גיליון
+       המדבקות, ורואים מיד אם המדפסת מזיזה את הדף. */
+    box.innerHTML = `<div class="sheet align">${
+      Array.from({ length: 12 }, (_, i) => `
+        <div class="lbl cal">
+          <div class="arrow">▲ למעלה</div>
+          <div class="num">${i + 1}</div>
+          <div class="side-mark s-r">ימין</div>
+          <div class="side-mark s-l">שמאל</div>
+          <div class="arrow down">למטה ▼</div>
+        </div>`).join('')}</div>`;
+  } else {
+    const today = new Date().toLocaleDateString('he-IL');
+    box.innerHTML = `
+      <table class="rep">
+        <caption>דוח אריזה · ${today} · ${list.length} הזמנות</caption>
+        <thead><tr>
+          <th>✓</th><th>#</th><th>שם</th><th>כתובת</th><th>טלפון</th><th>סטטוס</th><th>מעקב</th>
+        </tr></thead>
+        <tbody>${list.map(o => `
+          <tr>
+            <td><span class="box"></span></td>
+            <td>${o.no || ''}</td>
+            <td>${esc(o.name)}</td>
+            <td>${esc(o.address)}</td>
+            <td>${esc(o.phone) || '—'}</td>
+            <td>${(STATUS.find(x => x.k === (o.status || 'new')) || {}).he || ''}</td>
+            <td>${esc(o.tracking) || ''}</td>
+          </tr>`).join('')}</tbody>
+        <tfoot><tr><td colspan="7">סה״כ ${list.reduce((n, o) => n + o.amount, 0)} ₪</td></tr></tfoot>
+      </table>`;
+  }
+  /* כתובת ארוכה — מקסיקו, שתי שורות רחוב — גבוהה מהמדבקה. במקום לחתוך
+     אותה, המדבקה הזו בלבד מתכווצת עד שהיא נכנסת. */
+  if (what === 'labels') fitLabels();
+
+  window.print();
+
+  if (what === 'labels') {
+    markUsed(skip, list.length);
+    printIt.only = null;
+    list = [...new Set(list)];
+    const now = new Date().toISOString();
+    list.forEach(o => { o.printedAt = now; });
+    await Promise.all(list.map(o =>
+      api('/api/orders/update', { id: o.id, printedAt: now }).catch(() => {})));
+    paint();
+  }
+};
+
+/* ── סריקה ────────────────────────────────────────────────────
+   BarcodeDetector הוא של הדפדפן עצמו — אין ספרייה, אין שרת, התמונה לא
+   עוזבת את הטלפון. איפה שהוא לא קיים, נשארת ההקלדה. */
+let camStream = null, scanTimer = null;
+
+window.openScan = async function () {
+  document.getElementById('scan').hidden = false;
+  const msg = document.getElementById('scanMsg');
+  const video = document.getElementById('cam');
+
+  if (!('BarcodeDetector' in window)) {
+    msg.textContent = 'הדפדפן הזה לא יודע לסרוק. הקלידו את המספר למטה.';
+    video.style.display = 'none';
+    document.getElementById('scanIn').focus();
+    return;
+  }
+  try {
+    camStream = await navigator.mediaDevices.getUserMedia(
+      { video: { facingMode: 'environment' } });
+    video.srcObject = camStream;
+    await video.play();
+    msg.textContent = 'כוונו את המצלמה לברקוד';
+  } catch (e) {
+    msg.textContent = 'אין גישה למצלמה. הקלידו את המספר למטה.';
+    video.style.display = 'none';
+    return;
+  }
+
+  const det = new BarcodeDetector({ formats: ['code_128'] });
+  scanTimer = setInterval(async () => {
+    try {
+      const found = await det.detect(video);
+      if (found.length) jumpTo(found[0].rawValue);
+    } catch (e) { /* פריים שלא נקרא — ננסה את הבא */ }
+  }, 350);
+};
+
+window.closeScan = function () {
+  clearInterval(scanTimer); scanTimer = null;
+  if (camStream) { camStream.getTracks().forEach(t => t.stop()); camStream = null; }
+  document.getElementById('cam').style.display = '';
+  document.getElementById('scan').hidden = true;
+};
+
+window.jumpTo = function (raw) {
+  const n = Number(String(raw).replace(/\D/g, ''));
+  const o = ORDERS.find(x => x.no === n);
+  const msg = document.getElementById('scanMsg');
+  if (!o) { msg.className = 'scanMsg'; msg.textContent = 'לא נמצאה הזמנה ' + (n || '—'); return; }
+
+  msg.className = 'scanMsg hit';
+  msg.innerHTML = `<bdi dir="ltr">#${o.no}</bdi> · <bdi>${esc(o.name)}</bdi>`;
+  if (navigator.vibrate) navigator.vibrate(40);
+
+  setTimeout(() => {
+    closeScan();
+    FILTER = 'all';
+    paint();
+    const box = document.querySelector(`.order[data-id="${CSS.escape(o.id)}"]`);
+    if (!box) return;
+    box.classList.add('open', 'hit');
+    box.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    setTimeout(() => box.classList.remove('hit'), 2400);
+  }, 450);
+};
+
+document.getElementById('scanIn').addEventListener('keydown', e => {
+  if (e.key === 'Enter') jumpTo(e.target.value);
+});
+
+/* מצלמת האייפון פותחת /orders.html#7 — והדף קופץ להזמנה 7 מרגע שהיא נטענה */
+function openFromHash() {
+  const n = Number(location.hash.replace('#', ''));
+  if (n && ORDERS.length) jumpTo(n);
+}
+addEventListener('hashchange', openFromHash);
+
+/* הזמנה שנכנסה עכשיו: מדביקים את מזהה העסקה מ-PayPal והיא נכנסת מיד */
+window.importOne = async function () {
+  const id = (prompt('הדביקו את מזהה העסקה מ-PayPal (למשל 8RV43369H2032754H):') || '').trim();
+  if (!id) return;
+  const note = document.getElementById('note');
+  note.textContent = 'מושך את העסקה מ-PayPal…';
+  const r = await api('/api/orders/import', { id }).catch(e => ({ error: String(e) }));
+  if (!r || !r.success) { note.textContent = 'PayPal החזיר שגיאה: ' + ((r && r.error) || ''); return; }
+  note.textContent = (r.added ? 'נוספה הזמנה #' : 'עודכנה הזמנה #') + r.order.no + ' · ' + (r.order.name || '') +
+    (r.order.address ? '' : ' · שימו לב: אין כתובת משלוח');
+  const msg = note.textContent;
+  const k = await api('/api/orders').catch(() => null);
+  if (k && k.orders) { paint(k); note.textContent = msg; }
+};
+
+async function sync() {
+  const b = document.getElementById('syncBtn');
+  b.disabled = true; b.textContent = 'מושך…';
+  const r = await api('/api/orders/sync', { days: 365 }).catch(e => ({ error: String(e) }));
+  b.disabled = false; b.textContent = 'משיכה מ-PayPal';
+  if (!r.success) {
+    document.getElementById('note').textContent = 'PayPal החזיר שגיאה: ' + (r.error || '');
+    return;
+  }
+  const fresh = await api('/api/orders');
+  paint(fresh);
+  document.getElementById('note').textContent =
+    r.added ? `נוספו ${r.added} הזמנות חדשות.` : 'אין הזמנות חדשות.';
+}
+
+/* מי שכבר נכנס לפאנל הניהול באותו דפדפן — לא מקליד סיסמה שוב.
+   הפאנל שומר אותה תחת sab_admin, וזה אותו מקור ואותה הרשאה. */
+(async () => {
+  let t = '';
+  try { t = localStorage.getItem('sab_admin') || sessionStorage.getItem('sc_orders_tok') || ''; } catch (e) {}
+  if (!t) return;
+  TOKEN = t;
+  const r = await api('/api/orders').catch(() => ({}));
+  if (!r.success) return;
+  document.getElementById('gate').hidden = true;
+  document.getElementById('app').hidden = false;
+  paint(r);
+  openFromHash();
+})();
+</script>
+</body>
+</html>  el.innerHTML = `סך מכירות: <b>${ORDERS.length}</b> הזמנות · <b>${books(ORDERS)}</b> ספרים · <b>${nis(sum(ORDERS))}</b>`;
+ml lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="robots" content="noindex,nofollow">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>הזמנות · הצופן הסודי</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700;800&display=swap">
+<style>
+:root{
+  --ink:#1A2230; --soft:#55607180; --muted:#78828F; --paper:#FFFFFF; --card:#FFFFFF;
+  --line:#E6E3DC; --gold:#B8862B; --red:#C0392B; --green:#2E7D5F; --wash:#F1EEE8;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);
+  font-family:'Heebo',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+
+.bar{position:sticky;top:0;z-index:5;background:var(--ink);color:#fff;
+  padding:12px 18px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.bar h1{margin:0;font-size:16px;font-weight:800}
+.bar .count{font-size:12.5px;color:#9FA9B8;font-weight:600}
+.bar .right{margin-inline-start:auto;display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+.bar button{background:#2E3B4E;color:#fff;border:0;border-radius:10px;padding:8px 15px;
+  font-family:inherit;font-size:13px;font-weight:700;cursor:pointer}
+.bar button:hover{background:var(--gold)}
+.bar button[disabled]{opacity:.5;cursor:default}
+.bar .sync{font-size:11.5px;color:#9FA9B8}
+
+.wrap{max-width:1180px;margin:0 auto;padding:18px}
+
+.gate{max-width:360px;margin:16vh auto;background:var(--card);border:1px solid var(--line);
+  border-radius:18px;padding:26px}
+.gate h2{margin:0 0 6px;font-size:19px;font-weight:800}
+.gate p{margin:0 0 16px;font-size:13.5px;color:var(--muted);line-height:1.6}
+.gate input{width:100%;border:1px solid var(--line);border-radius:11px;padding:12px 14px;
+  font-family:inherit;font-size:15px;margin-bottom:11px}
+.gate button{width:100%;background:var(--ink);color:#fff;border:0;border-radius:11px;
+  padding:13px;font-family:inherit;font-size:14px;font-weight:800;cursor:pointer}
+.gate .err{color:var(--red);font-size:13px;margin-top:10px;min-height:18px}
+
+.filters{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:14px}
+.filters button{background:#fff;border:1px solid var(--line);border-radius:999px;
+  padding:7px 15px;font-family:inherit;font-size:12.5px;font-weight:700;color:var(--ink);
+  cursor:pointer}
+.filters button.on{background:var(--ink);border-color:var(--ink);color:#fff}
+.filters button em{font-style:normal;color:var(--muted);margin-inline-start:5px}
+.filters button.on em{color:#9FA9B8}
+
+.order{background:var(--card);border:1px solid var(--line);border-radius:14px;
+  margin-bottom:8px;overflow:hidden}
+.order.needPhone{border-color:#E7B4AD}
+.order.needPhone::before{background:#C0392B}
+/* לכל שלב צבע, והוא נמרח על כל השורה: פס בקצה וגוון עדין ברקע, כדי
+   שאפשר יהיה לסרוק את הרשימה בעין בלי לקרוא מילה. */
+.order{--st:#B8862B;position:relative}
+.order.row-new{--st:#B8862B}
+.order.row-packed{--st:#2563EB}
+.order.row-sent{--st:#16A34A}
+.order.row-done{--st:#065F46}
+.order::before{content:'';position:absolute;inset-block:0;inset-inline-start:0;
+  width:5px;background:var(--st);border-start-start-radius:14px;border-end-start-radius:14px}
+.order .head{background:color-mix(in srgb,var(--st) 7%,#fff)}
+/* נמסר — הבלוק עצמו בירוק עמוק יותר, לא רק הכפתור */
+.order.row-done .head{background:color-mix(in srgb,var(--st) 18%,#fff)}
+.order .head:hover{background:color-mix(in srgb,var(--st) 11%,#fff)}
+.order .no{background:var(--st)}
+.order.done{border-color:color-mix(in srgb,var(--st) 28%,#fff)}
+.order:hover{box-shadow:inset 0 0 0 1px var(--line)}
+
+.head{display:flex;align-items:center;gap:11px;width:100%;
+  padding:13px 15px;font-family:inherit;cursor:pointer;text-align:start;flex-wrap:wrap}
+/* ארבעת השלבים על השורה עצמה — אין צורך לפתוח כדי לסמן שנשלח */
+/* רקע לבן תמיד, גם על שורה מוארת, והטקסט כהה מספיק כדי להיקרא */
+.steps{display:flex;gap:0;border:1px solid var(--line);border-radius:9px;overflow:hidden;
+  flex:none;background:#fff}
+.step{background:#fff;border:0;border-inline-end:1px solid var(--line);
+  padding:6px 11px;font-family:inherit;font-size:12px;font-weight:700;color:#5A6472;
+  cursor:pointer;white-space:nowrap}
+.step:last-child{border-inline-end:0}
+.step:hover{background:var(--wash);color:var(--ink)}
+.step.on{color:#fff}
+.step.on.st-new{background:var(--gold)}
+/* ארבעה צבעים, אחד לכל שלב: ממתין זהב, נארז כחול, נשלח ונמסר ירוקים */
+.step.on.st-packed{background:#2563EB}
+.step.on.st-sent{background:#16A34A}
+/* נמסר הוא הסוף — הירוק הכי עמוק, לא אפור */
+.step.on.st-done{background:#065F46}
+.head:hover{background:var(--wash)}
+.no{background:var(--ink);color:#fff;border-radius:8px;padding:3px 9px;flex:none;
+  font-size:12.5px;font-weight:800;font-variant-numeric:tabular-nums}
+.who{font-size:15px;font-weight:800;color:var(--ink);white-space:nowrap;
+  overflow:hidden;text-overflow:ellipsis;min-width:0}
+.city{font-size:13px;color:var(--muted);white-space:nowrap}
+.badge{flex:none;font-size:11.5px;font-weight:800;border-radius:999px;padding:3px 10px;
+  background:var(--wash)}
+.badge.bad{background:#FBE7E4;color:#9E2B1E}
+.badge.printed{background:#E8EEF4;color:#2E5B7E}
+.sum{margin-inline-start:auto;font-size:14px;font-weight:800;flex:none;
+  font-variant-numeric:tabular-nums}
+.chev{flex:none;font-size:11px;color:var(--muted);transition:transform .18s}
+.order.open .chev{transform:rotate(180deg)}
+
+.order .body{display:none;padding:0 15px 14px;border-top:1px solid var(--line)}
+.order.open .body{display:block}
+
+.lines{margin-top:11px;display:grid;gap:3px;font-size:13.5px;color:#49525F;line-height:1.55}
+.lines a{color:#49525F}
+.lines .addr{font-weight:700;color:var(--ink)}
+.warn{display:inline-block;background:#FBE7E4;color:#9E2B1E;
+  border-radius:999px;padding:4px 11px;font-size:12px;font-weight:800}
+
+.row{margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.row input{border:1px solid var(--line);border-radius:10px;padding:8px 11px;
+  font-family:inherit;font-size:13px;min-width:0}
+.row input.phone{width:170px}
+.row input.track{width:190px}
+.row input.memo{flex:1;min-width:170px}
+/* (owner, 6.11.2026) a message to the customer: by phone / WhatsApp / SMS, sent ✓ or not ✗, and its text inside */
+.stats{margin:0 0 12px;background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px 14px}.stats summary{cursor:pointer;font-size:15px}
+.stats table{width:100%;border-collapse:collapse;margin-top:10px;font-size:14px}.stats th,.stats td{padding:7px 6px;border-bottom:1px solid var(--line);text-align:start}.stats input{width:90px;border:1px solid var(--line);border-radius:8px;padding:5px 8px;font:inherit}
+.srcRow{margin-top:12px;display:flex;gap:6px;align-items:center;flex-wrap:wrap}.srcRow b{font-size:13px}.srcRow .ch{border:1px solid var(--line);background:#fff;border-radius:999px;padding:5px 12px;font:inherit;font-size:13px;cursor:pointer}.srcRow .ch.on{background:#2E5B7E;color:#fff;border-color:#2E5B7E}
+.msgBox{margin-top:12px;border:1px solid var(--line);border-radius:12px;padding:10px}
+.msgBox .mTop{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.msgBox .mTop b{font-size:13px;margin-inline-end:4px}
+.msgBox .ch,.msgBox .ok{border:1px solid var(--line);background:#fff;border-radius:999px;padding:5px 12px;font:inherit;font-size:13px;cursor:pointer}
+.msgBox .ch.on{background:#2E5B7E;color:#fff;border-color:#2E5B7E}
+.msgBox .ok.on.y{background:#2E8B57;color:#fff;border-color:#2E8B57}.msgBox .ok.on.n{background:#C0392B;color:#fff;border-color:#C0392B}
+.msgBox .mPrev{margin-top:8px;padding:10px 12px;background:#F7F9FB;border-radius:10px;font-size:14.5px;line-height:1.7}.msgBox .mv{color:#1A56C4}
+.spotRow{display:flex;gap:10px;margin-top:8px;flex-wrap:wrap}.spotRow label{flex:1;min-width:200px;display:flex;align-items:center;gap:6px;font-size:13px;font-weight:700;white-space:nowrap}.spotRow input{flex:1;min-width:0;border:1px solid var(--line);border-radius:10px;padding:8px 11px;font:inherit;font-size:14px}
+.msgBox textarea{width:100%;box-sizing:border-box;margin-top:8px;min-height:70px;border:1px solid var(--line);border-radius:10px;padding:8px 11px;font:inherit;font-size:14px;resize:vertical}
+.msgBox .mSend{display:flex;gap:8px;margin-top:6px}.msgBox .mSend a{font-size:13px;font-weight:700}
+.chips{display:inline-flex;gap:4px;flex:none}.chip{border:1px solid var(--line);background:#fff;border-radius:999px;padding:3px 9px;font-size:12px;font-weight:700;color:#6B7B88}.chip[role=button]{cursor:pointer}
+.chip.y{background:#EAF3EE;border-color:#9CCBB0;color:#22603F}.chip.n{background:#FBE7E4;border-color:#E9A79D;color:#9E2B1E}
+.row select{border:1px solid var(--line);border-radius:10px;padding:8px 11px;
+  font-family:inherit;font-size:13px;font-weight:700;background:var(--card)}
+.row .wa{background:var(--green);color:#fff;border:0;border-radius:10px;padding:8px 14px;
+  font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;text-decoration:none}
+.row .wa.off{background:var(--wash);color:var(--muted);pointer-events:none}
+.saved{font-size:12px;font-weight:700;color:var(--green);opacity:0;transition:opacity .2s}
+.saved.on{opacity:1}
+
+.st-new{color:var(--gold)} .st-packed{color:#2E6B8E}
+.st-sent{color:#2E7D5F} .st-done{color:var(--muted)}
+
+.empty{padding:40px 10px;text-align:center;color:var(--muted);font-size:14px;line-height:1.7}
+.empty b{color:var(--ink)}
+.note{margin-top:14px;font-size:12.5px;color:var(--muted);line-height:1.7}
+code{background:var(--wash);padding:2px 6px;border-radius:6px;font-size:12px}
+
+
+
+
+/* ── נייר ─────────────────────────────────────────────────────
+   מה שמודפס הוא מה שמסונן על המסך, לא הכול — מי שמסנן "ממתין" מדפיס
+   מדבקות רק למי שעוד לא נשלח אליו. */
+#print{display:none}
+@media print{
+  /* גיליון TW-2512: 105×46 מ"מ, 12 בדף — שתי עמודות ברוחב מלא, שש שורות,
+     והשארית מתחלקת לשוליים עליונים ותחתונים. */
+  @page{size:A4;margin:10.5mm 0}
+  body{background:#fff}
+  .bar,.wrap{display:none !important}
+  #print{display:block}
+  .lbl{break-inside:avoid}
+}
+
+/* גיליון תקני של 8 מדבקות ב-A4: שתי עמודות של 105 מ"מ, ארבע שורות של 74.
+   אין רווח ואין שוליים — כל תא יושב בדיוק על מדבקה אחת. */
+.sheet{display:grid;grid-template-columns:105mm 105mm;grid-auto-rows:46mm;gap:0}
+/* 105×74 מ"מ זה הרבה נייר. שני שליש לכתובת של המזמין, שליש ל-QR ולשולח
+   מתחתיו — חלוקה שנראית בלי שום קו שמפריד. */
+.lbl{padding:2.5mm 3.5mm;font-size:10pt;display:grid;grid-template-columns:1fr 2fr;gap:3mm;
+  break-inside:avoid;overflow:hidden}
+@media screen{ .lbl{outline:1px dashed #CCC} }
+
+/* הכתובת מיושרת לימין וממורכזת בגובה — כך היא ממלאת את השליש השני
+   ברצף ולא מתפזרת סביב המרכז. */
+/* שתי העמודות ממורכזות בגובה המדבקה — אחרת התוכן נצמד לראש ונראה גבוה. */
+.lbl .body{display:flex;flex-direction:column;align-items:flex-end;justify-content:center;
+  min-width:0;text-align:start}
+.lbl .block{min-width:0;width:100%}
+.lbl .nm{font-size:2.1em;font-weight:800;line-height:1.1}
+.lbl .ad{font-size:1.5em;line-height:1.25;margin-top:.8mm}
+.lbl .city{font-size:1.8em;font-weight:800;line-height:1.2;margin-top:.4mm}
+/* המיקוד בשורה משלו מתחת לעיר, כמו שכתובת ישראלית נכתבת */
+.lbl .zip{font-size:1.25em;font-weight:600;color:#555;line-height:1.25;
+  font-variant-numeric:tabular-nums}
+.lbl .abroad{font-size:1.25em;font-weight:700;letter-spacing:.05em}
+.lbl .ph{font-size:1.3em;font-weight:700;direction:ltr;unicode-bidi:isolate;
+  text-align:start;margin-top:.6mm;align-self:flex-end}
+
+.lbl .side{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1mm}
+.lbl .qrbox{width:27mm;height:27mm}
+.lbl .qrbox .qr{display:block;width:100%;height:100%}
+.lbl .sender{display:flex;flex-direction:column;align-items:center;gap:.5mm;
+  font-size:6.5pt;color:#555;line-height:1.3;text-align:center}
+.lbl .sender img{width:13mm}
+
+/* מדבקת שולח למלאי: לוגו מימין, השם והתיבה משמאל, ממורכז בגובה */
+.lbl.snd{display:flex;align-items:center;justify-content:center;gap:7mm;padding:3mm 6mm}
+.lbl.snd img{height:40mm;width:auto;flex:none}
+.lbl.snd div{display:flex;flex-direction:column;line-height:1.2}
+.lbl.snd small{font-size:9pt;color:#666;font-weight:700}
+.lbl.snd b{font-size:22pt;font-weight:900;letter-spacing:.06em;direction:ltr;text-align:right}
+.lbl.snd span{font-size:15pt;font-weight:700}
+
+/* דף כיוונון */
+.sheet.align .lbl.cal{display:flex;flex-direction:column;align-items:center;
+  justify-content:space-between;outline:1px solid #000;outline-offset:-1px;
+  padding:1.5mm;position:relative}
+.lbl.cal .arrow{font-size:7pt;font-weight:800;letter-spacing:.1em;color:#000}
+.lbl.cal .num{font-size:20pt;font-weight:800;color:#000;line-height:1}
+.lbl.cal .side-mark{position:absolute;top:50%;transform:translateY(-50%);
+  font-size:7pt;font-weight:800;color:#000}
+.lbl.cal .s-r{right:2mm}
+.lbl.cal .s-l{left:2mm}
+
+.rep{width:100%;border-collapse:collapse;font-size:10.5pt}
+.rep caption{text-align:start;font-size:14pt;font-weight:800;padding-bottom:4mm}
+.rep th{text-align:start;font-size:9.5pt;color:#555;border-bottom:1.5px solid #333;
+  padding:2mm 1.5mm;font-weight:800}
+.rep td{border-bottom:1px solid #DDD;padding:2.5mm 1.5mm;vertical-align:top}
+.rep .box{width:7mm;height:7mm;border:1.5px solid #333;border-radius:1.5mm;display:block}
+.rep tfoot td{border:0;padding-top:4mm;font-size:10pt;color:#555}
+/* ── סריקה ────────────────────────────────────────────────────
+   הברקוד נושא מספר בלבד; מה שנפתח אחריו הוא הדף הזה, שכבר מאחורי סיסמה.
+   מי שסורק חבילה ברחוב מקבל מספר ולא שם ולא כתובת. */
+.scan{position:fixed;inset:0;z-index:60;background:rgba(14,18,24,.92);
+  display:flex;align-items:center;justify-content:center;padding:16px}
+.scan[hidden]{display:none}
+.scanBox{width:min(460px,100%);background:var(--card);border-radius:18px;overflow:hidden}
+.scanTop{display:flex;align-items:center;justify-content:space-between;
+  padding:13px 16px;border-bottom:1px solid var(--line)}
+.scanTop b{font-size:15px;font-weight:800}
+.scanTop button{background:var(--wash);border:0;border-radius:9px;padding:7px 14px;
+  font-family:inherit;font-size:13px;font-weight:700;cursor:pointer}
+#cam{display:block;width:100%;height:280px;object-fit:cover;background:#111}
+.scanMsg{padding:11px 16px;font-size:13.5px;color:var(--muted);min-height:20px}
+.scanMsg.hit{color:var(--green);font-weight:800}
+.scanManual{display:flex;gap:8px;padding:0 16px 16px}
+.scanManual input{flex:1;border:1px solid var(--line);border-radius:10px;padding:10px 12px;
+  font-family:inherit;font-size:14px}
+.scanManual button{background:var(--ink);color:#fff;border:0;border-radius:10px;
+  padding:10px 18px;font-family:inherit;font-size:13.5px;font-weight:700;cursor:pointer}
+.order.hit{box-shadow:0 0 0 3px var(--gold)}
+.doneBox{margin-top:18px}
+.doneBox>summary{cursor:pointer;list-style:none;padding:12px 16px;border-radius:12px;background:var(--wash);font-weight:800;font-size:15px;color:var(--muted)}
+.doneBox>summary::-webkit-details-marker{display:none}
+.doneBox>summary::before{content:"▸ ";}
+.doneBox[open]>summary::before{content:"▾ ";}
+.doneBox[open]>summary{margin-bottom:12px}
+.note.top:not(:empty){margin:0 0 12px;padding:11px 14px;border-radius:12px;background:#FFF6E0;color:#5A4410;font-weight:700;font-size:14px}
+/* ── בחירת משבצת בגיליון ─────────────────────────────────────
+   גיליון שהודפסו עליו כבר כמה מדבקות חוזר למדפסת; המשבצות שכבר נלקחו
+   מסומנות, וההדפסה מתחילה מהמשבצת הפנויה הבאה. */
+.slotBox{width:min(380px,100%);background:var(--card);border-radius:18px;overflow:hidden}
+.slotBody{padding:12px 16px 16px}
+.slotBody p{font-size:13.5px;color:var(--muted);margin:0 0 10px;line-height:1.5}
+.slotGrid{display:grid;grid-template-columns:1fr 1fr;gap:6px;direction:rtl}
+.slotGrid button{height:44px;border:1.5px dashed #B9C2CE;border-radius:8px;background:#fff;
+  font-family:inherit;font-size:14px;font-weight:800;color:#49525F;cursor:pointer}
+.slotGrid button.used{background:#E3E7ED;border-style:solid;border-color:#E3E7ED;color:#9FA9B8;text-decoration:line-through}
+.slotGrid button.next{background:var(--gold);border-style:solid;border-color:var(--gold);color:#fff}
+.slotActs{display:flex;gap:8px;margin-top:12px}
+.slotActs button{flex:1;border:0;border-radius:10px;padding:11px;font-family:inherit;font-size:14px;font-weight:800;cursor:pointer}
+.slotActs .go{background:var(--ink);color:#fff}
+.slotActs .fresh{background:var(--wash);color:var(--ink)}
+.lbl.skip{visibility:hidden}
+/* (owner, 2.11.2026) choosing which labels to print */
+.pkBtns{display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap}
+.pkBtns button{flex:1;border:1.5px solid #D5DCE5;border-radius:999px;background:#fff;padding:7px 8px;font-family:inherit;font-size:13.5px;font-weight:800;color:var(--ink);cursor:pointer}
+.pkRows{max-height:min(50vh,420px);overflow:auto;border:1px solid #E3E7ED;border-radius:12px}
+.pkR{display:flex;align-items:center;gap:10px;padding:10px 12px;border-bottom:1px solid #EEF1F5;cursor:pointer;font-size:14.5px}
+.pkR:last-child{border-bottom:0}.pkR input{width:20px;height:20px;flex:none;accent-color:var(--gold)}
+.pkNm{flex:1;min-width:0;font-weight:700}.pkNm small{color:var(--muted);font-weight:600}
+.pkR i{font-style:normal;font-size:12px;font-weight:800;border-radius:999px;padding:2px 8px;white-space:nowrap}
+.pkN{background:#E6F4EA;color:#1E7A46}.pkT{background:#FFF3DC;color:#8A5A00}.pkO{background:#EEF1F5;color:#6B7684}
+.slotActs .go:disabled{opacity:.5}
+.oneLbl{align-items:center;gap:8px;margin-top:8px}
+.oneLbl button{border:0;border-radius:10px;padding:9px 14px;background:var(--ink);color:#fff;font-family:inherit;font-size:14px;font-weight:800;cursor:pointer}
+.oneLbl span{font-size:13.5px;color:var(--muted)}
+.oneLbl select{font-family:inherit;font-size:14px;padding:6px 8px;border-radius:8px}
+</style>
+</head>
+<body>
+
+<div id="gate" class="gate">
+  <h2>הזמנות הספר</h2>
+  <p>הזינו את סיסמת הניהול.</p>
+  <input id="pw" type="password" autocomplete="current-password" placeholder="סיסמה">
+  <button onclick="enter()">כניסה</button>
+  <div class="err" id="gateErr"></div>
+</div>
+
+<div id="app" hidden>
+  <div class="bar">
+    <h1>הזמנות הספר</h1>
+    <span class="count" id="count"></span>
+    <div class="right">
+      <span class="sync" id="sync"></span>
+      <button onclick="openScan()">סריקה</button>
+      <button onclick="printIt('labels')">מדבקות</button>
+      <button onclick="printIt('sender')">מדבקות שולח</button>
+      <button onclick="printIt('align')">דף כיוונון</button>
+      <button onclick="printIt('report')">דוח אריזה</button>
+      <button id="syncBtn" onclick="sync()">משיכה מ-PayPal</button>
+      <button onclick="importOne()">הוספה לפי מזהה עסקה</button>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <div class="note top" id="note"></div>
+    <div class="stats" id="stats"></div>
+    <div class="filters" id="filters"></div>
+    <div id="list"></div>
+  </div>
+</div>
+
+<div id="print"></div>
+
+<div class="scan" id="pick" hidden>
+  <div class="slotBox">
+    <div class="scanTop"><b>אילו מדבקות להדפיס?</b><button onclick="closePick()">סגירה</button></div>
+    <div class="slotBody">
+      <div class="pkBtns"><button type="button" onclick="pickSet('new')">חדשות</button><button type="button" onclick="pickSet('today')">של היום</button>
+        <button type="button" onclick="pickSet('all')">הכול</button><button type="button" onclick="pickSet('none')">ניקוי</button></div>
+      <div class="pkRows" id="pickRows" onchange="pickCount()"></div>
+      <div class="slotActs"><button class="go" id="pickGo" onclick="goPick()">המשך</button></div>
+    </div>
+  </div>
+</div>
+
+<div class="scan" id="slots" hidden>
+  <div class="slotBox">
+    <div class="scanTop"><b>איפה להדפיס בגיליון?</b><button onclick="closeSlots()">סגירה</button></div>
+    <div class="slotBody">
+      <p id="slotMsg"></p>
+      <div class="slotGrid" id="slotGrid"></div>
+      <div class="slotActs">
+        <button class="fresh" onclick="freshSheet()">גיליון חדש</button>
+        <button class="go" onclick="goSlots()">הדפסה</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="scan" id="scan" hidden>
+  <div class="scanBox">
+    <div class="scanTop">
+      <b>סריקת חבילה</b>
+      <button onclick="closeScan()">סגור</button>
+    </div>
+    <video id="cam" playsinline muted></video>
+    <div class="scanMsg" id="scanMsg"></div>
+    <div class="scanManual">
+      <input id="scanIn" placeholder="או הקלידו מספר הזמנה" inputmode="numeric">
+      <button onclick="jumpTo(document.getElementById('scanIn').value)">מצא</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+<script>
+/* ── QR ───────────────────────────────────────────────────────
+   ברקוד פס הוא לסורק של חנות; אפליקציית המצלמה של האייפון קוראת QR. בתוכו
+   כתובת, אז מצלמה → דפדפן → ההזמנה הנכונה, בלי אפליקציה ובלי הרשאות.
+
+   המקודד הוא ספרייה מוכחת ולא שלי: כתבתי אחד, הוא לא פוענח במבחן, וקוד
+   שמודפס על חבילה חייב להיקרא. */
+function qrSVG(text, px) {
+  const q = qrcode(0, 'M');          // 0 = גודל אוטומטי לפי אורך הטקסט
+  q.addData(text);
+  q.make();
+  return q.createSvgTag({ cellSize: 4, margin: 2, scalable: true })
+          .replace('<svg', `<svg class="qr" width="${px}" height="${px}"`);
+}
+
+const orderURL = o => location.origin + '/orders.html#' + (o.no || 0);
+
+/* ── ברקוד ─────────────────────────────────────────────────────
+   Code 128B, מצויר כאן ולא נטען מספרייה: המדבקה חייבת להיות זהה בכל פעם
+   ובכל מחשב, וגם כשאין רשת. המקודד הוא כמאה שורות והוא כל התלות.
+
+   הברקוד נושא את מספר ההזמנה בלבד — SC-7. אין בו שם, אין בו כתובת.
+   מי שסורק אותו בלי הסיסמה רואה שבע. */
+const C128 = [
+  '212222','222122','222221','121223','121322','131222','122213','122312','132212','221213',
+  '221312','231212','112232','122132','122231','113222','123122','123221','223211','221132',
+  '221231','213212','223112','312131','311222','321122','321221','312212','322112','322211',
+  '212123','212321','232121','111323','131123','131321','112313','132113','132311','211313',
+  '231113','231311','112133','112331','132131','113123','113321','133121','313121','211331',
+  '231131','213113','213311','213131','311123','311321','331121','312113','312311','332111',
+  '314111','221411','431111','111224','111422','121124','121421','141122','141221','112214',
+  '112412','122114','122411','142112','142211','241211','221114','413111','241112','134111',
+  '111242','121142','121241','114212','124112','124211','411212','421112','421211','212141',
+  '214121','412121','111143','111341','131141','114113','114311','411113','411311','113141',
+  '114131','311141','411131','211412','211214','211232','2331112',
+];
+
+function code128(text) {
+  const bars = [];
+  let sum = 104, i = 1;            // Start B
+  bars.push(C128[104]);
+  [...String(text)].forEach(ch => {
+    const v = ch.charCodeAt(0) - 32;
+    bars.push(C128[v]);
+    sum += v * i++;
+  });
+  bars.push(C128[sum % 103]);      // check
+  bars.push(C128[106]);            // stop
+  return bars.join('');
+}
+
+/* רוחב 1 ליחידה, שחור ולבן לסירוגין */
+function barcodeSVG(text, h) {
+  const w = code128(text);
+  let x = 0, rects = '';
+  [...w].forEach((n, i) => {
+    const units = Number(n);
+    if (i % 2 === 0) rects += `<rect x="${x}" y="0" width="${units}" height="${h}" fill="#000"/>`;
+    x += units;
+  });
+  return `<svg class="bc" viewBox="0 0 ${x} ${h}" preserveAspectRatio="none"
+            width="100%" height="${h}">${rects}</svg>`;
+}
+
+const orderCode = o => 'SC-' + (o.no || 0);
+
+/* PayPal מוסר כתובת כשורה אחת מופרדת בפסיקים, ובסוף קוד מדינה בן שתי
+   אותיות. העיר היא מה שלפני המיקוד, והרחוב הוא כל השאר — כדי שהדוור
+   יקרא את העיר בשורה משלה. */
+function splitAddress(raw) {
+  const parts = String(raw || '').split(',').map(x => x.trim()).filter(Boolean);
+  if (!parts.length) return { street: '', city: '', zip: '', abroad: '' };
+
+  let country = '';
+  if (/^[A-Z]{2}$/.test(parts[parts.length - 1])) country = parts.pop();
+
+  let zip = '';
+  if (parts.length > 1 && /^\d{5,7}$/.test(parts[parts.length - 1])) zip = parts.pop();
+
+  const city = parts.pop() || '';
+  return {
+    street: parts.join(', '),
+    city, zip,
+    abroad: country && country !== 'IL' ? country : '',
+  };
+}
+
+/* הדף הזה לא נוגע בפאנל הניהול — הוא מדבר עם שלוש כתובות משלו בלבד. */
+const STATUS = [
+  { k: 'new',    he: 'ממתין' },
+  { k: 'packed', he: 'נארז' },
+  { k: 'sent',   he: 'נשלח' },
+  { k: 'done',   he: 'נמסר' },
+];
+let TOKEN = '', ORDERS = [], FILTER = 'all', META = {};
+
+const esc = s => String(s == null ? '' : s)
+  .replace(/[&<>"]/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;' }[c]));
+
+const api = (path, body) => fetch(path, {
+  method: body ? 'POST' : 'GET',
+  headers: { 'x-admin-token': TOKEN, 'Content-Type': 'application/json' },
+  body: body ? JSON.stringify(body) : undefined,
+}).then(r => r.json());
+
+async function enter() {
+  TOKEN = document.getElementById('pw').value.trim();
+  const r = await api('/api/orders').catch(() => ({}));
+  if (!r || !r.success) {
+    document.getElementById('gateErr').textContent = 'סיסמה שגויה';
+    return;
+  }
+  try {
+    sessionStorage.setItem('sc_orders_tok', TOKEN);
+    localStorage.setItem('sab_admin', TOKEN);
+  } catch (e) {}
+  document.getElementById('gate').hidden = true;
+  document.getElementById('app').hidden = false;
+  paint(r);
+  openFromHash();
+}
+document.getElementById('pw').addEventListener('keydown', e => { if (e.key === 'Enter') enter(); });
+
+/* התאריך נקרא כמו שישראלי אומר אותו */
+const when = iso => {
+  const d = new Date(iso);
+  if (isNaN(d)) return '';
+  return d.toLocaleDateString('he-IL', { day: '2-digit', month: '2-digit', year: 'numeric' });
+};
+
+/* מספר לוואטסאפ: בלי אפס מוביל, עם 972 */
+const waNum = p => {
+  const d = String(p || '').replace(/\D/g, '');
+  if (!d) return '';
+  if (d.startsWith('972')) return d;
+  return '972' + d.replace(/^0/, '');
+};
+
+function paint(r) {
+  if (r) {
+    ORDERS = r.orders || []; META = r.meta || {};
+    document.getElementById('sync').textContent =
+      r.syncedAt ? 'סונכרן ' + when(r.syncedAt) : 'עוד לא סונכרן';
+    document.getElementById('note').innerHTML = r.hasKeys ? '' :
+      'חסרים מפתחות PayPal בשרת. הוסיפו <code>PAYPAL_CLIENT_ID</code> ו-<code>PAYPAL_SECRET</code> ואז לחצו משיכה.';
+  }
+
+  paintStats();
+  const need = ORDERS.filter(o => !o.phone).length;
+  const counts = { all: ORDERS.length, nophone: need };
+  STATUS.forEach(s => counts[s.k] = ORDERS.filter(o => (o.status || 'new') === s.k).length);
+
+  document.getElementById('count').textContent =
+    ORDERS.length + ' הזמנות' + (need ? ' · ' + need + ' בלי טלפון' : '');
+
+  const tabs = [{ k: 'all', he: 'הכול' }, { k: 'nophone', he: 'בלי טלפון' }].concat(STATUS);
+  document.getElementById('filters').innerHTML = tabs.map(t =>
+    `<button class="${FILTER === t.k ? 'on' : ''}" onclick="setFilter('${t.k}')">
+       ${t.he}<em>${counts[t.k] || 0}</em></button>`).join('');
+
+  /* מה שדורש ממך משהו עולה למעלה, ומה שנגמר יורד. הדף הזה הוא רשימת
+     מה שנשאר לעשות — נמסר רק מסתיר את מה שלא. */
+  /* מה שעוד לא יצא (ממתין ונארז) למעלה, לפי תאריך הקנייה — החדשה
+     ראשונה, וסימון "נארז" לא מזיז אותה. אחר כך נשלח, ואחריו נמסר. */
+  const order = { new: 0, packed: 0, sent: 1, done: 2 };
+  const list = shown().sort((a, b) =>
+    (order[a.status || 'new'] - order[b.status || 'new'])
+    || String(b.at).localeCompare(String(a.at)));
+
+  /* מה שנמסר גמור — הוא נאסף למטה תחת "נמסרו", סגור, ונפתח רק בלחיצה */
+  const open = FILTER === 'done' ? list : list.filter(o => (o.status || 'new') !== 'done');
+  const done = FILTER === 'done' ? [] : list.filter(o => (o.status || 'new') === 'done');
+  document.getElementById('list').innerHTML = (open.length ? open.map(card).join('') :
+    `<div class="empty">אין כאן הזמנות פתוחות.<br>
+       ${ORDERS.length ? '' : 'לחצו <b>משיכה מ-PayPal</b> למעלה.'}</div>`) +
+    (done.length ? `<details class="doneBox"><summary>נמסרו · ${done.length}</summary>${done.map(card).join('')}</details>` : '');
+}
+
+function card(o) {
+  const st = o.status || 'new';
+  const wa = waNum(o.phone);
+  const city = (o.address || '').split(',').map(x => x.trim()).filter(Boolean).slice(-2, -1)[0] || '';
+  const msg = encodeURIComponent(
+    `שלום ${o.name || ''}, כאן איציק — הצופן הסודי. הספר שלך יוצא אליך בימים הקרובים.`);
+  const stHe = (STATUS.find(x => x.k === st) || {}).he || '';
+
+  return `
+  <div class="order row-${st} ${st === 'done' ? 'done' : ''} ${o.phone || st === 'done' ? '' : 'needPhone'}"
+       data-id="${esc(o.id)}">
+    <div class="head" onclick="toggle(this)">
+      <span class="no">#${o.no || '—'}</span>
+      <span class="who">${esc(o.name) || '—'}</span>
+      <span class="city">${esc(city)}</span>
+      <span class="chips">${[['phone','טלפון',!!o.phone],['lbl','מדבקה',!!o.printedAt],['msg','הודעה',o.msgOk === 'y']].map(c =>
+        `<span class="chip ${c[2] ? 'y' : 'n'}" ${c[0] === 'msg' ? `role="button" title="לחיצה: נשלחה / לא נשלחה" onclick="cycleOk(event,'${esc(o.id)}','msgOk')"` : ''}>${c[1]} ${c[2] ? '✓' : '✗'}</span>`).join('')}</span>
+      <span class="sum">${o.amount} ${esc(o.currency)}</span>
+      <span class="steps">${STATUS.map(x =>
+        `<button class="step ${x.k === st ? 'on st-' + x.k : ''}"
+                 onclick="setStatus(event,'${esc(o.id)}','${x.k}')">${x.he}</button>`).join('')}</span>
+      <span class="chev">▾</span>
+    </div>
+
+    <div class="body">
+      <div class="lines">
+        ${o.address ? `<div class="addr">${esc(o.address)}</div>` : '<div class="warn">אין כתובת משלוח</div>'}
+        <div>${when(o.at)}${o.qty > 1 ? ` · ${o.qty} עותקים` : ''}</div>
+        ${o.email ? `<div><a href="mailto:${esc(o.email)}">${esc(o.email)}</a></div>` : ''}
+      </div>
+      <div class="row">
+        <input class="phone" placeholder="טלפון" value="${esc(o.phone)}"
+               oninput="edit(this,'phone')">
+        <input class="track" placeholder="מספר מעקב" value="${esc(o.tracking)}"
+               oninput="edit(this,'tracking')">
+        <input class="memo" placeholder="הערה" value="${esc(o.memo)}"
+               oninput="edit(this,'memo')">
+        <a class="wa ${wa ? '' : 'off'}" target="_blank" rel="noopener"
+           href="${wa ? `https://wa.me/${wa}?text=${msg}` : '#'}">וואטסאפ</a>
+        <span class="saved">נשמר</span>
+      </div>
       <div class="msgBox">
         <div class="mTop"><b>תוכן ההודעה ללקוח</b></div>
         <div class="mPrev">${noteHtml(o)}</div>
