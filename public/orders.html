@@ -548,8 +548,6 @@ function card(o) {
       <span class="no">#${o.no || '—'}</span>
       <span class="who">${esc(o.name) || '—'}</span>
       <span class="city">${esc(city)}</span>
-      ${o.phone ? '' : '<span class="badge bad">אין טלפון</span>'}
-      ${o.printedAt ? '<span class="badge printed">מדבקה הודפסה</span>' : ''}
       <span class="chips">${[['phone','טלפון',!!o.phone],['lbl','מדבקה',!!o.printedAt],['msg','הודעה',o.msgOk === 'y']].map(c =>
         `<span class="chip ${c[2] ? 'y' : 'n'}" ${c[0] === 'msg' ? `role="button" title="לחיצה: נשלחה / לא נשלחה" onclick="cycleOk(event,'${esc(o.id)}','msgOk')"` : ''}>${c[1]} ${c[2] ? '✓' : '✗'}</span>`).join('')}</span>
       <span class="sum">${o.amount} ${esc(o.currency)}</span>
