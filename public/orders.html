@@ -116,6 +116,7 @@ body{margin:0;background:var(--paper);color:var(--ink);
   font-family:inherit;font-size:13px;min-width:0}
 .row input.phone{width:170px}
 .row input.track{width:190px}
+.trkLink{color:#1A56C4;text-decoration:underline;font-weight:700;font-size:14px}
 .row input.memo{flex:1;min-width:170px}
 /* (owner, 6.11.2026) a message to the customer: by phone / WhatsApp / SMS, sent ✓ or not ✗, and its text inside */
 .stats{margin:0 0 12px;background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px 14px}.stats summary{cursor:pointer;font-size:15px}
@@ -574,6 +575,8 @@ function card(o) {
                oninput="edit(this,'phone')">
         <input class="track" placeholder="מספר מעקב" value="${esc(o.tracking)}"
                oninput="edit(this,'tracking')">
+        <a class="trkLink" target="_blank" rel="noopener" ${o.tracking ? '' : 'hidden'} href="https://doar.israelpost.co.il/deliverytracking?itemcode=${encodeURIComponent(o.tracking || '')}"
+           onclick="event.stopPropagation();const v=this.parentNode.querySelector('input.track').value.trim();if(!v){event.preventDefault();return}this.href='https://doar.israelpost.co.il/deliverytracking?itemcode='+encodeURIComponent(v)">מעקב בדואר</a>
         <input class="memo" placeholder="הערה" value="${esc(o.memo)}"
                oninput="edit(this,'memo')">
         <a class="wa ${wa ? '' : 'off'}" target="_blank" rel="noopener"
@@ -697,6 +700,7 @@ window.edit = function (el, field) {
     if (!r.success) return;
     const o = ORDERS.find(x => x.id === id);
     if (o) o[field] = val;
+    if (field === 'tracking') { const l = box.querySelector('.trkLink'); if (l) l.hidden = !val.trim(); }
     if (field === 'phone') { box.classList.toggle('needPhone', !val); const c = box.querySelector('.chips .chip'); if (c) { c.className = 'chip ' + (val.trim() ? 'y' : 'n'); c.textContent = 'טלפון ' + (val.trim() ? '✓' : '✗'); } }
     if (mark) { mark.classList.add('on'); setTimeout(() => mark.classList.remove('on'), 1200); }
   }, 500);
