@@ -116,7 +116,6 @@ body{margin:0;background:var(--paper);color:var(--ink);
   font-family:inherit;font-size:13px;min-width:0}
 .row input.phone{width:170px}
 .row input.track{width:190px}
-.trkLink{color:#1A56C4;text-decoration:underline;font-weight:700;font-size:14px}
 .row input.memo{flex:1;min-width:170px}
 /* (owner, 6.11.2026) a message to the customer: by phone / WhatsApp / SMS, sent ✓ or not ✗, and its text inside */
 .stats{margin:0 0 12px;background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px 14px}.stats summary{cursor:pointer;font-size:15px}
@@ -128,7 +127,8 @@ body{margin:0;background:var(--paper);color:var(--ink);
 .msgBox .ch,.msgBox .ok{border:1px solid var(--line);background:#fff;border-radius:999px;padding:5px 12px;font:inherit;font-size:13px;cursor:pointer}
 .msgBox .ch.on{background:#2E5B7E;color:#fff;border-color:#2E5B7E}
 .msgBox .ok.on.y{background:#2E8B57;color:#fff;border-color:#2E8B57}.msgBox .ok.on.n{background:#C0392B;color:#fff;border-color:#C0392B}
-.spotRow{display:flex;gap:8px;margin-top:8px}.spotRow input{flex:1;border:1px solid var(--line);border-radius:10px;padding:8px 11px;font:inherit;font-size:14px}
+.msgBox .mPrev{margin-top:8px;padding:10px 12px;background:#F7F9FB;border-radius:10px;font-size:14.5px;line-height:1.7}.msgBox .mv{color:#1A56C4}
+.spotRow{display:flex;gap:10px;margin-top:8px;flex-wrap:wrap}.spotRow label{flex:1;min-width:200px;display:flex;align-items:center;gap:6px;font-size:13px;font-weight:700;white-space:nowrap}.spotRow input{flex:1;min-width:0;border:1px solid var(--line);border-radius:10px;padding:8px 11px;font:inherit;font-size:14px}
 .msgBox textarea{width:100%;box-sizing:border-box;margin-top:8px;min-height:70px;border:1px solid var(--line);border-radius:10px;padding:8px 11px;font:inherit;font-size:14px;resize:vertical}
 .msgBox .mSend{display:flex;gap:8px;margin-top:6px}.msgBox .mSend a{font-size:13px;font-weight:700}
 .chips{display:inline-flex;gap:4px;flex:none}.chip{border:1px solid var(--line);background:#fff;border-radius:999px;padding:3px 9px;font-size:12px;font-weight:700;color:#6B7B88}.chip[role=button]{cursor:pointer}
@@ -575,8 +575,6 @@ function card(o) {
                oninput="edit(this,'phone')">
         <input class="track" placeholder="מספר מעקב" value="${esc(o.tracking)}"
                oninput="edit(this,'tracking')">
-        <a class="trkLink" target="_blank" rel="noopener" ${o.tracking ? '' : 'hidden'} href="https://doar.israelpost.co.il/deliverytracking?itemcode=${encodeURIComponent(o.tracking || '')}"
-           onclick="event.stopPropagation();const v=this.parentNode.querySelector('input.track').value.trim();if(!v){event.preventDefault();return}this.href='https://doar.israelpost.co.il/deliverytracking?itemcode='+encodeURIComponent(v)">מעקב בדואר</a>
         <input class="memo" placeholder="הערה" value="${esc(o.memo)}"
                oninput="edit(this,'memo')">
         <a class="wa ${wa ? '' : 'off'}" target="_blank" rel="noopener"
@@ -586,9 +584,12 @@ function card(o) {
       <div class="srcRow"><b>מקור:</b>${[['g','גוגל'],['f','פייסבוק'],['o','אחר']].map(c => `<button type="button" class="ch ${o.src === c[0] ? 'on' : ''}" onclick="setSrc(event,'${esc(o.id)}','${c[0]}')">${c[1]}</button>`).join('')}</div>
       <div class="msgBox">
         <div class="mTop"><b>תוכן ההודעה ללקוח</b></div>
-        <div class="spotRow"><input class="spot" placeholder="נקודת האיסוף — מדביקים מהמעקב של הדואר" value="${esc(o.spot)}" oninput="edit(this,'spot')" onclick="event.stopPropagation()"><button type="button" class="ch" onclick="fillNote(event,this)">מילוי הודעת איסוף</button></div>
-        <textarea placeholder="תוכן ההודעה ללקוח" oninput="edit(this,'note')" onclick="event.stopPropagation()">${esc(o.note)}</textarea>
-        <div class="mSend">${wa ? `<a target="_blank" rel="noopener" href="#" onclick="event.stopPropagation();markSent(this);this.href='https://wa.me/${wa}?text='+encodeURIComponent(this.closest('.msgBox').querySelector('textarea').value)">שליחה בוואטסאפ</a><a href="#" onclick="event.stopPropagation();markSent(this);this.href='sms:${esc(o.phone)}?body='+encodeURIComponent(this.closest('.msgBox').querySelector('textarea').value)">שליחה בהודעה</a>` : ''}</div>
+        <div class="mPrev">${noteHtml(o)}</div>
+        <div class="spotRow">
+          <label>נקודת האיסוף: <input class="spot" value="${esc(o.spot)}" oninput="noteField(this,'spot')" onclick="event.stopPropagation()"></label>
+          <label>מספר חבילה: <input class="pkg" value="${esc(o.pkg || o.tracking)}" oninput="noteField(this,'pkg')" onclick="event.stopPropagation()"></label>
+        </div>
+        <div class="mSend">${wa ? `<a target="_blank" rel="noopener" href="#" onclick="event.stopPropagation();markSent(this);this.href='https://wa.me/${wa}?text='+encodeURIComponent(noteText(ORDERS.find(x=>x.id===this.closest('.order').dataset.id)))">שליחה בוואטסאפ</a><a href="#" onclick="event.stopPropagation();markSent(this);this.href='sms:${esc(o.phone)}?body='+encodeURIComponent(noteText(ORDERS.find(x=>x.id===this.closest('.order').dataset.id),1))">שליחה בהודעה</a>` : ''}</div>
       </div>
       <div class="row oneLbl">
         <button type="button" onclick="printOne(event,'${esc(o.id)}')">🏷 הדפסת מדבקה</button>
@@ -622,42 +623,17 @@ window.setStatus = async function (ev, id, k) {
   await api('/api/orders/update', { id, status: k }).catch(() => {});
 };
 
-/* (owner, 6.11.2026) the pickup message, filled from the order: first name, tracking number and the post office's own tracking link (it shows where to collect) */
-window.fillNote = function (ev, btn) {
-  ev.stopPropagation();
-  const box = btn.closest('.order'), o = ORDERS.find(x => x.id === box.dataset.id); if (!o) return;
-  const ta = box.querySelector('.msgBox textarea'), trk = (box.querySelector('input.track') || {}).value || o.tracking || '';
-  const first = String(o.name || '').replace(/,.*/, '').trim().split(/\s+/)[0] || '';
-  /* (owner, 6.11.2026) he pastes the pickup point from the post's tracking page (e.g. "מינימרקט אושר נתניה / ח 50") into the box first;
-     the button wraps it into the message. An old filled message is not taken as a pickup point. */
-  const raw = (box.querySelector('input.spot') || {}).value || '';
-  const spot = raw.replace(/\bicon\b/gi, '\n').split(/\n| {2,}| · /).map(x => x.trim()).filter(x => x && !/^icon$/i.test(x)).join('\n');
-  ta.value = `שלום ${first},\nהחבילה שלך מהוצאת הספרים TAKTIKA הגיעה לנקודת האיסוף ומחכה לך.` + (spot ? `\nנקודת איסוף: ${spot.replace(/\n/g, ' ')}` : '') +
-    (trk ? `\nמספר החבילה: ${trk}` : '');
-  edit(ta, 'note');
-};
-/* (owner, 6.11.2026) the sales summary on top: total, and leads from Google / Facebook / other, with the spend he types in */
-const SRC = [['g', 'גוגל', 'spendG'], ['f', 'פייסבוק', 'spendF'], ['o', 'אחר', 'spendO'], ['', 'לא סומן', '']];
-function paintStats() {
-  const el = document.getElementById('stats'); if (!el) return;
-  const wasOpen = el.open, sum = a => a.reduce((n, o) => n + (+o.amount || 0), 0), books = a => a.reduce((n, o) => n + (+o.qty || 1), 0);
-  const nis = n => '₪' + Math.round(n).toLocaleString('he-IL');
-  const spendAll = SRC.reduce((n, c) => n + (c[2] ? +META[c[2]] || 0 : 0), 0);
-  el.innerHTML = `<summary>סך מכירות: <b>${ORDERS.length}</b> הזמנות · <b>${books(ORDERS)}</b> ספרים · <b>${nis(sum(ORDERS))}</b>${spendAll ? ` · פרסום ${nis(spendAll)}` : ''}</summary>
-    <table><tr><th>מקור</th><th>הזמנות</th><th>הכנסה</th><th>הוצאה על פרסום</th><th>עלות להזמנה</th></tr>` +
-    SRC.map(c => { const a = ORDERS.filter(o => (o.src || '') === c[0]), sp = c[2] ? +META[c[2]] || 0 : 0;
-      return `<tr><td>${c[1]}</td><td>${a.length}</td><td>${nis(sum(a))}</td><td>${c[2] ? `<input inputmode="decimal" value="${esc(META[c[2]] || '')}" placeholder="₪" onchange="setSpend('${c[2]}',this.value)">` : ''}</td><td>${sp && a.length ? nis(sp / a.length) : ''}</td></tr>`; }).join('') + '</table>';
-  el.open = wasOpen;
-}
-window.setSpend = async function (k, v) { META[k] = String(v).replace(/[^\d.]/g, ''); paintStats(); document.getElementById('stats').open = true; await api('/api/orders/meta', { [k]: META[k] }).catch(() => {}); };
-window.setSrc = async function (ev, id, v) {
-  ev.stopPropagation();
-  const o = ORDERS.find(x => x.id === id); if (!o) return;
-  o.src = o.src === v ? '' : v;
-  const box = ev.target.closest('.srcRow'); box.querySelectorAll('.ch').forEach(b => b.classList.remove('on')); if (o.src) ev.target.classList.add('on');
-  paintStats();
-  await api('/api/orders/update', { id, src: o.src }).catch(() => {});
-};
+/* (owner, 6.11.2026) the pickup message writes itself: under it two boxes, the pickup point and the parcel number;
+   what is typed in them shows in the message bold and blue (in WhatsApp: bold), with no link */
+const cleanSpot = v => String(v || '').replace(/\bicon\b/gi, ' ').replace(/\s+/g, ' ').trim();
+const firstName = o => String(o.name || '').replace(/,.*/, '').trim().split(/\s+/)[0] || '';
+function noteParts(o) { return { first: firstName(o), spot: cleanSpot(o.spot), pkg: String(o.pkg || o.tracking || '').trim() }; }
+window.noteText = function (o, plain) { if (!o) return ''; const p = noteParts(o), b = x => plain ? x : '*' + x + '*';
+  return `שלום ${p.first},\nהחבילה שלך מהוצאת הספרים TAKTIKA הגיעה לנקודת האיסוף ומחכה לך.` + (p.spot ? `\nנקודת האיסוף: ${b(p.spot)}` : '') + (p.pkg ? `\nמספר חבילה: ${b(p.pkg)}` : ''); };
+function noteHtml(o) { const p = noteParts(o), b = x => '<b class="mv">' + esc(x) + '</b>';
+  return `שלום ${esc(p.first)},<br>החבילה שלך מהוצאת הספרים TAKTIKA הגיעה לנקודת האיסוף ומחכה לך.` + (p.spot ? `<br>נקודת האיסוף: ${b(p.spot)}` : '') + (p.pkg ? `<br>מספר חבילה: ${b(p.pkg)}` : ''); }
+window.noteField = function (el, k) { const box = el.closest('.order'), o = ORDERS.find(x => x.id === box.dataset.id); if (!o) return;
+  o[k] = el.value; box.querySelector('.mPrev').innerHTML = noteHtml(o); edit(el, k); };
 window.markSent = function (a) { const id = a.closest('.order').dataset.id, o = ORDERS.find(x => x.id === id); if (!o || o.msgOk === 'y') return; o.msgOk = 'y'; api('/api/orders/update', { id, msgOk: 'y' }).catch(() => {}); const c = a.closest('.order').querySelector('.chip[role=button]'); if (c) { c.className = 'chip y'; c.textContent = 'הודעה ✓'; } };
 window.cycleOk = async function (ev, id, k) {
   ev.stopPropagation();
@@ -700,7 +676,6 @@ window.edit = function (el, field) {
     if (!r.success) return;
     const o = ORDERS.find(x => x.id === id);
     if (o) o[field] = val;
-    if (field === 'tracking') { const l = box.querySelector('.trkLink'); if (l) l.hidden = !val.trim(); }
     if (field === 'phone') { box.classList.toggle('needPhone', !val); const c = box.querySelector('.chips .chip'); if (c) { c.className = 'chip ' + (val.trim() ? 'y' : 'n'); c.textContent = 'טלפון ' + (val.trim() ? '✓' : '✗'); } }
     if (mark) { mark.classList.add('on'); setTimeout(() => mark.classList.remove('on'), 1200); }
   }, 500);
