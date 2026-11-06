@@ -126,7 +126,7 @@ body{margin:0;background:var(--paper);color:var(--ink);
 .msgBox .ok.on.y{background:#2E8B57;color:#fff;border-color:#2E8B57}.msgBox .ok.on.n{background:#C0392B;color:#fff;border-color:#C0392B}
 .msgBox textarea{width:100%;box-sizing:border-box;margin-top:8px;min-height:70px;border:1px solid var(--line);border-radius:10px;padding:8px 11px;font:inherit;font-size:14px;resize:vertical}
 .msgBox .mSend{display:flex;gap:8px;margin-top:6px}.msgBox .mSend a{font-size:13px;font-weight:700}
-.chips{display:inline-flex;gap:4px;flex:none}.chip{border:1px solid var(--line);background:#fff;border-radius:999px;padding:3px 9px;font:inherit;font-size:12px;font-weight:700;cursor:pointer;color:#6B7B88}
+.chips{display:inline-flex;gap:4px;flex:none}.chip{border:1px solid var(--line);background:#fff;border-radius:999px;padding:3px 9px;font-size:12px;font-weight:700;color:#6B7B88}.chip[role=button]{cursor:pointer}
 .chip.y{background:#EAF3EE;border-color:#9CCBB0;color:#22603F}.chip.n{background:#FBE7E4;border-color:#E9A79D;color:#9E2B1E}
 .row select{border:1px solid var(--line);border-radius:10px;padding:8px 11px;
   font-family:inherit;font-size:13px;font-weight:700;background:var(--card)}
@@ -550,7 +550,8 @@ function card(o) {
       <span class="city">${esc(city)}</span>
       ${o.phone ? '' : '<span class="badge bad">אין טלפון</span>'}
       ${o.printedAt ? '<span class="badge printed">מדבקה הודפסה</span>' : ''}
-      <span class="chips">${[['phoneOk','טלפון'],['lblOk','מדבקה'],['msgOk','הודעה']].map(c => { const v = o[c[0]] || (c[0] === 'lblOk' && o.printedAt ? 'y' : ''); return `<button type="button" class="chip ${v}" title="לחיצה: ✓ ← ✗ ← ריק" onclick="cycleOk(event,'${esc(o.id)}','${c[0]}')">${c[1]} ${v === 'y' ? '✓' : v === 'n' ? '✗' : '·'}</button>`; }).join('')}</span>
+      <span class="chips">${[['phone','טלפון',!!o.phone],['lbl','מדבקה',!!o.printedAt],['msg','הודעה',o.msgOk === 'y']].map(c =>
+        `<span class="chip ${c[2] ? 'y' : 'n'}" ${c[0] === 'msg' ? `role="button" title="לחיצה: נשלחה / לא נשלחה" onclick="cycleOk(event,'${esc(o.id)}','msgOk')"` : ''}>${c[1]} ${c[2] ? '✓' : '✗'}</span>`).join('')}</span>
       <span class="sum">${o.amount} ${esc(o.currency)}</span>
       <span class="steps">${STATUS.map(x =>
         `<button class="step ${x.k === st ? 'on st-' + x.k : ''}"
@@ -578,7 +579,7 @@ function card(o) {
       <div class="msgBox">
         <div class="mTop"><b>תוכן ההודעה ללקוח</b></div>
         <textarea placeholder="תוכן ההודעה — למשל ההודעה מהמעקב של הדואר" oninput="edit(this,'note')" onclick="event.stopPropagation()">${esc(o.note)}</textarea>
-        <div class="mSend">${wa ? `<a target="_blank" rel="noopener" href="#" onclick="event.stopPropagation();this.href='https://wa.me/${wa}?text='+encodeURIComponent(this.closest('.msgBox').querySelector('textarea').value)">שליחה בוואטסאפ</a><a href="#" onclick="event.stopPropagation();this.href='sms:${esc(o.phone)}?body='+encodeURIComponent(this.closest('.msgBox').querySelector('textarea').value)">שליחה בהודעה</a>` : ''}</div>
+        <div class="mSend">${wa ? `<a target="_blank" rel="noopener" href="#" onclick="event.stopPropagation();markSent(this);this.href='https://wa.me/${wa}?text='+encodeURIComponent(this.closest('.msgBox').querySelector('textarea').value)">שליחה בוואטסאפ</a><a href="#" onclick="event.stopPropagation();markSent(this);this.href='sms:${esc(o.phone)}?body='+encodeURIComponent(this.closest('.msgBox').querySelector('textarea').value)">שליחה בהודעה</a>` : ''}</div>
       </div>
       <div class="row oneLbl">
         <button type="button" onclick="printOne(event,'${esc(o.id)}')">🏷 הדפסת מדבקה</button>
@@ -612,11 +613,11 @@ window.setStatus = async function (ev, id, k) {
   await api('/api/orders/update', { id, status: k }).catch(() => {});
 };
 
+window.markSent = function (a) { const id = a.closest('.order').dataset.id, o = ORDERS.find(x => x.id === id); if (!o || o.msgOk === 'y') return; o.msgOk = 'y'; api('/api/orders/update', { id, msgOk: 'y' }).catch(() => {}); const c = a.closest('.order').querySelector('.chip[role=button]'); if (c) { c.className = 'chip y'; c.textContent = 'הודעה ✓'; } };
 window.cycleOk = async function (ev, id, k) {
   ev.stopPropagation();
   const o = ORDERS.find(x => x.id === id); if (!o) return;
-  const cur = o[k] || (k === 'lblOk' && o.printedAt ? 'y' : '');
-  o[k] = cur === '' ? 'y' : cur === 'y' ? 'n' : '';
+  o[k] = o[k] === 'y' ? '' : 'y';
   const open = document.querySelector('.order.open'); const was = open && open.dataset.id;
   paint();
   if (was) { const b = document.querySelector(`.order[data-id="${CSS.escape(was)}"]`); if (b) b.classList.add('open'); }
@@ -656,7 +657,7 @@ window.edit = function (el, field) {
     if (o) o[field] = val;
     mark.classList.add('on');
     setTimeout(() => mark.classList.remove('on'), 1200);
-    if (field === 'phone') box.classList.toggle('needPhone', !val);
+    if (field === 'phone') { box.classList.toggle('needPhone', !val); const c = box.querySelector('.chips .chip'); if (c) { c.className = 'chip ' + (val ? 'y' : 'n'); c.textContent = 'טלפון ' + (val ? '✓' : '✗'); } }
   }, 500);
 };
 
