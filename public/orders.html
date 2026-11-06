@@ -617,7 +617,7 @@ window.fillNote = function (ev, btn) {
   const box = btn.closest('.order'), o = ORDERS.find(x => x.id === box.dataset.id); if (!o) return;
   const ta = box.querySelector('.msgBox textarea'), trk = (box.querySelector('input.track') || {}).value || o.tracking || '';
   const first = String(o.name || '').replace(/,.*/, '').trim().split(/\s+/)[0] || '';
-  ta.value = `שלום ${first}, כאן איציק מהצופן הסודי 📚\nהספר שלך הגיע לסניף הדואר ומחכה לך לאיסוף.` +
+  ta.value = `שלום ${first} 📚\nהספר "הצופן הסודי" שהזמנת הגיע לסניף הדואר ומחכה לך לאיסוף.` +
     (trk ? `\nמספר המשלוח: ${trk}\nאיפה לאסוף ועד מתי: https://doar.israelpost.co.il/deliverytracking?itemcode=${trk}` : '') +
     `\nלאיסוף צריך להביא תעודה מזהה. קריאה מהנה!`;
   edit(ta, 'note');
