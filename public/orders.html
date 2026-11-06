@@ -622,7 +622,7 @@ window.fillNote = function (ev, btn) {
   const raw = /^שלום/.test(ta.value.trim()) ? '' : ta.value;
   const spot = raw.split('\n').map(x => x.trim()).filter(x => x && !/^icon$/i.test(x)).join('\n');
   ta.value = `שלום ${first},\nהחבילה שלך מהוצאת הספרים TAKTIKA הגיעה לנקודת האיסוף ומחכה לך` + (spot ? `:\n${spot}` : '.') +
-    (trk ? `\nמספר המשלוח: ${trk}\nמעקב: https://doar.israelpost.co.il/deliverytracking?itemcode=${trk}` : '');
+    (trk ? `\nמספר המשלוח: ${trk}` : '');
   edit(ta, 'note');
 };
 window.markSent = function (a) { const id = a.closest('.order').dataset.id, o = ORDERS.find(x => x.id === id); if (!o || o.msgOk === 'y') return; o.msgOk = 'y'; api('/api/orders/update', { id, msgOk: 'y' }).catch(() => {}); const c = a.closest('.order').querySelector('.chip[role=button]'); if (c) { c.className = 'chip y'; c.textContent = 'הודעה ✓'; } };
