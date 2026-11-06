@@ -1160,9 +1160,11 @@ app.post('/api/orders/update', (req, res) => {
   const db = loadOrders();
   const o = db.orders.find(x => x.id === String(req.body.id || ''));
   if (!o) return res.status(404).json({ error: 'not found' });
-  ['phone', 'status', 'tracking', 'memo', 'printedAt'].forEach(k => {
+  ['phone', 'status', 'tracking', 'memo', 'printedAt', 'noteCh', 'noteOk'].forEach(k => {
     if (typeof req.body[k] === 'string') o[k] = req.body[k].slice(0, 300);
   });
+  /* (owner, 6.11.2026) the message sent to the customer (e.g. the post office's pickup notice), longer than a field */
+  if (typeof req.body.note === 'string') o.note = req.body.note.slice(0, 2000);
   saveOrders(db);
   res.json({ success: true, order: o });
 });
