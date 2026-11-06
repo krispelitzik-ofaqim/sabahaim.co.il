@@ -632,8 +632,8 @@ window.fillNote = function (ev, btn) {
      the button wraps it into the message. An old filled message is not taken as a pickup point. */
   const raw = (box.querySelector('input.spot') || {}).value || '';
   const spot = raw.replace(/\bicon\b/gi, '\n').split(/\n| {2,}| · /).map(x => x.trim()).filter(x => x && !/^icon$/i.test(x)).join('\n');
-  ta.value = `שלום ${first},\nהחבילה שלך מהוצאת הספרים TAKTIKA הגיעה לנקודת האיסוף ומחכה לך` + (spot ? `:\n${spot}` : '.') +
-    (trk ? `\nמספר המשלוח: ${trk}` : '');
+  ta.value = `שלום ${first},\nהחבילה שלך מהוצאת הספרים TAKTIKA הגיעה לנקודת האיסוף ומחכה לך.` + (spot ? `\nנקודת איסוף: ${spot.replace(/\n/g, ' ')}` : '') +
+    (trk ? `\nמספר החבילה: ${trk}` : '');
   edit(ta, 'note');
 };
 /* (owner, 6.11.2026) the sales summary on top: total, and leads from Google / Facebook / other, with the spend he types in */
