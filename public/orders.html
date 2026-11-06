@@ -628,9 +628,9 @@ const cleanSpot = v => String(v || '').replace(/\bicon\b/gi, ' ').replace(/\s+/g
 const firstName = o => String(o.name || '').replace(/,.*/, '').trim().split(/\s+/)[0] || '';
 function noteParts(o) { return { first: firstName(o), spot: cleanSpot(o.spot), pkg: String(o.pkg || '').trim(), trk: String(o.tracking || '').trim() }; }
 window.noteText = function (o, plain) { if (!o) return ''; const p = noteParts(o), b = x => plain ? x : '*' + x + '*';
-  return `שלום ${p.first},\nהחבילה שלך מהוצאת הספרים TAKTIKA הגיעה לנקודת האיסוף ומחכה לך.` + (p.spot ? `\nנקודת איסוף: ${b(p.spot)}` : '') + (p.pkg ? `\nמספר חבילה: ${b(p.pkg)}` : '') + (p.trk ? `\nמספר משלוח בדואר ישראל: ${b(p.trk)}` : ''); };
+  return `שלום ${p.first},\nהחבילה שלך מהוצאת הספרים TAKTIKA הגיעה לנקודת האיסוף ומחכה לך.` + (p.spot ? `\nנקודת איסוף: ${b(p.spot)}` : '') + (p.pkg ? `\nמספר חבילה: ${b(p.pkg)}` : '') + (p.trk ? `\nמספר פריט דואר: ${b(p.trk)}` : ''); };
 function noteHtml(o) { const p = noteParts(o), b = x => '<b class="mv">' + esc(x) + '</b>';
-  return `שלום ${esc(p.first)},<br>החבילה שלך מהוצאת הספרים TAKTIKA הגיעה לנקודת האיסוף ומחכה לך.` + (p.spot ? `<br>נקודת איסוף: ${b(p.spot)}` : '') + (p.pkg ? `<br>מספר חבילה: ${b(p.pkg)}` : '') + (p.trk ? `<br>מספר משלוח בדואר ישראל: ${b(p.trk)}` : ''); }
+  return `שלום ${esc(p.first)},<br>החבילה שלך מהוצאת הספרים TAKTIKA הגיעה לנקודת האיסוף ומחכה לך.` + (p.spot ? `<br>נקודת איסוף: ${b(p.spot)}` : '') + (p.pkg ? `<br>מספר חבילה: ${b(p.pkg)}` : '') + (p.trk ? `<br>מספר פריט דואר: ${b(p.trk)}` : ''); }
 window.noteField = function (el, k) { const box = el.closest('.order'), o = ORDERS.find(x => x.id === box.dataset.id); if (!o) return;
   o[k] = el.value; box.querySelector('.mPrev').innerHTML = noteHtml(o); edit(el, k); };
 /* (owner, 6.11.2026) the sales total on top */
