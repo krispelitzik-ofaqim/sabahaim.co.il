@@ -118,6 +118,9 @@ body{margin:0;background:var(--paper);color:var(--ink);
 .row input.track{width:190px}
 .row input.memo{flex:1;min-width:170px}
 /* (owner, 6.11.2026) a message to the customer: by phone / WhatsApp / SMS, sent ✓ or not ✗, and its text inside */
+.stats{margin:0 0 12px;background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px 14px}.stats summary{cursor:pointer;font-size:15px}
+.stats table{width:100%;border-collapse:collapse;margin-top:10px;font-size:14px}.stats th,.stats td{padding:7px 6px;border-bottom:1px solid var(--line);text-align:start}.stats input{width:90px;border:1px solid var(--line);border-radius:8px;padding:5px 8px;font:inherit}
+.srcRow{margin-top:12px;display:flex;gap:6px;align-items:center;flex-wrap:wrap}.srcRow b{font-size:13px}.srcRow .ch{border:1px solid var(--line);background:#fff;border-radius:999px;padding:5px 12px;font:inherit;font-size:13px;cursor:pointer}.srcRow .ch.on{background:#2E5B7E;color:#fff;border-color:#2E5B7E}
 .msgBox{margin-top:12px;border:1px solid var(--line);border-radius:12px;padding:10px}
 .msgBox .mTop{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
 .msgBox .mTop b{font-size:13px;margin-inline-end:4px}
@@ -307,6 +310,7 @@ code{background:var(--wash);padding:2px 6px;border-radius:6px;font-size:12px}
 
   <div class="wrap">
     <div class="note top" id="note"></div>
+    <details class="stats" id="stats"></details>
     <div class="filters" id="filters"></div>
     <div id="list"></div>
   </div>
@@ -450,7 +454,7 @@ const STATUS = [
   { k: 'sent',   he: 'נשלח' },
   { k: 'done',   he: 'נמסר' },
 ];
-let TOKEN = '', ORDERS = [], FILTER = 'all';
+let TOKEN = '', ORDERS = [], FILTER = 'all', META = {};
 
 const esc = s => String(s == null ? '' : s)
   .replace(/[&<>"]/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;' }[c]));
@@ -496,13 +500,14 @@ const waNum = p => {
 
 function paint(r) {
   if (r) {
-    ORDERS = r.orders || [];
+    ORDERS = r.orders || []; META = r.meta || {};
     document.getElementById('sync').textContent =
       r.syncedAt ? 'סונכרן ' + when(r.syncedAt) : 'עוד לא סונכרן';
     document.getElementById('note').innerHTML = r.hasKeys ? '' :
       'חסרים מפתחות PayPal בשרת. הוסיפו <code>PAYPAL_CLIENT_ID</code> ו-<code>PAYPAL_SECRET</code> ואז לחצו משיכה.';
   }
 
+  paintStats();
   const need = ORDERS.filter(o => !o.phone).length;
   const counts = { all: ORDERS.length, nophone: need };
   STATUS.forEach(s => counts[s.k] = ORDERS.filter(o => (o.status || 'new') === s.k).length);
@@ -574,6 +579,7 @@ function card(o) {
            href="${wa ? `https://wa.me/${wa}?text=${msg}` : '#'}">וואטסאפ</a>
         <span class="saved">נשמר</span>
       </div>
+      <div class="srcRow"><b>מקור:</b>${[['g','גוגל'],['f','פייסבוק'],['o','אחר']].map(c => `<button type="button" class="ch ${o.src === c[0] ? 'on' : ''}" onclick="setSrc(event,'${esc(o.id)}','${c[0]}')">${c[1]}</button>`).join('')}</div>
       <div class="msgBox">
         <div class="mTop"><b>תוכן ההודעה ללקוח</b><button type="button" class="ch" onclick="fillNote(event,this)">מילוי הודעת איסוף</button></div>
         <textarea placeholder="הדביקו כאן את נקודת האיסוף מהמעקב של הדואר, ואז לחצו &quot;מילוי הודעת איסוף&quot;" oninput="edit(this,'note')" onclick="event.stopPropagation()">${esc(o.note)}</textarea>
@@ -624,6 +630,28 @@ window.fillNote = function (ev, btn) {
   ta.value = `שלום ${first},\nהחבילה שלך מהוצאת הספרים TAKTIKA הגיעה לנקודת האיסוף ומחכה לך` + (spot ? `:\n${spot}` : '.') +
     (trk ? `\nמספר המשלוח: ${trk}` : '');
   edit(ta, 'note');
+};
+/* (owner, 6.11.2026) the sales summary on top: total, and leads from Google / Facebook / other, with the spend he types in */
+const SRC = [['g', 'גוגל', 'spendG'], ['f', 'פייסבוק', 'spendF'], ['o', 'אחר', 'spendO'], ['', 'לא סומן', '']];
+function paintStats() {
+  const el = document.getElementById('stats'); if (!el) return;
+  const wasOpen = el.open, sum = a => a.reduce((n, o) => n + (+o.amount || 0), 0), books = a => a.reduce((n, o) => n + (+o.qty || 1), 0);
+  const nis = n => '₪' + Math.round(n).toLocaleString('he-IL');
+  const spendAll = SRC.reduce((n, c) => n + (c[2] ? +META[c[2]] || 0 : 0), 0);
+  el.innerHTML = `<summary>סך מכירות: <b>${ORDERS.length}</b> הזמנות · <b>${books(ORDERS)}</b> ספרים · <b>${nis(sum(ORDERS))}</b>${spendAll ? ` · פרסום ${nis(spendAll)}` : ''}</summary>
+    <table><tr><th>מקור</th><th>הזמנות</th><th>הכנסה</th><th>הוצאה על פרסום</th><th>עלות להזמנה</th></tr>` +
+    SRC.map(c => { const a = ORDERS.filter(o => (o.src || '') === c[0]), sp = c[2] ? +META[c[2]] || 0 : 0;
+      return `<tr><td>${c[1]}</td><td>${a.length}</td><td>${nis(sum(a))}</td><td>${c[2] ? `<input inputmode="decimal" value="${esc(META[c[2]] || '')}" placeholder="₪" onchange="setSpend('${c[2]}',this.value)">` : ''}</td><td>${sp && a.length ? nis(sp / a.length) : ''}</td></tr>`; }).join('') + '</table>';
+  el.open = wasOpen;
+}
+window.setSpend = async function (k, v) { META[k] = String(v).replace(/[^\d.]/g, ''); paintStats(); document.getElementById('stats').open = true; await api('/api/orders/meta', { [k]: META[k] }).catch(() => {}); };
+window.setSrc = async function (ev, id, v) {
+  ev.stopPropagation();
+  const o = ORDERS.find(x => x.id === id); if (!o) return;
+  o.src = o.src === v ? '' : v;
+  const box = ev.target.closest('.srcRow'); box.querySelectorAll('.ch').forEach(b => b.classList.remove('on')); if (o.src) ev.target.classList.add('on');
+  paintStats();
+  await api('/api/orders/update', { id, src: o.src }).catch(() => {});
 };
 window.markSent = function (a) { const id = a.closest('.order').dataset.id, o = ORDERS.find(x => x.id === id); if (!o || o.msgOk === 'y') return; o.msgOk = 'y'; api('/api/orders/update', { id, msgOk: 'y' }).catch(() => {}); const c = a.closest('.order').querySelector('.chip[role=button]'); if (c) { c.className = 'chip y'; c.textContent = 'הודעה ✓'; } };
 window.cycleOk = async function (ev, id, k) {

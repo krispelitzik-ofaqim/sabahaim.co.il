@@ -1155,12 +1155,20 @@ app.post('/api/orders/import', async (req, res) => {
   }
 });
 
+/* (owner, 6.11.2026) the sales summary: ad spend per source, typed in by the owner */
+app.post('/api/orders/meta', (req, res) => {
+  if (!checkAdmin(req)) return res.status(401).json({ error: 'Unauthorized' });
+  const db = loadOrders(); db.meta = db.meta || {};
+  ['spendG', 'spendF', 'spendO'].forEach(k => { if (typeof req.body[k] === 'string') db.meta[k] = req.body[k].replace(/[^\d.]/g, '').slice(0, 12); });
+  saveOrders(db); res.json({ success: true, meta: db.meta });
+});
+
 app.post('/api/orders/update', (req, res) => {
   if (!checkAdmin(req)) return res.status(401).json({ error: 'Unauthorized' });
   const db = loadOrders();
   const o = db.orders.find(x => x.id === String(req.body.id || ''));
   if (!o) return res.status(404).json({ error: 'not found' });
-  ['phone', 'status', 'tracking', 'memo', 'printedAt', 'noteCh', 'noteOk', 'lblOk', 'phoneOk', 'msgOk'].forEach(k => {
+  ['phone', 'status', 'tracking', 'memo', 'printedAt', 'noteCh', 'noteOk', 'lblOk', 'phoneOk', 'msgOk', 'src'].forEach(k => {
     if (typeof req.body[k] === 'string') o[k] = req.body[k].slice(0, 300);
   });
   /* (owner, 6.11.2026) the message sent to the customer (e.g. the post office's pickup notice), longer than a field */
