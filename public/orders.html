@@ -544,8 +544,6 @@ function card(o) {
   const st = o.status || 'new';
   const wa = waNum(o.phone);
   const city = (o.address || '').split(',').map(x => x.trim()).filter(Boolean).slice(-2, -1)[0] || '';
-  const msg = encodeURIComponent(
-    `שלום ${o.name || ''}, כאן איציק — הצופן הסודי. הספר שלך יוצא אליך בימים הקרובים.`);
   const stHe = (STATUS.find(x => x.k === st) || {}).he || '';
 
   return `
@@ -577,8 +575,6 @@ function card(o) {
                oninput="edit(this,'tracking')">
         <input class="memo" placeholder="הערה" value="${esc(o.memo)}"
                oninput="edit(this,'memo')">
-        <a class="wa ${wa ? '' : 'off'}" target="_blank" rel="noopener"
-           href="${wa ? `https://wa.me/${wa}?text=${msg}` : '#'}">וואטסאפ</a>
         <span class="saved">נשמר</span>
       </div>
       <div class="msgBox">
