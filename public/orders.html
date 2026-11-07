@@ -584,7 +584,7 @@ function card(o) {
           <label>נקודת איסוף: <input class="spot" value="${esc(o.spot)}" oninput="noteField(this,'spot')" onclick="event.stopPropagation()"></label>
           <label>מספר חבילה: <input class="pkg" placeholder="למשל ח 50" value="${esc(o.pkg)}" oninput="noteField(this,'pkg')" onclick="event.stopPropagation()"></label>
         </div>
-        <div class="mSend">${wa ? `<a target="_blank" rel="noopener" href="#" onclick="event.stopPropagation();markSent(this);this.href='https://wa.me/${wa}?text='+encodeURIComponent(noteText(ORDERS.find(x=>x.id===this.closest('.order').dataset.id)))">שליחה בוואטסאפ</a><a href="#" onclick="event.stopPropagation();markSent(this);this.href='sms:${esc(o.phone)}?body='+encodeURIComponent(noteText(ORDERS.find(x=>x.id===this.closest('.order').dataset.id),1))">שליחה בהודעה</a>` : ''}</div>
+        <div class="mSend">${wa ? `<a href="#" onclick="autoWa(event,this,'me')">ניסיון אליי</a><a href="#" onclick="autoWa(event,this,'cust')">שליחה אוטומטית</a>`<a target="_blank" rel="noopener" href="#" onclick="event.stopPropagation();markSent(this);this.href='https://wa.me/${wa}?text='+encodeURIComponent(noteText(ORDERS.find(x=>x.id===this.closest('.order').dataset.id)))">שליחה בוואטסאפ</a><a href="#" onclick="event.stopPropagation();markSent(this);this.href='sms:${esc(o.phone)}?body='+encodeURIComponent(noteText(ORDERS.find(x=>x.id===this.closest('.order').dataset.id),1))">שליחה בהודעה</a>` : ''}</div>
       </div>
       <div class="row oneLbl">
         <button type="button" onclick="printOne(event,'${esc(o.id)}')">🏷 הדפסת מדבקה</button>
@@ -639,6 +639,12 @@ function paintStats() {
   const sum = ORDERS.reduce((n, o) => n + (+o.amount || 0), 0), books = ORDERS.reduce((n, o) => n + (+o.qty || 1), 0);
   el.innerHTML = 'סך מכירות: <b>' + ORDERS.length + '</b> הזמנות · <b>' + books + '</b> ספרים · <b>₪' + Math.round(sum).toLocaleString('he-IL') + '</b>';
 }
+window.autoWa = function (e, a, to) { e.preventDefault(); e.stopPropagation();
+  const id = a.closest('.order').dataset.id, o = ORDERS.find(x => x.id === id); if (!o) return;
+  if (to !== 'me' && !confirm('לשלוח את ההודעה ל' + (o.name || 'לקוח') + '?')) return;
+  const t = a.textContent; a.textContent = 'שולח…';
+  api('/api/orders/wa', { id, to, message: noteText(o) }).then(j => { a.textContent = j.success ? 'נשלח ✓' : 'לא נשלח'; if (j.success && to !== 'me') markSent(a); setTimeout(() => a.textContent = t, 4000); })
+    .catch(() => { a.textContent = 'לא נשלח'; setTimeout(() => a.textContent = t, 4000); }); };
 window.markSent = function (a) { const id = a.closest('.order').dataset.id, o = ORDERS.find(x => x.id === id); if (!o || o.msgOk === 'y') return; o.msgOk = 'y'; api('/api/orders/update', { id, msgOk: 'y' }).catch(() => {}); const c = a.closest('.order').querySelector('.chip[role=button]'); if (c) { c.className = 'chip y'; c.textContent = 'הודעה ✓'; } };
 window.cycleOk = async function (ev, id, k) {
   ev.stopPropagation();

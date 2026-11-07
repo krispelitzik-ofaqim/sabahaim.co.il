@@ -1177,6 +1177,20 @@ app.post('/api/orders/update', (req, res) => {
   res.json({ success: true, order: o });
 });
 
+/* (owner, 7.11.2026) the customer message sent straight from the orders page through the connected
+   WhatsApp (Green API): to the customer, or first as a test to the owner's own phone */
+app.post('/api/orders/wa', async (req, res) => {
+  if (!checkAdmin(req)) return res.status(401).json({ error: 'Unauthorized' });
+  const db = loadOrders();
+  const o = db.orders.find(x => x.id === String(req.body.id || ''));
+  const msg = String(req.body.message || '').slice(0, 2000);
+  if (!o || !msg) return res.status(400).json({ error: 'missing order or message' });
+  const to = req.body.to === 'me' ? process.env.ADMIN_PHONE : o.phone;
+  const ok = await sendWhatsApp(to, msg);
+  if (ok && req.body.to !== 'me') { o.msgOk = 'y'; saveOrders(db); }
+  res.json({ success: ok });
+});
+
 // API 404 — return proper JSON 404 for unknown /api/* routes
 // so they don't fall through to the SPA HTML fallback below.
 app.use('/api', (req, res) => {
