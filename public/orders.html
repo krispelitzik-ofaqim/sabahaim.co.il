@@ -622,7 +622,11 @@ window.setStatus = async function (ev, id, k) {
    what is typed in them shows in the message bold and blue (in WhatsApp: bold), with no link */
 const cleanSpot = v => String(v || '').replace(/\bicon\b/gi, ' ').replace(/\s+/g, ' ').trim();
 const firstName = o => String(o.name || '').replace(/,.*/, '').trim().split(/\s+/)[0] || '';
-function noteParts(o) { return { first: firstName(o), spot: cleanSpot(o.spot), pkg: String(o.pkg || '').trim(), trk: String(o.tracking || '').trim() }; }
+/* (owner, 7.11.2026) the package number has its own line: it is taken out of the pickup spot ("... ח 50") */
+function noteParts(o) { const pkg = String(o.pkg || '').trim(); let spot = cleanSpot(o.spot);
+  if (pkg) spot = spot.split(pkg).join(' ');
+  spot = spot.replace(/\s+ח\s*\d+\s*$/, '').replace(/\s+/g, ' ').trim();
+  return { first: firstName(o), spot, pkg, trk: String(o.tracking || '').trim() }; }
 window.noteText = function (o, plain) { if (!o) return ''; const p = noteParts(o), b = x => plain ? x : '*' + x + '*';
   return `שלום ${p.first},\nהחבילה שלך מהוצאת הספרים TAKTIKA הגיעה לנקודת האיסוף ומחכה לך.` + (p.spot ? `\nנקודת איסוף: ${b(p.spot)}` : '') + (p.pkg ? `\nמספר חבילה: ${b(p.pkg)}` : '') + (p.trk ? `\nמספר פריט דואר: ${b(p.trk)}` : ''); };
 function noteHtml(o) { const p = noteParts(o), b = x => '<b class="mv">' + esc(x) + '</b>';
