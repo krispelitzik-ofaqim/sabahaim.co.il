@@ -456,6 +456,8 @@ const STATUS = [
   { k: 'sent',   he: 'נשלח' },
   { k: 'done',   he: 'נמסר' },
 ];
+// the bare domain answers /api with a redirect to www, and a redirected request drops the password header
+if (location.hostname === 'sabahaim.co.il') location.replace('https://www.sabahaim.co.il' + location.pathname + location.search);
 let TOKEN = '', ORDERS = [], FILTER = 'all', META = {};
 
 const esc = s => String(s == null ? '' : s)
