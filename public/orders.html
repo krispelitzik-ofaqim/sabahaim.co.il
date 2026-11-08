@@ -586,7 +586,7 @@ function card(o) {
           <label>נקודת איסוף: <input class="spot" value="${esc(o.spot)}" oninput="noteField(this,'spot')" onclick="event.stopPropagation()"></label>
           <label>מספר חבילה: <input class="pkg" placeholder="למשל ח 50" value="${esc(o.pkg)}" oninput="noteField(this,'pkg')" onclick="event.stopPropagation()"></label>
         </div>
-        <div class="mSend">${wa ? `<a href="#" onclick="autoWa(event,this,'me')">ניסיון אליי</a><a href="#" onclick="autoWa(event,this,'cust')">שליחה אוטומטית</a>`<a target="_blank" rel="noopener" href="#" onclick="event.stopPropagation();markSent(this);this.href='https://wa.me/${wa}?text='+encodeURIComponent(noteText(ORDERS.find(x=>x.id===this.closest('.order').dataset.id)))">שליחה בוואטסאפ</a>` : ''}</div>
+        <div class="mSend">${wa ? `<a href="#" onclick="autoWa(event,this,'me')">ניסיון אליי</a><a href="#" onclick="autoWa(event,this,'cust')">שליחה אוטומטית</a><a target="_blank" rel="noopener" href="#" onclick="event.stopPropagation();markSent(this);this.href='https://wa.me/${wa}?text='+encodeURIComponent(noteText(ORDERS.find(x=>x.id===this.closest('.order').dataset.id)))">שליחה בוואטסאפ</a>` : ''}</div>
       </div>
       <div class="row oneLbl">
         <button type="button" onclick="printOne(event,'${esc(o.id)}')">🏷 הדפסת מדבקה</button>
