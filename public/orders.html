@@ -545,7 +545,8 @@ function paint(r) {
 function card(o) {
   const st = o.status || 'new';
   const wa = waNum(o.phone);
-  const city = (o.address || '').split(',').map(x => x.trim()).filter(Boolean).slice(-2, -1)[0] || '';
+  /* (owner, 9.11.2026) the city beside the name, read the same way as on the label (never the postal code) */
+  const city = splitAddress(o.address).city || '';
   const stHe = (STATUS.find(x => x.k === st) || {}).he || '';
 
   return `
