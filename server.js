@@ -385,6 +385,17 @@ app.post('/api/track', (req, res) => {
   lead.events.push({ event, timestamp: new Date().toISOString() });
   lead.lastEntry = new Date().toISOString();
 
+  /* (owner, 16.11.2026) "very important to me": a WhatsApp to Itzik the first time a reader opens the vault */
+  if (event === 'vault_opened' && !lead.vaultOpened) {
+    const codes = (loadCodes().codes || []), entry = codes.find(c => c.code === code) || {};
+    sendAdminWhatsApp(
+      `🏆 קורא פתח את הכספת!\n\n` +
+      (entry.reader ? `👤 ${entry.reader}\n` : '') +
+      `קוד: ${code}\n` +
+      (lead.phone ? `טלפון: ${lead.phone}\n` : '') +
+      `\n${new Date().toLocaleString('he-IL', { timeZone: 'Asia/Jerusalem' })}\n\n— הצופן הסודי`
+    ).catch(() => {});
+  }
   if (event === 'vault_opened') lead.vaultOpened = true;
   if (event === 'print_letter') lead.printedLetter = true;
   if (event === 'envelope_extracted') lead.printedLetter = true;
