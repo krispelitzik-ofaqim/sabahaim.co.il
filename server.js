@@ -744,7 +744,11 @@ app.get('/api/admin/leads', (req, res) => {
   // a random string. The name lives on the code because it is set before anyone
   // has entered — a lead only exists once they do.
   const codeMap = new Map(loadCodes().codes.map(c => [c.code, c.reader || '']));
-  leads = leads.map(l => Object.assign({}, l, { reader: codeMap.get(l.code) || '' }));
+  /* (owner, 16.11.2026) the buyer, when the phone typed at the gate matches an order's phone
+     (often it will not: a child may come in from his own phone while a parent bought) */
+  const d9 = v => String(v || '').replace(/\D/g, '').slice(-9);
+  const byPhone = new Map(); (loadOrders().orders || []).forEach(o => { const k = d9(o.phone); if (k.length === 9 && !byPhone.has(k)) byPhone.set(k, o.name || ''); });
+  leads = leads.map(l => Object.assign({}, l, { reader: codeMap.get(l.code) || '', buyer: byPhone.get(d9(l.phone)) || '' }));
   res.json({ success: true, leads });
 });
 

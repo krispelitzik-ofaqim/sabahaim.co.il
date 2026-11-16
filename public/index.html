@@ -2173,7 +2173,7 @@
             <th>נכנס לכספת</th>
             <th>הדפיס מכתב</th>
             <th>קיבל תעודה</th>
-            <th>הדפיס תעודה</th>
+            <th>רוכש (לפי טלפון)</th>
             <th>כניסה אחרונה</th>
             <th>פעולות</th>
           </tr></thead>
@@ -4621,7 +4621,7 @@ async function loadLeadsTab() {
         '<td style="text-align:center;">' + badge(l.vaultOpened) + '</td>' +
         '<td style="text-align:center;">' + badge(l.printedLetter) + '</td>' +
         '<td style="text-align:center;">' + badge(l.gotCertificate) + '</td>' +
-        '<td style="text-align:center;">' + badge(l.printedCertificate) + '</td>' +
+        '<td style="font-size:.8rem;">' + (l.buyer ? l.buyer.replace(/</g, '&lt;') : '<span style="color:#8a7e6a">לא נמצא</span>') + '</td>' +
         '<td style="font-size:0.7rem;color:#8a7e6a;">' + new Date(l.lastEntry).toLocaleString('he-IL') + '</td>' +
         '<td style="white-space:nowrap;">' +
           '<button class="admin-btn secondary" style="padding:4px 8px;font-size:0.7rem;margin:0 2px;" onclick="changeLeadStatus(\'' + l.code + '\',\'archived\')">ארכיון</button>' +
@@ -4637,12 +4637,12 @@ async function exportLeads() {
     var data = await res.json();
     var leads = (data && data.leads) || [];
     if (!leads.length) { alert('אין לידים לייצוא'); return; }
-    var headers = ['קוד כניסה','נייד','נכנס לכספת','הדפיס מכתב','קיבל תעודה','הדפיס תעודה','כניסה אחרונה'];
+    var headers = ['קוד כניסה','נייד','נכנס לכספת','הדפיס מכתב','קיבל תעודה','רוכש (לפי טלפון)','כניסה אחרונה'];
     function esc(v) { v = (v == null ? '' : String(v)); return '"' + v.replace(/"/g, '""') + '"'; }
     function yn(v) { return v ? 'כן' : 'לא'; }
     var rows = leads.map(function(l) {
       return [ l.code, l.phone || '', yn(l.vaultOpened), yn(l.printedLetter),
-        yn(l.gotCertificate), yn(l.printedCertificate),
+        yn(l.gotCertificate), l.buyer || '',
         l.lastEntry ? new Date(l.lastEntry).toLocaleString('he-IL') : '' ].map(esc).join(',');
     });
     var csv = '﻿' + [headers.map(esc).join(',')].concat(rows).join('\r\n');
