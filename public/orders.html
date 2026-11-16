@@ -575,15 +575,15 @@ function card(o) {
         <input class="phone" placeholder="טלפון" value="${esc(o.phone)}"
                oninput="edit(this,'phone')">
         <input class="track" placeholder="מספר מעקב" value="${esc(o.tracking)}"
-               oninput="edit(this,'tracking')">
+               oninput="edit(this,'tracking');(function(el){var b=el.closest('.order'),o=ORDERS.find(function(x){return x.id===b.dataset.id});if(o){o.tracking=el.value;b.querySelector('.mPrev').innerHTML=noteHtml(o)}})(this)">
         <input class="memo" placeholder="הערה" value="${esc(o.memo)}"
                oninput="edit(this,'memo')">
         <span class="saved">נשמר</span>
       </div>
       <div class="msgBox">
-        <div class="mTop"><b>תוכן ההודעה ללקוח</b></div>
+        <div class="mTop"><b>תוכן ההודעה ללקוח</b><button type="button" class="ch${kindOf(o) === 'ship' ? ' on' : ''}" onclick="setKind(event,this,'ship')">נשלחה בדואר</button><button type="button" class="ch${kindOf(o) === 'pickup' ? ' on' : ''}" onclick="setKind(event,this,'pickup')">ממתינה באיסוף</button></div>
         <div class="mPrev">${noteHtml(o)}</div>
-        <div class="spotRow">
+        <div class="spotRow"${kindOf(o) === 'ship' ? ' hidden' : ''}>
           <label>נקודת איסוף: <input class="spot" value="${esc(o.spot)}" oninput="noteField(this,'spot')" onclick="event.stopPropagation()"></label>
           <label>מספר חבילה: <input class="pkg" placeholder="למשל ח 50" value="${esc(o.pkg)}" oninput="noteField(this,'pkg')" onclick="event.stopPropagation()"></label>
         </div>
@@ -630,9 +630,16 @@ function noteParts(o) { const pkg = String(o.pkg || '').trim(); let spot = clean
   if (pkg) spot = spot.split(pkg).join(' ');
   spot = spot.replace(/\s+ח\s*\d+\s*$/, '').replace(/\s+/g, ' ').trim();
   return { first: firstName(o), spot, pkg, trk: String(o.tracking || '').trim() }; }
+/* (owner, 16.11.2026) two messages: "sent by Israel Post" with the tracking number, or "waiting at the pickup point" (not every parcel gets the second) */
+window.kindOf = o => o.kind || (o.spot || o.pkg ? 'pickup' : 'ship');
+window.setKind = function (e, el, k) { e.stopPropagation(); const box = el.closest('.order'), o = ORDERS.find(x => x.id === box.dataset.id); if (!o) return;
+  o.kind = k; box.querySelectorAll('.mTop .ch').forEach(b => b.classList.toggle('on', b === el)); box.querySelector('.spotRow').hidden = k === 'ship';
+  box.querySelector('.mPrev').innerHTML = noteHtml(o); api('/api/orders/update', { id: o.id, kind: k }).catch(() => {}); };
 window.noteText = function (o, plain) { if (!o) return ''; const p = noteParts(o), b = x => plain ? x : '*' + x + '*';
+  if (kindOf(o) === 'ship') return `שלום ${p.first},\nחבילה מהוצאת הספרים TAKTIKA נשלחה אליך באמצעות דואר ישראל.\nמס׳ החבילה למעקב: ${p.trk ? b(p.trk) : ''}\nניתן לעקוב אחר המשלוח בדואר ישראל.`;
   return `שלום ${p.first},\nהחבילה שלך מהוצאת הספרים TAKTIKA הגיעה לנקודת האיסוף ומחכה לך.` + (p.spot ? `\nנקודת איסוף: ${b(p.spot)}` : '') + (p.pkg ? `\nמספר חבילה: ${b(p.pkg)}` : '') + (p.trk ? `\nמספר פריט דואר: ${b(p.trk)}` : ''); };
 function noteHtml(o) { const p = noteParts(o), b = x => '<b class="mv">' + esc(x) + '</b>';
+  if (kindOf(o) === 'ship') return `שלום ${esc(p.first)},<br>חבילה מהוצאת הספרים TAKTIKA נשלחה אליך באמצעות דואר ישראל.<br>מס׳ החבילה למעקב: ${p.trk ? b(p.trk) : '<span style="color:#C0392B">חסר מספר מעקב</span>'}<br>ניתן לעקוב אחר המשלוח בדואר ישראל.`;
   return `שלום ${esc(p.first)},<br>החבילה שלך מהוצאת הספרים TAKTIKA הגיעה לנקודת האיסוף ומחכה לך.` + (p.spot ? `<br>נקודת איסוף: ${b(p.spot)}` : '') + (p.pkg ? `<br>מספר חבילה: ${b(p.pkg)}` : '') + (p.trk ? `<br>מספר פריט דואר: ${b(p.trk)}` : ''); }
 window.noteField = function (el, k) { const box = el.closest('.order'), o = ORDERS.find(x => x.id === box.dataset.id); if (!o) return;
   o[k] = el.value; box.querySelector('.mPrev').innerHTML = noteHtml(o); edit(el, k); };
