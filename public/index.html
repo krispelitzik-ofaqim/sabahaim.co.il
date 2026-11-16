@@ -4571,6 +4571,8 @@ async function loadLeadsTab() {
     if (statsData.success) {
       var s = statsData.stats;
       var items = [
+        { label: 'ספרים שנמכרו', value: s.booksSold || 0, color: '#e9c46a' },
+        { label: 'הזמנות', value: s.ordersCount || 0, color: '#e9c46a' },
         { label: 'כניסות עם קוד · מההשקה', value: s.siteEntries, color: '#00aaff' },
         { label: 'קודים שהופקו', value: s.codesGenerated, color: '#c9a84c' },
         { label: 'נכנסו לכספת', value: s.totalLeads, color: '#ff6b35' },

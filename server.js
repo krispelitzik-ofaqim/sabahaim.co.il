@@ -714,6 +714,9 @@ app.get('/api/admin/stats', (req, res) => {
     success: true,
     stats: {
       siteEntries: totalEvents['gate_entry'] || 0,
+      /* (owner, 16.11.2026) books sold, from the orders page */
+      ordersCount: (loadOrders().orders || []).length,
+      booksSold: (loadOrders().orders || []).reduce((n, o) => n + (+o.qty || 1), 0),
       codesGenerated: codes.length,
       masterCodes: masterCodes.length,
       enteredVault: activeLeads.filter(l => l.vaultOpened).length,
